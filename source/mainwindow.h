@@ -27,6 +27,7 @@ private:
     QChart *m_chart = nullptr;
     QLineSeries *m_series = nullptr;
     UartConfigDialog *m_uart_settings = nullptr;
+    QThread *m_data_processor_thread = nullptr;
 
     void init_data_processor(void);
 

@@ -51,25 +51,33 @@ MainWindow::MainWindow(QWidget *parent)
 
 MainWindow::~MainWindow()
 {
+    if ((m_data_processor_thread != nullptr) && (m_data_processor_thread->isRunning())) {
+        m_data_processor_thread->quit();
+
+        if (m_data_processor_thread->wait(1000)) {
+            m_data_processor_thread->terminate();
+            m_data_processor_thread->wait();
+        }
+
+        delete m_data_processor_thread;
+    }
     delete ui;
 }
 
 void MainWindow::init_data_processor(void)
 {
-    QThread *thread = new QThread;
+    m_data_processor_thread = new QThread();
     DataProcessor *data_processor = new DataProcessor;
 
-    data_processor->moveToThread(thread);
+    data_processor->moveToThread(m_data_processor_thread);
 
-    connect( thread, &QThread::started, data_processor, &DataProcessor::setup);
+    connect( m_data_processor_thread, &QThread::started, data_processor, &DataProcessor::setup);
 
     connect( data_processor, &DataProcessor::send_new_data, this, &MainWindow::receive_new_data);
 
-    connect( data_processor, &DataProcessor::finished, thread, &QThread::quit);
-    connect( data_processor, &DataProcessor::finished, data_processor, &DataProcessor::deleteLater);
-    connect( thread, &QThread::finished, thread, &QThread::deleteLater);
+    connect( m_data_processor_thread, &QThread::finished, data_processor, &DataProcessor::deleteLater);
 
-    thread->start();
+    m_data_processor_thread->start();
 }
 
 void MainWindow::receive_new_data(const QList<GraphData> &new_data)

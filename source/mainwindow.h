@@ -2,6 +2,7 @@
 #define MAINWINDOW_H
 
 #include "uartconfigdialog.h"
+#include "dataprocessor.h"
 
 #include <QMainWindow>
 #include <QChart>
@@ -26,5 +27,10 @@ private:
     QChart *m_chart = nullptr;
     QLineSeries *m_series = nullptr;
     UartConfigDialog *m_uart_settings = nullptr;
+
+    void init_data_processor(void);
+
+private slots:
+    void receive_new_data(const QList<GraphData> &new_data);
 };
 #endif // MAINWINDOW_H

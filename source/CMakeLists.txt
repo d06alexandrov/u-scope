@@ -1,4 +1,6 @@
 qt_add_executable(u-scope
+    dataprocessor.cpp
+    dataprocessor.h
     main.cpp
     mainwindow.cpp
     mainwindow.h

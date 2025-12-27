@@ -61,7 +61,7 @@ void MainWindow::init_data_processor(void)
 
     data_processor->moveToThread(thread);
 
-    connect( thread, &QThread::started, data_processor, &DataProcessor::process);
+    connect( thread, &QThread::started, data_processor, &DataProcessor::setup);
 
     connect( data_processor, &DataProcessor::send_new_data, this, &MainWindow::receive_new_data);
 

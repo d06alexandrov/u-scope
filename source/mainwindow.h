@@ -26,6 +26,7 @@ private:
     Ui::MainWindow *ui = nullptr;
     QChart *m_chart = nullptr;
     QLineSeries *m_series = nullptr;
+    QLineSeries *m_series2 = nullptr;
     UartConfigDialog *m_uart_settings = nullptr;
     QThread *m_data_processor_thread = nullptr;
 

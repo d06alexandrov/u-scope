@@ -1,10 +1,13 @@
 #pragma once
 
+#include "SerialReader.h"
+
 #include <QObject>
 #include <QList>
 #include <QPointF>
 #include <QString>
 #include <QTimer>
+#include <QMap>
 
 class GraphData {
 public:
@@ -33,7 +36,8 @@ public:
 
     const QString& get_name(void) const {
         return name;
-    };
+    }
+
     const QList<QPointF>& get_values(void) const {
         return values;
     }
@@ -48,9 +52,11 @@ class DataProcessor: public QObject
 
 public:
     explicit DataProcessor(QObject *parent = nullptr);
+    ~DataProcessor();
 
 public slots:
     void setup(void);
+    void receive_data(uint64_t variable_id, const QList<QPointF> &new_data);
 
 private slots:
     void process(void);
@@ -60,5 +66,13 @@ signals:
     void finished(void);
 
 private:
+    class DataSender {
+    public:
+        QThread *thread = nullptr;
+        SerialReader *sender = nullptr;
+    };
+
     QTimer* m_timer = nullptr;
+    QMap<uint64_t, DataSender> m_senders;
+    QMap<uint64_t, QVector<QPointF>> m_buffers;
 };

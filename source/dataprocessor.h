@@ -1,6 +1,6 @@
 #pragma once
 
-#include "SerialReader.h"
+#include "serialreader.h"
 
 #include <QList>
 #include <QMap>

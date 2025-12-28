@@ -1,5 +1,5 @@
 #include "dataprocessor.h"
-#include "SerialReader.h"
+#include "serialreader.h"
 
 #include <QThread>
 #include <cmath>

@@ -1,4 +1,4 @@
-#include "SerialReader.h"
+#include "serialreader.h"
 
 #include <iostream>
 

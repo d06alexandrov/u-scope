@@ -3,17 +3,17 @@
 #include <iostream>
 
 SerialReader::SerialReader(QObject *parent)
-    : QObject{parent}
+    : QObject{ parent }
     , m_serial(new QSerialPort(this))
 {
-    // TODO: move timer to DataProcessor, so it could be usedby multiple readers
+    // TODO: move timer to DataProcessor, so it could be usedby multiple
+    // readers
     m_elapsed_timer = new QElapsedTimer;
 }
 
 SerialReader::~SerialReader()
 {
-    if (m_serial->isOpen())
-    {
+    if (m_serial->isOpen()) {
         m_serial->close();
     }
 }
@@ -31,7 +31,7 @@ void SerialReader::setup()
 
     connect(m_serial, &QSerialPort::readyRead, this, &SerialReader::data_received);
 
-    if(m_serial->open(QIODevice::ReadOnly)) {
+    if (m_serial->open(QIODevice::ReadOnly)) {
         std::cout << "Opened" << std::endl;
     } else {
         std::cout << "Can not open" << std::endl;

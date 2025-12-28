@@ -5,13 +5,13 @@
 #include <cmath>
 
 DataProcessor::DataProcessor(QObject *parent)
-    : QObject{parent}
+    : QObject{ parent }
 {
 }
 
 DataProcessor::~DataProcessor()
 {
-    for (auto& x : m_senders) {
+    for (auto &x : m_senders) {
         if ((x.thread != nullptr) && (x.thread->isRunning())) {
             x.thread->quit();
 
@@ -23,7 +23,8 @@ DataProcessor::~DataProcessor()
     }
 }
 
-void DataProcessor::setup(void) {
+void DataProcessor::setup(void)
+{
     DataSender new_sender;
 
     new_sender.thread = new QThread;
@@ -51,8 +52,9 @@ void DataProcessor::receive_data(uint64_t variable_id, const QList<QPointF> &new
     }
 }
 
-void DataProcessor::process(void) {
-    static unsigned int counter = 0;    
+void DataProcessor::process(void)
+{
+    static unsigned int counter = 0;
 
     QList<GraphData> new_data;
     QList<QPointF> values;

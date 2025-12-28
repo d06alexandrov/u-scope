@@ -1,12 +1,12 @@
 #include "mainwindow.h"
-#include "ui_mainwindow.h"
-#include "uartconfigdialog.h"
 #include "dataprocessor.h"
+#include "uartconfigdialog.h"
+#include "ui_mainwindow.h"
 
 #include <QChart>
 #include <QLineSeries>
-#include <QValueAxis>
 #include <QThread>
+#include <QValueAxis>
 
 MainWindow::MainWindow(QWidget *parent)
     : QMainWindow(parent)
@@ -78,11 +78,12 @@ void MainWindow::init_data_processor(void)
 
     data_processor->moveToThread(m_data_processor_thread);
 
-    connect( m_data_processor_thread, &QThread::started, data_processor, &DataProcessor::setup);
+    connect(m_data_processor_thread, &QThread::started, data_processor, &DataProcessor::setup);
 
-    connect( data_processor, &DataProcessor::send_new_data, this, &MainWindow::receive_new_data);
+    connect(data_processor, &DataProcessor::send_new_data, this, &MainWindow::receive_new_data);
 
-    connect( m_data_processor_thread, &QThread::finished, data_processor, &DataProcessor::deleteLater);
+    connect(m_data_processor_thread, &QThread::finished, data_processor,
+            &DataProcessor::deleteLater);
 
     m_data_processor_thread->start();
 }

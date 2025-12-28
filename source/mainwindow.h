@@ -1,12 +1,12 @@
 #ifndef MAINWINDOW_H
 #define MAINWINDOW_H
 
-#include "uartconfigdialog.h"
 #include "dataprocessor.h"
+#include "uartconfigdialog.h"
 
-#include <QMainWindow>
 #include <QChart>
 #include <QLineSeries>
+#include <QMainWindow>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

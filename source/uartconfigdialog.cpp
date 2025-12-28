@@ -12,8 +12,8 @@ UartConfigDialog::UartConfigDialog(QWidget *parent)
     fillInterfaceList();
     updateInterfaceDescription();
 
-    connect(ui->interfaceListBox, &QComboBox::currentIndexChanged,
-            this, &UartConfigDialog::updateInterfaceDescription);
+    connect(ui->interfaceListBox, &QComboBox::currentIndexChanged, this,
+            &UartConfigDialog::updateInterfaceDescription);
 }
 
 void UartConfigDialog::showEvent(QShowEvent *event)
@@ -51,7 +51,8 @@ void UartConfigDialog::fillInterfaceList()
     }
 }
 
-void UartConfigDialog::updateInterfaceDescription() {
+void UartConfigDialog::updateInterfaceDescription()
+{
     const int current_index = ui->interfaceListBox->currentIndex();
     const auto parameters = ui->interfaceListBox->itemData(current_index).toMap();
 

@@ -2,31 +2,36 @@
 
 #include "SerialReader.h"
 
-#include <QObject>
 #include <QList>
+#include <QMap>
+#include <QObject>
 #include <QPointF>
 #include <QString>
 #include <QTimer>
-#include <QMap>
 
-class GraphData {
+class GraphData
+{
 public:
     GraphData(QString name, QList<QPointF> values)
-    : name(std::move(name))
-    , values(std::move(values)) {
+        : name(std::move(name))
+        , values(std::move(values))
+    {
     }
 
-    GraphData(const GraphData& other)
-    : name(other.name)
-    , values(other.values) {
+    GraphData(const GraphData &other)
+        : name(other.name)
+        , values(other.values)
+    {
     }
 
-    GraphData(GraphData&& other) noexcept
-    : name(std::move(other.name))
-    , values(std::move(other.values)) {
+    GraphData(GraphData &&other) noexcept
+        : name(std::move(other.name))
+        , values(std::move(other.values))
+    {
     }
 
-    GraphData& operator=(GraphData&& other) noexcept {
+    GraphData &operator=(GraphData &&other) noexcept
+    {
         if (this != &other) {
             name = std::move(other.name);
             values = std::move(other.values);
@@ -34,19 +39,16 @@ public:
         return *this;
     }
 
-    const QString& get_name(void) const {
-        return name;
-    }
+    const QString &get_name(void) const { return name; }
 
-    const QList<QPointF>& get_values(void) const {
-        return values;
-    }
+    const QList<QPointF> &get_values(void) const { return values; }
+
 private:
     QString name;
     QList<QPointF> values;
 };
 
-class DataProcessor: public QObject
+class DataProcessor : public QObject
 {
     Q_OBJECT
 
@@ -66,13 +68,14 @@ signals:
     void finished(void);
 
 private:
-    class DataSender {
+    class DataSender
+    {
     public:
         QThread *thread = nullptr;
         SerialReader *sender = nullptr;
     };
 
-    QTimer* m_timer = nullptr;
+    QTimer *m_timer = nullptr;
     QMap<uint64_t, DataSender> m_senders;
     QMap<uint64_t, QVector<QPointF>> m_buffers;
 };

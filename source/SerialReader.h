@@ -1,13 +1,13 @@
 #pragma once
 
-#include <QObject>
-#include <QSerialPort>
 #include <QElapsedTimer>
-#include <QPointF>
 #include <QList>
+#include <QObject>
+#include <QPointF>
+#include <QSerialPort>
 #include <QTimer>
 
-class SerialReader: public QObject
+class SerialReader : public QObject
 {
     Q_OBJECT
 
@@ -24,9 +24,9 @@ signals:
     void send_data(uint64_t variable_id, const QList<QPointF> &new_data);
 
 private:
-    QTimer* m_timer = nullptr;
-    QSerialPort* m_serial = nullptr;
-    QElapsedTimer* m_elapsed_timer = nullptr;
+    QTimer *m_timer = nullptr;
+    QSerialPort *m_serial = nullptr;
+    QElapsedTimer *m_elapsed_timer = nullptr;
 
-    QList<QPointF> m_buffer; 
+    QList<QPointF> m_buffer;
 };

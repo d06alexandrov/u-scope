@@ -1,14 +1,12 @@
 #include "serialreader.h"
+#include "dataprocessor.h"
 
 #include <iostream>
 
-SerialReader::SerialReader(QObject *parent)
-    : QObject{ parent }
+SerialReader::SerialReader(uint64_t id, DataProcessor *processor)
+    : UniversalReader{ id, processor }
     , m_serial(new QSerialPort(this))
 {
-    // TODO: move timer to DataProcessor, so it could be usedby multiple
-    // readers
-    m_elapsed_timer = new QElapsedTimer;
 }
 
 SerialReader::~SerialReader()
@@ -20,8 +18,6 @@ SerialReader::~SerialReader()
 
 void SerialReader::setup()
 {
-    m_elapsed_timer->start();
-
     m_serial->setPortName("/dev/pts/3");
     m_serial->setBaudRate(QSerialPort::Baud115200);
     m_serial->setDataBits(QSerialPort::Data8);
@@ -46,15 +42,17 @@ void SerialReader::data_received()
 {
     const QByteArray new_data = m_serial->readAll();
 
-    qreal timestamp = m_elapsed_timer->nsecsElapsed() / 1000000000.0;
+    const auto timestamp = DataProcessor::get_timestamp();
 
     for (auto x : new_data) {
-        m_buffer.push_back(QPointF(timestamp, x));
+        m_buffer[0].push_back(DataProcessor::DataPoint(timestamp, x));
     }
 }
 
 void SerialReader::process()
 {
-    emit send_data(0, m_buffer);
-    m_buffer.clear();
+    if (!m_buffer.isEmpty()) {
+        m_data_processor->add_variables_data(0, m_buffer);
+        m_buffer.clear();
+    }
 }

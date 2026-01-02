@@ -10,6 +10,8 @@ qt_add_executable(u-scope
     uartconfigdialog.ui
     serialreader.cpp
     serialreader.h
+    universalreader.cpp
+    universalreader.h
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Charts SerialPort)

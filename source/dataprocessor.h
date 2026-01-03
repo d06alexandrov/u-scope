@@ -68,9 +68,6 @@ public:
 
 public slots:
     void setup(void);
-    void receive_data(uint64_t variable_id, const QList<QPointF> &new_data);
-
-private slots:
     void process(void);
 
 signals:
@@ -90,6 +87,9 @@ private:
             nullptr; /**< Timer to execute processing function and send data to graph Widget. */
     QMap<uint64_t, DataSenderInfo>
             m_senders; /**< Initialized data senders. Sender is is used as a key. */
+    QMap<uint64_t, QList<DataPoint>> m_in_buffers; /**< Buffers where senders store the data.
+                                                     Buffer (variable) id is used as a key. Sender
+                                                     Mutex is used for a thread-safety. */
     QMap<uint64_t, QVector<DataPoint>> m_buffers; /**< Buffers to store raw data from senders.
                                                      Buffer (variable) id is used as a key. */
     QMap<uint64_t, uint64_t> m_buffer_to_sender; /**< Buffer id and to sender id correspondence. */

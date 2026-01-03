@@ -33,11 +33,7 @@ void DataProcessor::add_variables_data(uint64_t sender_id, QMap<uint64_t, QList<
         QMutexLocker locker(sender_info.buffer_mutex.get());
 
         for (auto [variable_id, new_data] : data.asKeyValueRange()) {
-            m_buffers[variable_id].append(std::move(new_data));
-
-            if (m_buffers[variable_id].size() > 100) {
-                m_buffers[variable_id].remove(0, m_buffers[variable_id].size() - 100);
-            }
+            m_in_buffers[variable_id].append(std::move(new_data));
         }
     }
 }
@@ -58,24 +54,18 @@ void DataProcessor::setup(void)
     new_sender.buffer_mutex = std::make_shared<QMutex>();
 
     new_sender.sender->moveToThread(new_sender.thread);
-    connect(new_sender.thread, &QThread::started, new_sender.sender, &UniversalReader::setup);
+    connect(new_sender.thread, &QThread::started, new_sender.sender,
+            &UniversalReader::reader_setup);
     connect(new_sender.thread, &QThread::finished, new_sender.sender, &QObject::deleteLater);
     connect(new_sender.thread, &QThread::finished, new_sender.thread, &QObject::deleteLater);
     new_sender.thread->start();
 
     m_senders.insert(0, std::move(new_sender));
+    m_buffer_to_sender[0] = 0;
 
     m_timer = new QTimer(this);
     connect(m_timer, &QTimer::timeout, this, &DataProcessor::process);
     m_timer->start(30);
-}
-
-void DataProcessor::receive_data(uint64_t variable_id, const QList<QPointF> &new_data)
-{
-    //    m_buffers[variable_id].append(std::move(new_data));
-    if (m_buffers[variable_id].size() > 100) {
-        m_buffers[variable_id].remove(0, m_buffers[variable_id].size() - 100);
-    }
 }
 
 void DataProcessor::process(void)
@@ -89,14 +79,29 @@ void DataProcessor::process(void)
         values.emplace_back(i, sin(((i * 720.0) / 100 + counter) * M_PI / 180) * 10);
     }
 
-    QList<QPointF> values2;
+    for (uint64_t var_id = 0; var_id < 1; var_id++) {
+        QList<QPointF> processed_values;
+        QList<DataPoint> in_data;
 
-    for (int i = 0; i < m_buffers[0].size(); i++) {
-        const auto val = std::get<int32_t>(m_buffers[0].at(i).second);
-        values2.emplace_back(i, val);
+        auto &sender_info = m_senders[m_buffer_to_sender[var_id]];
+        if (sender_info.buffer_mutex) {
+            QMutexLocker locker(sender_info.buffer_mutex.get());
+            std::swap(in_data, m_in_buffers[var_id]);
+        }
+
+        m_buffers[var_id].append(std::move(in_data));
+
+        if (m_buffers[var_id].size() > 101) {
+            m_buffers[var_id].remove(0, m_buffers[var_id].size() - 101);
+        }
+
+        for (int i = 0; i < m_buffers[var_id].size(); i++) {
+            const auto val = std::get<int32_t>(m_buffers[var_id].at(i).second);
+            processed_values.emplace_back(i, val);
+        }
+
+        new_data.emplace_back(QString("Test data2"), std::move(processed_values));
     }
-
-    new_data.emplace_back(QString("Test data1"), std::move(values2));
 
     new_data.emplace_back(QString("Test data"), std::move(values));
 

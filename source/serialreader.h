@@ -20,11 +20,12 @@ public:
     ~SerialReader();
 
 public slots:
-    void setup() override;
     void data_received();
-    void process();
 
 private:
-    QTimer *m_timer = nullptr;
     QSerialPort *m_serial = nullptr;
+
+protected:
+    void setup() override;
+    void process() override;
 };

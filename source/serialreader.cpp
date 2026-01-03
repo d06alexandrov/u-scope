@@ -32,10 +32,6 @@ void SerialReader::setup()
     } else {
         std::cout << "Can not open" << std::endl;
     }
-
-    m_timer = new QTimer(this);
-    connect(m_timer, &QTimer::timeout, this, &SerialReader::process);
-    m_timer->start(10);
 }
 
 void SerialReader::data_received()
@@ -49,10 +45,4 @@ void SerialReader::data_received()
     }
 }
 
-void SerialReader::process()
-{
-    if (!m_buffer.isEmpty()) {
-        m_data_processor->add_variables_data(0, m_buffer);
-        m_buffer.clear();
-    }
-}
+void SerialReader::process() { }

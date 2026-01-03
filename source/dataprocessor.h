@@ -75,9 +75,8 @@ signals:
     void finished(void);
 
 private:
-    class DataSenderInfo
+    struct DataSenderInfo
     {
-    public:
         QThread *thread = nullptr;
         UniversalReader *sender = nullptr;
         std::shared_ptr<QMutex> buffer_mutex = nullptr;

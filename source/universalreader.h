@@ -7,15 +7,20 @@
 
 struct UniversalReaderConfig
 {
-    virtual ~UniversalReaderConfig();
+    ~UniversalReaderConfig() = default;
+    uint32_t update_period_ms; /**< Period in ms of sending data to data processor */
 };
 
+/**
+ * @brief Class that provides an unified way to create different data readers.
+ */
 class UniversalReader : public QObject
 {
     Q_OBJECT
 
 public:
-    explicit UniversalReader(uint64_t id, DataProcessor *processor);
+    explicit UniversalReader(uint64_t id, DataProcessor *processor,
+                             std::shared_ptr<UniversalReaderConfig> config);
     UniversalReader(const UniversalReader &processor) = delete;
     UniversalReader(UniversalReader &&processor) = delete;
 
@@ -25,12 +30,15 @@ public:
     UniversalReader &operator=(UniversalReader &&other) = delete;
 
 public slots:
-    void reader_setup();
-    void reader_process();
+    void reader_setup(); /**< Initialize common part of a reader and call setup method to initialize
+                            specific readers. */
+    void reader_process(); /**< Periodic function that calls process method and sends data to the
+                              data processor. */
 
 protected:
     uint64_t m_id = 0; /**< ID of the reader. */
     DataProcessor *m_data_processor = nullptr; /**< Pointer to the DataProcessor. */
+    std::shared_ptr<UniversalReaderConfig> m_config; /**< Reader configuration */
     QTimer *m_timer = nullptr; /**< Pointer to the timer for the periodical call of the
                                   reader_process maethod. */
 

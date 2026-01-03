@@ -47,11 +47,18 @@ DataProcessor::DataTime DataProcessor::get_timestamp()
 
 void DataProcessor::setup(void)
 {
-    DataSenderInfo new_sender;
+    auto config = std::make_shared<SerialReaderConfig>();
+    config->port_name = QString("/dev/pts/3");
+    config->baud_rate = 115200;
+    config->data_bits = QSerialPort::Data8;
+    config->parity = QSerialPort::OddParity;
+    config->stop_bits = QSerialPort::OneStop;
+    config->flow_control = QSerialPort::NoFlowControl;
 
-    new_sender.thread = new QThread;
-    new_sender.sender = new SerialReader(0, this);
-    new_sender.buffer_mutex = std::make_shared<QMutex>();
+    config->update_period_ms = 10;
+
+    DataSenderInfo new_sender{ new QThread(), new SerialReader(0, this, std::move(config)),
+                               std::make_shared<QMutex>() };
 
     new_sender.sender->moveToThread(new_sender.thread);
     connect(new_sender.thread, &QThread::started, new_sender.sender,

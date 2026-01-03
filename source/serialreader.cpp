@@ -3,8 +3,9 @@
 
 #include <iostream>
 
-SerialReader::SerialReader(uint64_t id, DataProcessor *processor)
-    : UniversalReader{ id, processor }
+SerialReader::SerialReader(uint64_t id, DataProcessor *processor,
+                           std::shared_ptr<SerialReaderConfig> config)
+    : UniversalReader{ id, processor, config }
     , m_serial(new QSerialPort(this))
 {
 }
@@ -16,24 +17,6 @@ SerialReader::~SerialReader()
     }
 }
 
-void SerialReader::setup()
-{
-    m_serial->setPortName("/dev/pts/3");
-    m_serial->setBaudRate(QSerialPort::Baud115200);
-    m_serial->setDataBits(QSerialPort::Data8);
-    m_serial->setParity(QSerialPort::OddParity);
-    m_serial->setStopBits(QSerialPort::OneStop);
-    m_serial->setFlowControl(QSerialPort::NoFlowControl);
-
-    connect(m_serial, &QSerialPort::readyRead, this, &SerialReader::data_received);
-
-    if (m_serial->open(QIODevice::ReadOnly)) {
-        std::cout << "Opened" << std::endl;
-    } else {
-        std::cout << "Can not open" << std::endl;
-    }
-}
-
 void SerialReader::data_received()
 {
     const QByteArray new_data = m_serial->readAll();
@@ -42,6 +25,30 @@ void SerialReader::data_received()
 
     for (auto x : new_data) {
         m_buffer[0].push_back(DataProcessor::DataPoint(timestamp, x));
+    }
+}
+
+SerialReaderConfig *SerialReader::get_config()
+{
+    return static_cast<SerialReaderConfig *>(m_config.get());
+}
+
+void SerialReader::setup()
+{
+    m_serial->setPortName(get_config()->port_name);
+    m_serial->setBaudRate(get_config()->baud_rate);
+    m_serial->setDataBits(get_config()->data_bits);
+    m_serial->setParity(get_config()->parity);
+    m_serial->setStopBits(get_config()->stop_bits);
+    m_serial->setFlowControl(get_config()->flow_control);
+
+    connect(m_serial, &QSerialPort::readyRead, this, &SerialReader::data_received);
+
+    /* TODO: remove console output */
+    if (m_serial->open(QIODevice::ReadOnly)) {
+        std::cout << "Opened" << std::endl;
+    } else {
+        std::cout << "Can not open" << std::endl;
     }
 }
 

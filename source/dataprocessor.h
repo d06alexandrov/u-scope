@@ -55,7 +55,7 @@ class DataProcessor : public QObject
     Q_OBJECT
 
 public:
-    using DataVariant = std::variant<int32_t, double>;
+    using DataVariant = std::variant<char, int32_t, double>;
     using DataTime = uint64_t;
     using DataPoint = QPair<DataTime, DataVariant>;
 

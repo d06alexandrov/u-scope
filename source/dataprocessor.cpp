@@ -103,7 +103,7 @@ void DataProcessor::process(void)
         }
 
         for (int i = 0; i < m_buffers[var_id].size(); i++) {
-            const auto val = std::get<int32_t>(m_buffers[var_id].at(i).second);
+            const auto val = std::get<char>(m_buffers[var_id].at(i).second);
             processed_values.emplace_back(i, val);
         }
 
@@ -113,8 +113,6 @@ void DataProcessor::process(void)
     new_data.emplace_back(QString("Test data"), std::move(values));
 
     emit send_new_data(new_data);
-
-    QThread::msleep(40);
 
     counter = (counter + 1) % 360;
 }

@@ -7,7 +7,7 @@
 
 struct UniversalReaderConfig
 {
-    ~UniversalReaderConfig() = default;
+    virtual ~UniversalReaderConfig() = default;
     uint32_t update_period_ms; /**< Period in ms of sending data to data processor */
 };
 
@@ -42,7 +42,7 @@ protected:
     QTimer *m_timer = nullptr; /**< Pointer to the timer for the periodical call of the
                                   reader_process maethod. */
 
-    QMap<uint64_t, QVector<DataProcessor::DataPoint>>
+    QMap<uint64_t, QList<DataProcessor::DataPoint>>
             m_buffer; /**< Buffer to store received data before it is sent to the data processor. */
 
     virtual void setup() = 0; /**< Initialization of a particular type of the reader. Called

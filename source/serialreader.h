@@ -1,5 +1,7 @@
 #pragma once
 
+#include "universalreader.h"
+
 #include <QElapsedTimer>
 #include <QList>
 #include <QObject>
@@ -7,26 +9,36 @@
 #include <QSerialPort>
 #include <QTimer>
 
-class SerialReader : public QObject
+class DataProcessor;
+
+struct SerialReaderConfig : UniversalReaderConfig
+{
+    QString port_name;
+    int32_t baud_rate;
+    QSerialPort::DataBits data_bits;
+    QSerialPort::Parity parity;
+    QSerialPort::StopBits stop_bits;
+    QSerialPort::FlowControl flow_control;
+};
+
+class SerialReader : public UniversalReader
 {
     Q_OBJECT
 
 public:
-    explicit SerialReader(QObject *parent = nullptr);
+    explicit SerialReader(uint64_t id, DataProcessor *processor,
+                          std::shared_ptr<SerialReaderConfig> config);
     ~SerialReader();
 
 public slots:
-    void setup();
     void data_received();
-    void process();
-
-signals:
-    void send_data(uint64_t variable_id, const QList<QPointF> &new_data);
 
 private:
-    QTimer *m_timer = nullptr;
     QSerialPort *m_serial = nullptr;
-    QElapsedTimer *m_elapsed_timer = nullptr;
 
-    QList<QPointF> m_buffer;
+    SerialReaderConfig *get_config();
+
+protected:
+    void setup() override;
+    void process() override;
 };

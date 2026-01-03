@@ -1,14 +1,13 @@
 #include "serialreader.h"
+#include "dataprocessor.h"
 
 #include <iostream>
 
-SerialReader::SerialReader(QObject *parent)
-    : QObject{ parent }
+SerialReader::SerialReader(uint64_t id, DataProcessor *processor,
+                           std::shared_ptr<SerialReaderConfig> config)
+    : UniversalReader{ id, processor, config }
     , m_serial(new QSerialPort(this))
 {
-    // TODO: move timer to DataProcessor, so it could be usedby multiple
-    // readers
-    m_elapsed_timer = new QElapsedTimer;
 }
 
 SerialReader::~SerialReader()
@@ -18,43 +17,39 @@ SerialReader::~SerialReader()
     }
 }
 
+void SerialReader::data_received()
+{
+    const QByteArray new_data = m_serial->readAll();
+
+    const auto timestamp = DataProcessor::get_timestamp();
+
+    for (auto x : new_data) {
+        m_buffer[0].push_back(DataProcessor::DataPoint(timestamp, x));
+    }
+}
+
+SerialReaderConfig *SerialReader::get_config()
+{
+    return static_cast<SerialReaderConfig *>(m_config.get());
+}
+
 void SerialReader::setup()
 {
-    m_elapsed_timer->start();
-
-    m_serial->setPortName("/dev/pts/3");
-    m_serial->setBaudRate(QSerialPort::Baud115200);
-    m_serial->setDataBits(QSerialPort::Data8);
-    m_serial->setParity(QSerialPort::OddParity);
-    m_serial->setStopBits(QSerialPort::OneStop);
-    m_serial->setFlowControl(QSerialPort::NoFlowControl);
+    m_serial->setPortName(get_config()->port_name);
+    m_serial->setBaudRate(get_config()->baud_rate);
+    m_serial->setDataBits(get_config()->data_bits);
+    m_serial->setParity(get_config()->parity);
+    m_serial->setStopBits(get_config()->stop_bits);
+    m_serial->setFlowControl(get_config()->flow_control);
 
     connect(m_serial, &QSerialPort::readyRead, this, &SerialReader::data_received);
 
+    /* TODO: remove console output */
     if (m_serial->open(QIODevice::ReadOnly)) {
         std::cout << "Opened" << std::endl;
     } else {
         std::cout << "Can not open" << std::endl;
     }
-
-    m_timer = new QTimer(this);
-    connect(m_timer, &QTimer::timeout, this, &SerialReader::process);
-    m_timer->start(10);
 }
 
-void SerialReader::data_received()
-{
-    const QByteArray new_data = m_serial->readAll();
-
-    qreal timestamp = m_elapsed_timer->nsecsElapsed() / 1000000000.0;
-
-    for (auto x : new_data) {
-        m_buffer.push_back(QPointF(timestamp, x));
-    }
-}
-
-void SerialReader::process()
-{
-    emit send_data(0, m_buffer);
-    m_buffer.clear();
-}
+void SerialReader::process() { }

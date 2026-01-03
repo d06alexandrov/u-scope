@@ -31,7 +31,7 @@ MainWindow::MainWindow(QWidget *parent)
     axisY->setRange(-10, 10);
     axisY->setTitleText("Value");
     auto axisY2 = new QValueAxis;
-    axisY2->setRange(0, 256);
+    axisY2->setRange(-129, 128);
     axisY2->setTitleText("Value2");
 
     m_chart->addAxis(axisX, Qt::AlignBottom);

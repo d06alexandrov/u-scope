@@ -1,11 +1,11 @@
 #pragma once
 
-#include "serialreader.h"
-
 #include <QList>
 #include <QMap>
+#include <QMutex>
 #include <QObject>
 #include <QPointF>
+#include <QSharedDataPointer>
 #include <QString>
 #include <QTimer>
 
@@ -48,19 +48,26 @@ private:
     QList<QPointF> values;
 };
 
+class UniversalReader;
+
 class DataProcessor : public QObject
 {
     Q_OBJECT
 
 public:
+    using DataVariant = std::variant<char, int32_t, double>;
+    using DataTime = uint64_t;
+    using DataPoint = QPair<DataTime, DataVariant>;
+
     explicit DataProcessor(QObject *parent = nullptr);
     ~DataProcessor();
 
+    void add_variables_data(uint64_t sender_id, QMap<uint64_t, QList<DataPoint>> &data);
+
+    static DataTime get_timestamp();
+
 public slots:
     void setup(void);
-    void receive_data(uint64_t variable_id, const QList<QPointF> &new_data);
-
-private slots:
     void process(void);
 
 signals:
@@ -68,14 +75,21 @@ signals:
     void finished(void);
 
 private:
-    class DataSender
+    struct DataSenderInfo
     {
-    public:
         QThread *thread = nullptr;
-        SerialReader *sender = nullptr;
+        UniversalReader *sender = nullptr;
+        std::shared_ptr<QMutex> buffer_mutex = nullptr;
     };
 
-    QTimer *m_timer = nullptr;
-    QMap<uint64_t, DataSender> m_senders;
-    QMap<uint64_t, QVector<QPointF>> m_buffers;
+    QTimer *m_timer =
+            nullptr; /**< Timer to execute processing function and send data to graph Widget. */
+    QMap<uint64_t, DataSenderInfo>
+            m_senders; /**< Initialized data senders. Sender is is used as a key. */
+    QMap<uint64_t, QList<DataPoint>> m_in_buffers; /**< Buffers where senders store the data.
+                                                     Buffer (variable) id is used as a key. Sender
+                                                     Mutex is used for a thread-safety. */
+    QMap<uint64_t, QVector<DataPoint>> m_buffers; /**< Buffers to store raw data from senders.
+                                                     Buffer (variable) id is used as a key. */
+    QMap<uint64_t, uint64_t> m_buffer_to_sender; /**< Buffer id and to sender id correspondence. */
 };

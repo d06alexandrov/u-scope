@@ -1,5 +1,4 @@
-#ifndef MAINWINDOW_H
-#define MAINWINDOW_H
+#pragma once
 
 #include "dataprocessor.h"
 #include "uartconfigdialog.h"
@@ -35,4 +34,3 @@ private:
 private slots:
     void receive_new_data(const QList<GraphData> &new_data);
 };
-#endif // MAINWINDOW_H

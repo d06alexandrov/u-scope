@@ -1,7 +1,9 @@
 #include "dataprocessor.h"
+
 #include "serialreader.h"
 #include "universalreader.h"
 
+#include <QDebug>
 #include <QMutexLocker>
 #include <QThread>
 #include <chrono>
@@ -38,7 +40,7 @@ void DataProcessor::add_variables_data(uint64_t sender_id, QMap<uint64_t, QList<
     }
 }
 
-DataProcessor::DataTime DataProcessor::get_timestamp()
+DataTime DataProcessor::get_timestamp()
 {
     return std::chrono::duration_cast<std::chrono::microseconds>(
                    std::chrono::steady_clock::now().time_since_epoch())
@@ -65,6 +67,11 @@ void DataProcessor::setup(void)
             &UniversalReader::reader_setup);
     connect(new_sender.thread, &QThread::finished, new_sender.sender, &QObject::deleteLater);
     connect(new_sender.thread, &QThread::finished, new_sender.thread, &QObject::deleteLater);
+
+    connect(new_sender.sender, &UniversalReader::report_status, this,
+            &DataProcessor::reported_reader_status);
+    connect(this, &DataProcessor::reader_start, new_sender.sender, &UniversalReader::reader_start);
+    connect(this, &DataProcessor::reader_stop, new_sender.sender, &UniversalReader::reader_stop);
     new_sender.thread->start();
 
     m_senders.insert(0, std::move(new_sender));
@@ -115,4 +122,26 @@ void DataProcessor::process(void)
     emit send_new_data(new_data);
 
     counter = (counter + 1) % 360;
+}
+
+void DataProcessor::reported_reader_status(uint64_t reader_id, UniversalReader::Status status)
+{
+    auto reader_iter = m_senders.find(reader_id);
+
+    if (reader_iter != m_senders.end()) {
+        reader_iter->latest_status = status;
+
+        qDebug() << QString("Reader [#%1] state has been updated to %2")
+                            .arg(reader_id)
+                            .arg(QVariant::fromValue(status).toString());
+    }
+}
+
+void DataProcessor::start_data_processing()
+{
+    emit reader_start(0);
+}
+void DataProcessor::stop_data_processing()
+{
+    emit reader_stop(0);
 }

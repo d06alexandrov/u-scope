@@ -108,6 +108,7 @@ SpaceBeforeCpp11BracedList: false
 # Custom modifications for this project
 BreakConstructorInitializers: BeforeComma
 SortIncludes: true
+IncludeBlocks: Regroup
 
 ---
 # Use the Google-based style for .proto files.

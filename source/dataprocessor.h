@@ -1,5 +1,8 @@
 #pragma once
 
+#include "commontypes.hpp"
+#include "universalreader.h"
+
 #include <QList>
 #include <QMap>
 #include <QMutex>
@@ -55,10 +58,6 @@ class DataProcessor : public QObject
     Q_OBJECT
 
 public:
-    using DataVariant = std::variant<char, int32_t, double>;
-    using DataTime = uint64_t;
-    using DataPoint = QPair<DataTime, DataVariant>;
-
     explicit DataProcessor(QObject *parent = nullptr);
     ~DataProcessor();
 
@@ -70,9 +69,18 @@ public slots:
     void setup(void);
     void process(void);
 
+    void reported_reader_status(uint64_t reader_id, UniversalReader::Status status);
+
+    /* TODO: remove connection to the button. */
+    void start_data_processing(); /**< Slot connected to the start button. */
+    void stop_data_processing(); /**< Slot connected to the stop button. */
+
 signals:
     void send_new_data(const QList<GraphData> &new_data);
     void finished(void);
+
+    void reader_start(uint64_t reader_id);
+    void reader_stop(uint64_t reader_id);
 
 private:
     struct DataSenderInfo
@@ -80,11 +88,13 @@ private:
         QThread *thread = nullptr;
         UniversalReader *sender = nullptr;
         std::shared_ptr<QMutex> buffer_mutex = nullptr;
+
+        UniversalReader::Status latest_status = UniversalReader::Uninitialized;
     };
 
     QTimer *m_timer =
             nullptr; /**< Timer to execute processing function and send data to graph Widget. */
-    QMap<uint64_t, DataSenderInfo>
+    QHash<uint64_t, DataSenderInfo>
             m_senders; /**< Initialized data senders. Sender is is used as a key. */
     QMap<uint64_t, QList<DataPoint>> m_in_buffers; /**< Buffers where senders store the data.
                                                      Buffer (variable) id is used as a key. Sender

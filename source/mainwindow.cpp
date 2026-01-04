@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+
 #include "dataprocessor.h"
 #include "uartconfigdialog.h"
 #include "ui_mainwindow.h"
@@ -84,6 +85,11 @@ void MainWindow::init_data_processor(void)
 
     connect(m_data_processor_thread, &QThread::finished, data_processor,
             &DataProcessor::deleteLater);
+
+    connect(ui->pushButton, &QPushButton::clicked, data_processor,
+            &DataProcessor::start_data_processing);
+    connect(ui->pushButton_4, &QPushButton::clicked, data_processor,
+            &DataProcessor::stop_data_processing);
 
     m_data_processor_thread->start();
 }

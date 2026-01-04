@@ -1,5 +1,4 @@
-#ifndef UARTCONFIGDIALOG_H
-#define UARTCONFIGDIALOG_H
+#pragma once
 
 #include <QDialog>
 
@@ -23,5 +22,3 @@ private:
     void fillInterfaceList();
     void updateInterfaceDescription();
 };
-
-#endif // UARTCONFIGDIALOG_H

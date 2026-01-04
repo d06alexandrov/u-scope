@@ -12,5 +12,5 @@ RUN \
 
 # Grant sudo rights to the default ubuntu user
 RUN usermod -aG sudo ubuntu \
-    && echo "ubuntu ALL=(ALL) NOPASSWD:ALL" >> /etc/sudoers.d/ubuntu \
+    && echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu \
     && chmod 0440 /etc/sudoers.d/ubuntu

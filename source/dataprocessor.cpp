@@ -139,9 +139,20 @@ void DataProcessor::reported_reader_status(uint64_t reader_id, UniversalReader::
 
 void DataProcessor::start_data_processing()
 {
-    emit reader_start(0);
+    for (const auto [id, reader] : m_senders.asKeyValueRange()) {
+        if ((reader.latest_status == UniversalReader::Initialized)
+            || (reader.latest_status == UniversalReader::Stopped)
+            || (reader.latest_status == UniversalReader::Error)) {
+            emit reader_start(id);
+        }
+    }
 }
 void DataProcessor::stop_data_processing()
 {
-    emit reader_stop(0);
+    for (const auto [id, reader] : m_senders.asKeyValueRange()) {
+        if ((reader.latest_status == UniversalReader::Running)
+            || (reader.latest_status == UniversalReader::Error)) {
+            emit reader_stop(id);
+        }
+    }
 }

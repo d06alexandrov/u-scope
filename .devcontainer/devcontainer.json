@@ -14,8 +14,7 @@
 				"mhutchie.git-graph"
 			]
 		}
-	}
-
+	},
 	"containerEnv": {
 		"QT_XCB_GL_INTEGRATION": "none"
 	}

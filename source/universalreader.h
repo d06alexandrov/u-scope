@@ -6,6 +6,9 @@
 #include <QTimer>
 #include <QVariant>
 
+/**
+ * @brief Configuration for the @ref UniversalReader.
+ */
 struct UniversalReaderConfig
 {
     virtual ~UniversalReaderConfig() = default;

@@ -12,6 +12,9 @@
 #include <QString>
 #include <QTimer>
 
+/**
+ * @brief Class to store data of one particular graph.
+ */
 class GraphData
 {
 public:
@@ -53,6 +56,9 @@ private:
 
 class UniversalReader;
 
+/**
+ * @brief Class that orcestrates data readers and convert data into graph points.
+ */
 class DataProcessor : public QObject
 {
     Q_OBJECT

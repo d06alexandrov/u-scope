@@ -57,7 +57,7 @@ private:
 class UniversalReader;
 
 /**
- * @brief Class that orcestrates data readers and convert data into graph points.
+ * @brief Class that orchestrates data readers and convert data into graph points.
  */
 class DataProcessor : public QObject
 {

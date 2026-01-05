@@ -36,7 +36,7 @@ public:
      * @brief Constructor.
      *
      * @param id id of the reader.
-     * @param processor pointer to the parent Data Processor.
+     * @param processor pointer to the connected Data Processor instance.
      * @param config Serial port configuration.
      */
     explicit SerialReader(uint64_t id, DataProcessor *processor,

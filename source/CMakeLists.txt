@@ -12,6 +12,7 @@ qt_add_executable(u-scope
     serialreader.h
     universalreader.cpp
     universalreader.h
+    commontypes.hpp
 )
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Charts SerialPort)

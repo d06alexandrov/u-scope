@@ -1,20 +1,12 @@
 #include "serialreader.h"
-#include "dataprocessor.h"
 
-#include <iostream>
+#include "dataprocessor.h"
 
 SerialReader::SerialReader(uint64_t id, DataProcessor *processor,
                            std::shared_ptr<SerialReaderConfig> config)
     : UniversalReader{ id, processor, config }
     , m_serial(new QSerialPort(this))
 {
-}
-
-SerialReader::~SerialReader()
-{
-    if (m_serial->isOpen()) {
-        m_serial->close();
-    }
 }
 
 void SerialReader::data_received()
@@ -24,7 +16,7 @@ void SerialReader::data_received()
     const auto timestamp = DataProcessor::get_timestamp();
 
     for (auto x : new_data) {
-        m_buffer[0].push_back(DataProcessor::DataPoint(timestamp, x));
+        m_buffer[0].push_back(DataPoint(timestamp, x));
     }
 }
 
@@ -43,13 +35,18 @@ void SerialReader::setup()
     m_serial->setFlowControl(get_config()->flow_control);
 
     connect(m_serial, &QSerialPort::readyRead, this, &SerialReader::data_received);
-
-    /* TODO: remove console output */
-    if (m_serial->open(QIODevice::ReadOnly)) {
-        std::cout << "Opened" << std::endl;
-    } else {
-        std::cout << "Can not open" << std::endl;
-    }
 }
 
+void SerialReader::start()
+{
+    if (!m_serial->open(QIODevice::ReadOnly)) {
+        throw std::runtime_error("Can not open device");
+    }
+}
+void SerialReader::stop()
+{
+    if (m_serial->isOpen()) {
+        m_serial->close();
+    }
+}
 void SerialReader::process() { }

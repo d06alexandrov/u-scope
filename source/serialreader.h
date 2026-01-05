@@ -28,7 +28,6 @@ class SerialReader : public UniversalReader
 public:
     explicit SerialReader(uint64_t id, DataProcessor *processor,
                           std::shared_ptr<SerialReaderConfig> config);
-    ~SerialReader();
 
 public slots:
     void data_received();
@@ -39,6 +38,8 @@ private:
     SerialReaderConfig *get_config();
 
 protected:
-    void setup() override;
-    void process() override;
+    void setup() override; /**< Initialization of a particular type of the reader. */
+    void start() override; /**< Start reading. */
+    void stop() override; /**< Stop reading. */
+    void process() override; /**< Prepare data before sending to the data processor. */
 };

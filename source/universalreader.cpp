@@ -23,7 +23,13 @@ void UniversalReader::reader_setup()
 
 void UniversalReader::reader_start(uint64_t id)
 {
+    /* Skip if signal was sent to another reader.*/
     if (id != m_id) {
+        return;
+    }
+
+    /* Skip if reader is not in one of the states that allows to start it. */
+    if ((m_status != Initialized) && (m_status != Stopped) && (m_status != Error)) {
         return;
     }
 
@@ -40,6 +46,11 @@ void UniversalReader::reader_start(uint64_t id)
 void UniversalReader::reader_stop(uint64_t id)
 {
     if (id != m_id) {
+        return;
+    }
+
+    /* Skip if reader is not running. */
+    if (m_status != Running) {
         return;
     }
 

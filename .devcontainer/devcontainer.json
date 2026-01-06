@@ -16,7 +16,9 @@
 		}
 	},
 	"containerEnv": {
-		"QT_XCB_GL_INTEGRATION": "none"
+		"LIBGL_ALWAYS_SOFTWARE": "1",
+		"QT_QPA_PLATFORM": "xcb",
+		"QT_X11_NO_MITSHM": "1"
 	}
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},

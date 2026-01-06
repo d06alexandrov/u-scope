@@ -11,17 +11,6 @@ qt_standard_project_setup()
 
 add_subdirectory(source)
 
-# Add translation support
-find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
-
-# Define your translation files
-# This command automatically creates targets to update .ts and generate .qm files
-qt_add_translations(u-scope
-    TS_FILES
-        i18n/u-scope_en.ts
-    RESOURCE_PREFIX "/i18n"
-)
-
 # Generation of the Doxygen documentation
 find_package(Doxygen)
 

@@ -131,7 +131,7 @@ void DataProcessor::reported_reader_status(uint64_t reader_id, UniversalReader::
     if (reader_iter != m_senders.end()) {
         reader_iter->latest_status = status;
 
-        qDebug() << QString("Reader [#%1] state has been updated to %2")
+        qDebug() << tr("Reader [#%1] state has been updated to %2")
                             .arg(reader_id)
                             .arg(QVariant::fromValue(status).toString());
     }

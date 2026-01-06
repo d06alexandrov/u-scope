@@ -86,9 +86,9 @@ void MainWindow::init_data_processor(void)
     connect(m_data_processor_thread, &QThread::finished, data_processor,
             &DataProcessor::deleteLater);
 
-    connect(ui->pushButton, &QPushButton::clicked, data_processor,
+    connect(ui->pushButton_StartAll, &QPushButton::clicked, data_processor,
             &DataProcessor::start_data_processing);
-    connect(ui->pushButton_4, &QPushButton::clicked, data_processor,
+    connect(ui->pushButton_StopAll, &QPushButton::clicked, data_processor,
             &DataProcessor::stop_data_processing);
 
     m_data_processor_thread->start();

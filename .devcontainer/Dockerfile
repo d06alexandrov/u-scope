@@ -7,6 +7,7 @@ RUN \
     cmake ninja-build g++ gdb \
     clang-format doxygen \
     qt6-base-dev designer-qt6 \
+    qt6-tools-dev \
     qt6-charts-dev qt6-serialport-dev \
     && rm -rf /var/lib/apt/lists/*
 

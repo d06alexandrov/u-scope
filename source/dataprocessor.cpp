@@ -89,8 +89,8 @@ void DataProcessor::process(void)
     QList<GraphData> new_data;
     QList<QPointF> values;
 
-    for (int i = 0; i <= 100; i++) {
-        values.emplace_back(i, sin(((i * 720.0) / 100 + counter) * M_PI / 180) * 10);
+    for (int i = -100; i <= 100; i++) {
+        values.emplace_back(i, sin(((i * 720.0) / 100 + counter) * M_PI / 180) * 100);
     }
 
     for (uint64_t var_id = 0; var_id < 1; var_id++) {

@@ -21,7 +21,9 @@
 		// Use XCB platform plugin for Qt.
 		"QT_QPA_PLATFORM": "xcb",
 		// Disable MIT-SHM for better X11 forwarding compatibility.
-		"QT_X11_NO_MITSHM": "1"
+		"QT_X11_NO_MITSHM": "1",
+		// Define the XDG session directory to prevent QStandardPaths warning.
+		"XDG_RUNTIME_DIR": "/tmp/runtime-root"
 	}
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},

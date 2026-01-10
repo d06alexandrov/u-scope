@@ -9,8 +9,8 @@
 #include <QThread>
 #include <QValueAxis>
 
-MainWindow::MainWindow(QWidget *parent)
-    : QMainWindow(parent)
+MainWindow::MainWindow()
+    : QMainWindow(nullptr)
     , ui(new Ui::MainWindow)
     , m_chart(new QChart)
     , m_series(new QLineSeries)
@@ -22,37 +22,29 @@ MainWindow::MainWindow(QWidget *parent)
     // Configure buttons
     connect(ui->actionConfig_UART, &QAction::triggered, m_uart_settings, &UartConfigDialog::show);
 
-    // Configure graph
-    auto axisX = new QValueAxis;
-    axisX->setRange(0, 100);
-    axisX->setLabelFormat("%g");
-    axisX->setTitleText("Samples");
+    init_graph();
 
-    auto axisY = new QValueAxis;
-    axisY->setRange(-10, 10);
-    axisY->setTitleText("Value");
-    auto axisY2 = new QValueAxis;
-    axisY2->setRange(-129, 128);
-    axisY2->setTitleText("Value2");
+    try {
+        // Setting mock series
+        auto axisX = m_chart->axes(Qt::Horizontal).front();
+        auto axisY = m_chart->axes(Qt::Vertical).front();
 
-    m_chart->addAxis(axisX, Qt::AlignBottom);
-    m_chart->addAxis(axisY, Qt::AlignLeft);
-    m_chart->addAxis(axisY2, Qt::AlignLeft);
-    m_chart->addSeries(m_series);
-    m_chart->addSeries(m_series2);
+        m_chart->addSeries(m_series);
 
-    // Setting mock series
-    m_series->setName("Sample series");
-    m_series->attachAxis(axisX);
-    m_series->attachAxis(axisY);
-    m_series->setPointsVisible(true);
+        m_series->setName("Sample series");
+        m_series->attachAxis(axisX);
+        m_series->attachAxis(axisY);
+        m_series->setPointsVisible(true);
 
-    m_series2->setName("Sample series2");
-    m_series2->attachAxis(axisX);
-    m_series2->attachAxis(axisY2);
-    m_series2->setPointsVisible(true);
+        m_chart->addSeries(m_series2);
 
-    ui->dataPlot->setChart(m_chart);
+        m_series2->setName("Sample series2");
+        m_series2->attachAxis(axisX);
+        m_series2->attachAxis(axisY);
+        m_series2->setPointsVisible(true);
+
+    } catch (const std::exception &e) {
+    }
 
     init_data_processor();
 }
@@ -72,7 +64,7 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
-void MainWindow::init_data_processor(void)
+void MainWindow::init_data_processor()
 {
     m_data_processor_thread = new QThread;
     DataProcessor *data_processor = new DataProcessor;
@@ -94,10 +86,61 @@ void MainWindow::init_data_processor(void)
     m_data_processor_thread->start();
 }
 
+/**
+ * @brief Config an axis
+ *
+ * @param axis pointer to the axis
+ * @param min minimum axis value
+ * @param max maximum axis value
+ * @param grid_cells amount of the grid cells
+ */
+static void config_axis(QValueAxis *axis, int min, int max, int grid_cells);
+
+void MainWindow::init_graph()
+{
+    // Configure graph
+    auto axisX = new QValueAxis;
+
+    config_axis(axisX, GraphStyle::left_bottom_corner.x(), GraphStyle::right_top_corner.x(),
+                GraphStyle::horizontal_grid);
+
+    auto axisY = new QValueAxis;
+
+    config_axis(axisY, GraphStyle::left_bottom_corner.y(), GraphStyle::right_top_corner.y(),
+                GraphStyle::vertical_grid);
+
+    m_chart->addAxis(axisX, Qt::AlignBottom);
+    m_chart->addAxis(axisY, Qt::AlignLeft);
+
+    m_chart->setBackgroundBrush(QBrush(Qt::black));
+
+    m_chart->legend()->hide();
+
+    ui->dataPlot->setChart(m_chart);
+}
+
 void MainWindow::receive_new_data(const QList<GraphData> &new_data)
 {
     if (new_data.size() > 1) {
         m_series2->replace(new_data.at(0).get_values());
         m_series->replace(new_data.at(1).get_values());
     }
+}
+
+static void config_axis(QValueAxis *axis, int min, int max, int grid_cells)
+{
+    axis->setRange(min, max);
+
+    // Define grid line style
+    QPen gridPen;
+    gridPen.setColor(QColor(0, 255, 0, 100));
+    gridPen.setWidth(1);
+    axis->setGridLinePen(gridPen);
+    axis->setGridLineVisible(true);
+
+    // Hide axis labels and main line
+    axis->setLabelsVisible(false);
+    axis->setLineVisible(false);
+
+    axis->setTickCount(grid_cells + 1);
 }

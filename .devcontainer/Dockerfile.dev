@@ -1,15 +1,4 @@
-FROM ubuntu:24.04
-
-# Install required packages
-RUN \
-    apt-get update \
-    && apt-get install -y git sudo \
-    cmake ninja-build g++ gdb \
-    clang-format doxygen \
-    qt6-base-dev designer-qt6 \
-    qt6-tools-dev \
-    qt6-charts-dev qt6-serialport-dev \
-    && rm -rf /var/lib/apt/lists/*
+FROM ghcr.io/d06alexandrov/u-scope:0.1
 
 # Grant sudo rights to the default ubuntu user
 RUN usermod -aG sudo ubuntu \

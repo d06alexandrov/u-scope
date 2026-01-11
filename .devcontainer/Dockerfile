@@ -1,4 +1,4 @@
-FROM ubuntu:24.04 as base-img
+FROM ubuntu:24.04 AS base-img
 
 LABEL version="0.1"
 

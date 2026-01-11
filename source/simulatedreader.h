@@ -28,11 +28,14 @@ struct SimulatedReaderConfig : UniversalReaderConfig
         double amplitude; /**< Amplitude of the sinusoid. */
     };
 
+    /**
+     * @brief Variants of a simulated form.
+     */
     using Config = std::variant<ConstConfig, SinConfig>;
 
     uint64_t variable_id; /**< ID of the generated variable. */
     int32_t sample_rate; /**< Amount of samples per second. */
-    Config configuration; /**< Universal configuration for different forms. */
+    Config form_conf; /**< Configuration for the specific form. */
 };
 
 /**
@@ -47,7 +50,7 @@ public:
      * @brief Constructor.
      *
      * @param id id of the reader.
-     * @param processor pointer to the connected Data Processor instance.
+     * @param processor Pointer to the connected Data Processor instance.
      * @param config Simulated reader configuration.
      */
     explicit SimulatedReader(uint64_t id, DataProcessor *processor,
@@ -66,7 +69,12 @@ private:
     DataTime m_setup_timestamp = 0; /**< Setup timestamp. */
     DataTime m_prev_sample_timestamp = 0; /**< Timestamp of a previous sample. */
 
-    const SimulatedReaderConfig *get_config() const; /**< Get configuration. */
+    /**
+     * @brief Get the configuration.
+     *
+     * @return A pointer to the configuration.
+     */
+    const SimulatedReaderConfig *get_config() const;
 
 protected:
     void setup() override; /**< Initialization of a particular type of the reader. */

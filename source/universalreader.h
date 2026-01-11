@@ -26,15 +26,25 @@ class UniversalReader : public QObject
     Q_OBJECT
 
 public:
+    /**
+     * @brief Status of a current reader
+     */
     enum Status {
-        Uninitialized,
-        Initialized,
-        Running,
-        Stopped,
-        Error,
+        Uninitialized, /**< Reader was not initialized. */
+        Initialized, /**< Reader was initialized and ready to start. */
+        Running, /**< Reader is running and sending the data. */
+        Stopped, /**< Reader was stopped and does not gather data. */
+        Error, /**< Error occured. Restart is required. */
     };
     Q_ENUM(Status)
 
+    /**
+     * @brief Constructor.
+     *
+     * @param id id of the reader.
+     * @param processor pointer to the connected Data Processor instance.
+     * @param config Reader configuration that includes config of the child.
+     */
     explicit UniversalReader(uint64_t id, DataProcessor *processor,
                              std::shared_ptr<UniversalReaderConfig> config);
     UniversalReader(const UniversalReader &processor) = delete;
@@ -56,7 +66,7 @@ private slots:
                               data processor. Triggered by timer. */
 
 signals:
-    void report_status(uint64_t id, Status status);
+    void report_status(uint64_t id, Status status); /**< Report reader status change. */
 
 protected:
     uint64_t m_id = 0; /**< ID of the reader. */

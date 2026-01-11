@@ -1,4 +1,6 @@
-FROM ubuntu:24.04
+FROM ubuntu:24.04 AS base-img
+
+LABEL version="0.1"
 
 # Install required packages
 RUN \
@@ -10,8 +12,3 @@ RUN \
     qt6-tools-dev \
     qt6-charts-dev qt6-serialport-dev \
     && rm -rf /var/lib/apt/lists/*
-
-# Grant sudo rights to the default ubuntu user
-RUN usermod -aG sudo ubuntu \
-    && echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu \
-    && chmod 0440 /etc/sudoers.d/ubuntu

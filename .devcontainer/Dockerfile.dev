@@ -1,0 +1,8 @@
+ARG IMAGE_VERSION
+
+FROM ghcr.io/d06alexandrov/u-scope:${IMAGE_VERSION}
+
+# Grant sudo rights to the default ubuntu user
+RUN usermod -aG sudo ubuntu \
+    && echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu \
+    && chmod 0440 /etc/sudoers.d/ubuntu

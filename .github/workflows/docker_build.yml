@@ -1,0 +1,54 @@
+name: Build Develop Image
+
+on:
+  push:
+    branches: [ develop ]
+    paths: [ '.devcontainer/Dockerfile' ]
+
+env:
+  REGISTRY: ghcr.io
+  DOCKERFILE_DIR: ./.devcontainer
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Normalize Repository Name
+        run: echo "IMAGE_NAME=${GITHUB_REPOSITORY,,}" >> $GITHUB_ENV
+
+      - name: Extract version from Dockerfile
+        id: get_version
+        run: |
+          VERSION=$(grep 'LABEL version=' ${{ env.DOCKERFILE_DIR }}/Dockerfile | cut -d'"' -f2)
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+
+      - name: Login to GHCR
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Verify Tag is Unique
+        run: |
+          TAG_URL="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}"
+          if docker manifest inspect $TAG_URL > /dev/null 2>&1; then
+            echo "Version ${{ steps.get_version.outputs.VERSION }} already exists. Please increment the version in Dockerfile."
+            exit 1
+          fi
+
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ env.DOCKERFILE_DIR }}
+          target: base-img
+          push: true
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}

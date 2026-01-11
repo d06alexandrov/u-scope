@@ -60,8 +60,8 @@ void SimulatedReader::process()
         case SinusWave: {
             const auto &sin_conf =
                     std::get<SimulatedReaderConfig::SinConfig>(config->configuration);
-            const double x = DataProcessor::get_timestamp_diff_us(m_setup_timestamp, t) * M_2_PI
-                    / sin_conf.frequency;
+            const double x = DataProcessor::get_timestamp_diff_us(m_setup_timestamp, t) * 2 * M_PI
+                    * sin_conf.frequency / 1000000;
 
             val = sin(x) * sin_conf.amplitude;
         } break;

@@ -90,7 +90,7 @@ void DataProcessor::setup(void)
 
     auto config2 = std::make_shared<SimulatedReaderConfig>();
     config2->configuration = SimulatedReaderConfig::SinConfig{
-        .frequency = 100,
+        .frequency = 10,
         .amplitude = 25,
     };
 
@@ -125,14 +125,7 @@ void DataProcessor::setup(void)
 
 void DataProcessor::process(void)
 {
-    static unsigned int counter = 0;
-
     QList<GraphData> new_data;
-    QList<QPointF> values;
-
-    for (int i = -100; i <= 100; i++) {
-        values.emplace_back(i, sin(((i * 720.0) / 100 + counter) * M_PI / 180) * 100);
-    }
 
     for (uint64_t var_id = 0; var_id < 2; var_id++) {
         QList<QPointF> processed_values;
@@ -151,18 +144,15 @@ void DataProcessor::process(void)
         }
 
         for (int i = 0; i < m_buffers[var_id].size(); i++) {
-            const auto val = std::get<double>(m_buffers[var_id].at(i).second);
+            const auto val = std::visit([](auto &&arg) { return static_cast<qreal>(arg); },
+                                        m_buffers[var_id].at(i).second);
             processed_values.emplace_back(i - 100, val);
         }
 
         new_data.emplace_back(QString("Test data2"), std::move(processed_values));
     }
 
-    //    new_data.emplace_back(QString("Test data"), std::move(values));
-
     emit send_new_data(new_data);
-
-    counter = (counter + 1) % 360;
 }
 
 void DataProcessor::reported_reader_status(uint64_t reader_id, UniversalReader::Status status)

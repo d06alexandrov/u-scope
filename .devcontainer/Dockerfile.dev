@@ -1,4 +1,6 @@
-FROM ghcr.io/d06alexandrov/u-scope:0.1
+ARG IMAGE_VERSION
+
+FROM ghcr.io/d06alexandrov/u-scope:${IMAGE_VERSION}
 
 # Grant sudo rights to the default ubuntu user
 RUN usermod -aG sudo ubuntu \

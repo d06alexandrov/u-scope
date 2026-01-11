@@ -1,7 +1,6 @@
 #pragma once
 
 #include "dataprocessor.h"
-#include "uartconfigdialog.h"
 
 #include <QChart>
 #include <QLineSeries>
@@ -44,7 +43,6 @@ private:
     QChart *m_chart = nullptr; /**< Pointer to the main QChart. */
     QLineSeries *m_series = nullptr;
     QLineSeries *m_series2 = nullptr;
-    UartConfigDialog *m_uart_settings = nullptr;
     QThread *m_data_processor_thread = nullptr; /**< Thread with a running Data Processor. */
 
     void init_data_processor(); /**< Initialize and run Data Processor */

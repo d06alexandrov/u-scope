@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 
 #include "dataprocessor.h"
-#include "uartconfigdialog.h"
 #include "ui_mainwindow.h"
 
 #include <QChart>
@@ -15,12 +14,8 @@ MainWindow::MainWindow()
     , m_chart(new QChart)
     , m_series(new QLineSeries)
     , m_series2(new QLineSeries)
-    , m_uart_settings(new UartConfigDialog(this))
 {
     ui->setupUi(this);
-
-    // Configure buttons
-    connect(ui->actionConfig_UART, &QAction::triggered, m_uart_settings, &UartConfigDialog::show);
 
     init_graph();
 
@@ -124,6 +119,13 @@ void MainWindow::receive_new_data(const QList<GraphData> &new_data)
     if (new_data.size() > 1) {
         m_series2->replace(new_data.at(0).get_values());
         m_series->replace(new_data.at(1).get_values());
+
+        if (new_data.at(0).get_values().size() > 0) {
+            ui->ch1Val->setText(QString::number(new_data.at(0).get_values().back().y()));
+        }
+        if (new_data.at(1).get_values().size() > 0) {
+            ui->ch2Val->setText(QString::number(new_data.at(1).get_values().back().y()));
+        }
     }
 }
 

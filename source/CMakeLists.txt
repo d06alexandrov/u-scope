@@ -5,9 +5,6 @@ set(SOURCES
     mainwindow.cpp
     mainwindow.h
     mainwindow.ui
-    uartconfigdialog.cpp
-    uartconfigdialog.h
-    uartconfigdialog.ui
     serialreader.cpp
     serialreader.h
     universalreader.cpp

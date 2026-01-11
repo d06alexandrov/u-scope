@@ -66,6 +66,77 @@
              </property>
             </widget>
            </item>
+           <item>
+            <widget class="QWidget" name="formWidget" native="true">
+             <property name="sizePolicy">
+              <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
+               <horstretch>0</horstretch>
+               <verstretch>0</verstretch>
+              </sizepolicy>
+             </property>
+             <layout class="QFormLayout" name="formLayout">
+              <item row="0" column="0">
+               <widget class="QLabel" name="ch1Label">
+                <property name="text">
+                 <string>CH1</string>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="0">
+               <widget class="QLabel" name="ch2Label">
+                <property name="text">
+                 <string>CH2</string>
+                </property>
+               </widget>
+              </item>
+              <item row="2" column="0">
+               <spacer name="verticalSpacer">
+                <property name="orientation">
+                 <enum>Qt::Vertical</enum>
+                </property>
+                <property name="sizeHint" stdset="0">
+                 <size>
+                  <width>20</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </spacer>
+              </item>
+              <item row="0" column="1">
+               <widget class="QLabel" name="ch1Val">
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+              <item row="1" column="1">
+               <widget class="QLabel" name="ch2Val">
+                <property name="minimumSize">
+                 <size>
+                  <width>100</width>
+                  <height>0</height>
+                 </size>
+                </property>
+                <property name="text">
+                 <string/>
+                </property>
+                <property name="alignment">
+                 <set>Qt::AlignRight|Qt::AlignTrailing|Qt::AlignVCenter</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
+            </widget>
+           </item>
           </layout>
          </widget>
         </item>
@@ -77,12 +148,15 @@
           <layout class="QHBoxLayout" name="horizontalLayout_6">
            <item>
             <widget class="QGroupBox" name="verticalConfig">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="title">
               <string>Vertical</string>
              </property>
              <layout class="QHBoxLayout" name="horizontalLayout_5">
               <item>
-               <layout class="QGridLayout" name="ChannelSelectors">
+               <layout class="QGridLayout" name="channelSelectors">
                 <item row="2" column="1">
                  <widget class="QPushButton" name="configCh10">
                   <property name="text">
@@ -216,6 +290,9 @@
            </item>
            <item>
             <widget class="QGroupBox" name="horizontalConfig">
+             <property name="enabled">
+              <bool>false</bool>
+             </property>
              <property name="title">
               <string>Horizontal</string>
              </property>
@@ -324,16 +401,8 @@
      <string>File</string>
     </property>
    </widget>
-   <widget class="QMenu" name="menuOptions">
-    <property name="title">
-     <string>Options</string>
-    </property>
-    <addaction name="actionConfig_UART"/>
-   </widget>
    <addaction name="menuFile"/>
-   <addaction name="menuOptions"/>
   </widget>
-  <widget class="QStatusBar" name="statusbar"/>
   <action name="actionConfig_UART">
    <property name="text">
     <string>Config UART</string>

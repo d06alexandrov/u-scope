@@ -2,9 +2,10 @@
 
 #include "commontypes.hpp"
 
+#include <QList>
+#include <QMap>
 #include <QObject>
 #include <QTimer>
-#include <QVariant>
 
 /**
  * @brief Configuration for the @ref UniversalReader.

@@ -65,4 +65,12 @@
         <translation type="unfinished"></translation>
     </message>
 </context>
+<context>
+    <name>UniversalReader</name>
+    <message>
+        <location filename="../source/universalreader.cpp" line="42"/>
+        <source>Caught error:</source>
+        <translation type="unfinished"></translation>
+    </message>
+</context>
 </TS>

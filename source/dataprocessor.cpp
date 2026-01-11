@@ -6,6 +6,7 @@
 #include <QDebug>
 #include <QMutexLocker>
 #include <QThread>
+#include <QVariant>
 #include <chrono>
 #include <cmath>
 

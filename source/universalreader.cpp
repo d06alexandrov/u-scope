@@ -2,6 +2,8 @@
 
 #include "dataprocessor.h"
 
+#include <QDebug>
+
 UniversalReader::UniversalReader(uint64_t id, DataProcessor *processor,
                                  std::shared_ptr<UniversalReaderConfig> config)
     : QObject{ nullptr }
@@ -39,7 +41,7 @@ void UniversalReader::reader_start(uint64_t id)
         m_timer->start(m_config->update_period_ms);
         set_status(Running);
     } catch (const std::exception &e) {
-        qDebug() << "Caught error:" << e.what();
+        qDebug() << tr("Caught error:") << e.what();
         set_status(Error);
     }
 }

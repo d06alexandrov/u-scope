@@ -3,14 +3,16 @@
 #include "commontypes.hpp"
 #include "universalreader.h"
 
+#include <QHash>
 #include <QList>
 #include <QMap>
 #include <QMutex>
 #include <QObject>
 #include <QPointF>
-#include <QSharedDataPointer>
 #include <QString>
+#include <QThread>
 #include <QTimer>
+#include <QVector>
 
 /**
  * @brief Class to store data of one particular graph.

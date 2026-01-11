@@ -2,12 +2,8 @@
 
 #include "universalreader.h"
 
-#include <QElapsedTimer>
-#include <QList>
 #include <QObject>
-#include <QPointF>
 #include <QSerialPort>
-#include <QTimer>
 
 class DataProcessor;
 

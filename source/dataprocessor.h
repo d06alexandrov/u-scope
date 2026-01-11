@@ -124,7 +124,7 @@ public:
     /**
      * @brief Get the difference between two timestamps.
      *
-     * @param before Earlier trimestamp.
+     * @param before Earlier timestamp.
      * @param after Timestamp after @p before.
      * @return Time in microseconds between @p before and @p after.
      */
@@ -146,7 +146,7 @@ public slots:
     void setup(void);
 
     /**
-     * @brief Process incoming data and send clean data to th chart.
+     * @brief Process incoming data and send clean data to the chart.
      * Triggered by timer.
      */
     void process(void);
@@ -154,7 +154,7 @@ public slots:
     /**
      * @brief Handle reader status report.
      *
-     * @param reader_id Uniq ID of the reader.
+     * @param reader_id Unique ID of the reader.
      * @param status Status of the reader.
      */
     void reported_reader_status(uint64_t reader_id, UniversalReader::Status status);
@@ -179,14 +179,14 @@ signals:
     /**
      * @brief Start specific reader.
      *
-     * @param reader_id Uniq ID of the reader.
+     * @param reader_id Unique ID of the reader.
      */
     void reader_start(uint64_t reader_id);
 
     /**
      * @brief Stop specific reader.
      *
-     * @param reader_id Uniq ID of the reader.
+     * @param reader_id Unique ID of the reader.
      */
     void reader_stop(uint64_t reader_id);
 

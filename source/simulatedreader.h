@@ -72,7 +72,7 @@ private:
     /**
      * @brief Get the configuration.
      *
-     * @return A reference to the configuration.
+     * @return A pointer to the configuration.
      */
     const SimulatedReaderConfig *get_config() const;
 

@@ -1,6 +1,7 @@
 #include "dataprocessor.h"
 
 #include "serialreader.h"
+#include "simulatedreader.h"
 #include "universalreader.h"
 
 #include <QDebug>
@@ -48,6 +49,16 @@ DataTime DataProcessor::get_timestamp()
             .count();
 }
 
+uint64_t DataProcessor::get_timestamp_diff_us(DataTime before, DataTime after)
+{
+    return after - before;
+}
+
+DataTime DataProcessor::timestamp_add_us_roundup(DataTime timestamp, uint64_t us)
+{
+    return timestamp + us;
+}
+
 void DataProcessor::setup(void)
 {
     auto config = std::make_shared<SerialReaderConfig>();
@@ -73,10 +84,39 @@ void DataProcessor::setup(void)
             &DataProcessor::reported_reader_status);
     connect(this, &DataProcessor::reader_start, new_sender.sender, &UniversalReader::reader_start);
     connect(this, &DataProcessor::reader_stop, new_sender.sender, &UniversalReader::reader_stop);
-    new_sender.thread->start();
 
     m_senders.insert(0, std::move(new_sender));
     m_buffer_to_sender[0] = 0;
+
+    auto config2 = std::make_shared<SimulatedReaderConfig>();
+    config2->configuration = SimulatedReaderConfig::SinConfig{
+        .frequency = 100,
+        .amplitude = 25,
+    };
+
+    config2->update_period_ms = 20;
+    config2->variable_id = 1;
+    config2->sample_rate = 1000;
+
+    DataSenderInfo new_sender2{ new QThread(), new SimulatedReader(1, this, std::move(config2)),
+                                std::make_shared<QMutex>() };
+
+    new_sender2.sender->moveToThread(new_sender2.thread);
+    connect(new_sender2.thread, &QThread::started, new_sender2.sender,
+            &UniversalReader::reader_setup);
+    connect(new_sender2.thread, &QThread::finished, new_sender2.sender, &QObject::deleteLater);
+    connect(new_sender2.thread, &QThread::finished, new_sender2.thread, &QObject::deleteLater);
+
+    connect(new_sender2.sender, &UniversalReader::report_status, this,
+            &DataProcessor::reported_reader_status);
+    connect(this, &DataProcessor::reader_start, new_sender2.sender, &UniversalReader::reader_start);
+    connect(this, &DataProcessor::reader_stop, new_sender2.sender, &UniversalReader::reader_stop);
+
+    m_senders.insert(1, std::move(new_sender2));
+    m_buffer_to_sender[1] = 1;
+
+    new_sender.thread->start();
+    new_sender2.thread->start();
 
     m_timer = new QTimer(this);
     connect(m_timer, &QTimer::timeout, this, &DataProcessor::process);
@@ -94,7 +134,7 @@ void DataProcessor::process(void)
         values.emplace_back(i, sin(((i * 720.0) / 100 + counter) * M_PI / 180) * 100);
     }
 
-    for (uint64_t var_id = 0; var_id < 1; var_id++) {
+    for (uint64_t var_id = 0; var_id < 2; var_id++) {
         QList<QPointF> processed_values;
         QList<DataPoint> in_data;
 
@@ -106,19 +146,19 @@ void DataProcessor::process(void)
 
         m_buffers[var_id].append(std::move(in_data));
 
-        if (m_buffers[var_id].size() > 101) {
-            m_buffers[var_id].remove(0, m_buffers[var_id].size() - 101);
+        if (m_buffers[var_id].size() > 201) {
+            m_buffers[var_id].remove(0, m_buffers[var_id].size() - 201);
         }
 
         for (int i = 0; i < m_buffers[var_id].size(); i++) {
-            const auto val = std::get<char>(m_buffers[var_id].at(i).second);
-            processed_values.emplace_back(i, val);
+            const auto val = std::get<double>(m_buffers[var_id].at(i).second);
+            processed_values.emplace_back(i - 100, val);
         }
 
         new_data.emplace_back(QString("Test data2"), std::move(processed_values));
     }
 
-    new_data.emplace_back(QString("Test data"), std::move(values));
+    //    new_data.emplace_back(QString("Test data"), std::move(values));
 
     emit send_new_data(new_data);
 

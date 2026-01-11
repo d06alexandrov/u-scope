@@ -15,12 +15,22 @@ UniversalReader::UniversalReader(uint64_t id, DataProcessor *processor,
 
 void UniversalReader::reader_setup()
 {
-    setup();
+    /* Skip if reader is not uninitialized. */
+    if (m_status != Uninitialized) {
+        return;
+    }
 
-    m_timer = new QTimer(this);
-    connect(m_timer, &QTimer::timeout, this, &UniversalReader::reader_process);
+    try {
+        setup();
 
-    set_status(Initialized);
+        m_timer = new QTimer(this);
+        connect(m_timer, &QTimer::timeout, this, &UniversalReader::reader_process);
+
+        set_status(Initialized);
+    } catch (const std::exception &e) {
+        qDebug() << tr("Caught error during reader initialization:") << e.what();
+        set_status(Uninitialized);
+    }
 }
 
 void UniversalReader::reader_start(uint64_t id)

@@ -72,6 +72,12 @@ public:
     void add_variables_data(uint64_t sender_id, QMap<uint64_t, QList<DataPoint>> &data);
 
     static DataTime get_timestamp(); /**< Get current timestamp. */
+    static uint64_t
+    get_timestamp_diff_us(DataTime before,
+                          DataTime after); /**< Get the difference between two timestamps. */
+    static DataTime
+    timestamp_add_us_roundup(DataTime timestamp,
+                             uint64_t us); /**< Add microseconds to timestamp with rounding up. */
 
 public slots:
     void setup(void);

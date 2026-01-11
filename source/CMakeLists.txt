@@ -7,6 +7,8 @@ set(SOURCES
     mainwindow.ui
     serialreader.cpp
     serialreader.h
+    simulatedreader.cpp
+    simulatedreader.h
     universalreader.cpp
     universalreader.h
     commontypes.hpp

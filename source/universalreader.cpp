@@ -2,6 +2,8 @@
 
 #include "dataprocessor.h"
 
+#include <QDebug>
+
 UniversalReader::UniversalReader(uint64_t id, DataProcessor *processor,
                                  std::shared_ptr<UniversalReaderConfig> config)
     : QObject{ nullptr }
@@ -13,12 +15,22 @@ UniversalReader::UniversalReader(uint64_t id, DataProcessor *processor,
 
 void UniversalReader::reader_setup()
 {
-    setup();
+    /* Skip if reader is not uninitialized. */
+    if (m_status != Uninitialized) {
+        return;
+    }
 
-    m_timer = new QTimer(this);
-    connect(m_timer, &QTimer::timeout, this, &UniversalReader::reader_process);
+    try {
+        setup();
 
-    set_status(Initialized);
+        m_timer = new QTimer(this);
+        connect(m_timer, &QTimer::timeout, this, &UniversalReader::reader_process);
+
+        set_status(Initialized);
+    } catch (const std::exception &e) {
+        qDebug() << tr("Caught error during reader initialization:") << e.what();
+        set_status(Uninitialized);
+    }
 }
 
 void UniversalReader::reader_start(uint64_t id)
@@ -39,7 +51,7 @@ void UniversalReader::reader_start(uint64_t id)
         m_timer->start(m_config->update_period_ms);
         set_status(Running);
     } catch (const std::exception &e) {
-        qDebug() << "Caught error:" << e.what();
+        qDebug() << tr("Caught error:") << e.what();
         set_status(Error);
     }
 }

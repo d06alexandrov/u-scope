@@ -3,14 +3,16 @@
 #include "commontypes.hpp"
 #include "universalreader.h"
 
+#include <QHash>
 #include <QList>
 #include <QMap>
 #include <QMutex>
 #include <QObject>
 #include <QPointF>
-#include <QSharedDataPointer>
 #include <QString>
+#include <QThread>
 #include <QTimer>
+#include <QVector>
 
 /**
  * @brief Class to store data of one particular graph.
@@ -69,7 +71,13 @@ public:
 
     void add_variables_data(uint64_t sender_id, QMap<uint64_t, QList<DataPoint>> &data);
 
-    static DataTime get_timestamp();
+    static DataTime get_timestamp(); /**< Get current timestamp. */
+    static uint64_t
+    get_timestamp_diff_us(DataTime before,
+                          DataTime after); /**< Get the difference between two timestamps. */
+    static DataTime
+    timestamp_add_us_roundup(DataTime timestamp,
+                             uint64_t us); /**< Add microseconds to timestamp with rounding up. */
 
 public slots:
     void setup(void);
@@ -82,20 +90,25 @@ public slots:
     void stop_data_processing(); /**< Slot connected to the stop button. */
 
 signals:
-    void send_new_data(const QList<GraphData> &new_data);
+    void send_new_data(const QList<GraphData> &new_data); /**< Send new data to show in a graph. */
     void finished(void);
 
-    void reader_start(uint64_t reader_id);
-    void reader_stop(uint64_t reader_id);
+    void reader_start(uint64_t reader_id); /**< Start specific reader. */
+    void reader_stop(uint64_t reader_id); /**< Stop specific reader. */
 
 private:
+    /**
+     * @brief Structure to store information regarding Senders (Readers)
+     */
     struct DataSenderInfo
     {
-        QThread *thread = nullptr;
-        UniversalReader *sender = nullptr;
-        std::shared_ptr<QMutex> buffer_mutex = nullptr;
+        QThread *thread = nullptr; /**< Pointer to the sender's thread. */
+        UniversalReader *sender = nullptr; /**< Pointer to the sender. */
+        std::shared_ptr<QMutex> buffer_mutex =
+                nullptr; /**< Mutex that protects data from this particular sender. */
 
-        UniversalReader::Status latest_status = UniversalReader::Uninitialized;
+        UniversalReader::Status latest_status =
+                UniversalReader::Uninitialized; /**< Latest known status of the sender. */
     };
 
     QTimer *m_timer =

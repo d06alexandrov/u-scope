@@ -21,7 +21,7 @@ void SimulatedReader::setup()
     if (std::holds_alternative<SimulatedReaderConfig::ConstConfig>(config->configuration)) {
         m_form = Constant;
     } else if (std::holds_alternative<SimulatedReaderConfig::SinConfig>(config->configuration)) {
-        m_form = SinusWave;
+        m_form = SineWave;
     } else {
         throw std::runtime_error("Unknown simulated type");
     }
@@ -57,7 +57,7 @@ void SimulatedReader::process()
         case Constant: {
             val = std::get<SimulatedReaderConfig::ConstConfig>(config->configuration).value;
         } break;
-        case SinusWave: {
+        case SineWave: {
             const auto &sin_conf =
                     std::get<SimulatedReaderConfig::SinConfig>(config->configuration);
             const double x = DataProcessor::get_timestamp_diff_us(m_setup_timestamp, t) * 2 * M_PI

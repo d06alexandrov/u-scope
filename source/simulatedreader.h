@@ -20,12 +20,12 @@ struct SimulatedReaderConfig : UniversalReaderConfig
     };
 
     /**
-     * @brief Sinus wave.
+     * @brief Sinusoidal wave.
      */
     struct SinConfig
     {
-        int32_t frequency; /**< Frequency of the sin. */
-        double amplitude; /**< Amplitude of the sinus. */
+        int32_t frequency; /**< Frequency of the sinusoid. */
+        double amplitude; /**< Amplitude of the sinusoid. */
     };
 
     using Config = std::variant<ConstConfig, SinConfig>;
@@ -59,7 +59,7 @@ private:
     enum SimulatedForm {
         Undefined, /**< Form was not defined. */
         Constant, /**< Constant value. */
-        SinusWave, /**< Sinus form. */
+        SineWave, /**< Sinusoid. */
     };
 
     SimulatedForm m_form = Undefined; /**< Type of a simulated form. */

@@ -21,3 +21,14 @@ jobs:
     steps:
       - name: Checkout repository
         uses: actions/checkout@v4
+
+      - name: Build an Application
+        run: |
+          cmake -B build
+          cmake --build build --config Release --target u-scope
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: u-scope-app
+          path: build/source/u-scope

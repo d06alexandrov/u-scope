@@ -27,15 +27,13 @@
 		"QT_X11_NO_MITSHM": "1",
 		// Define the XDG session directory to prevent QStandardPaths warning.
 		"XDG_RUNTIME_DIR": "/tmp/runtime-root"
-	}
+	},
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	// "postCreateCommand": "uname -a",
+	"postCreateCommand": "mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root"
 	// Configure tool-specific properties.
 	// "customizations": {},
-	// Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
-	// "remoteUser": "root"
 }

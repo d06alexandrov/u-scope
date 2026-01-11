@@ -37,6 +37,8 @@ private:
         }; /**< Value in the top right corner of the graph. */
         static constexpr int horizontal_grid = 10; /**< Amount of horizontal cells in a grid. */
         static constexpr int vertical_grid = 8; /**< Amount of vertical cells in a grid. */
+        static constexpr QColor grid_line_color = QColor(0, 255, 0, 100); /**< Color of a grid. */
+        static constexpr QColor background_color = QColorConstants::Black; /**< Background color. */
     };
 
     Ui::MainWindow *ui = nullptr; /**< Pointer to the Main Window user interface. */

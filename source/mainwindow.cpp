@@ -88,8 +88,10 @@ void MainWindow::init_data_processor()
  * @param min minimum axis value
  * @param max maximum axis value
  * @param grid_cells amount of the grid cells
+ * @param grid_color color of the grid
  */
-static void config_axis(QValueAxis *axis, int min, int max, int grid_cells);
+static void config_axis(QValueAxis *axis, int min, int max, int grid_cells,
+                        const QColor grid_color);
 
 void MainWindow::init_graph()
 {
@@ -97,17 +99,17 @@ void MainWindow::init_graph()
     auto axisX = new QValueAxis;
 
     config_axis(axisX, GraphStyle::left_bottom_corner.x(), GraphStyle::right_top_corner.x(),
-                GraphStyle::horizontal_grid);
+                GraphStyle::horizontal_grid, GraphStyle::grid_line_color);
 
     auto axisY = new QValueAxis;
 
     config_axis(axisY, GraphStyle::left_bottom_corner.y(), GraphStyle::right_top_corner.y(),
-                GraphStyle::vertical_grid);
+                GraphStyle::vertical_grid, GraphStyle::grid_line_color);
 
     m_chart->addAxis(axisX, Qt::AlignBottom);
     m_chart->addAxis(axisY, Qt::AlignLeft);
 
-    m_chart->setBackgroundBrush(QBrush(Qt::black));
+    m_chart->setBackgroundBrush(QBrush(GraphStyle::background_color));
 
     m_chart->legend()->hide();
 
@@ -129,13 +131,13 @@ void MainWindow::receive_new_data(const QList<GraphData> &new_data)
     }
 }
 
-static void config_axis(QValueAxis *axis, int min, int max, int grid_cells)
+static void config_axis(QValueAxis *axis, int min, int max, int grid_cells, const QColor grid_color)
 {
     axis->setRange(min, max);
 
     // Define grid line style
     QPen gridPen;
-    gridPen.setColor(QColor(0, 255, 0, 100));
+    gridPen.setColor(grid_color);
     gridPen.setWidth(1);
     axis->setGridLinePen(gridPen);
     axis->setGridLineVisible(true);

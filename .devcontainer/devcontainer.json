@@ -3,7 +3,7 @@
 {
 	"name": "u-scope",
 	"build": {
-		"dockerfile": "Dockerfile"
+		"dockerfile": "Dockerfile.dev"
 	},
 	"remoteUser": "ubuntu",
 	"updateRemoteUserUID": true,

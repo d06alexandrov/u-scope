@@ -89,7 +89,7 @@ void DataProcessor::setup(void)
     m_buffer_to_sender[0] = 0;
 
     auto config2 = std::make_shared<SimulatedReaderConfig>();
-    config2->configuration = SimulatedReaderConfig::SinConfig{
+    config2->form_conf = SimulatedReaderConfig::SinConfig{
         .frequency = 10,
         .amplitude = 25,
     };

@@ -20,24 +20,46 @@
 class GraphData
 {
 public:
+    /**
+     * @brief GraphData constructor.
+     *
+     * @param name Name of the data.
+     * @param values Points of the graph.
+     */
     GraphData(QString name, QList<QPointF> values)
         : name(std::move(name))
         , values(std::move(values))
     {
     }
 
+    /**
+     * @brief Copy constructor for GraphData.
+     *
+     * @param other The source object to copy from.
+     */
     GraphData(const GraphData &other)
         : name(other.name)
         , values(other.values)
     {
     }
 
+    /**
+     * @brief Move constructor for GraphData.
+     *
+     * @param other The rvalue reference of the object to move from.
+     */
     GraphData(GraphData &&other) noexcept
         : name(std::move(other.name))
         , values(std::move(other.values))
     {
     }
 
+    /**
+     * @brief Move assignment operator for GraphData.
+     *
+     * @param other The rvalue reference of the object to move.
+     * @return A reference to this object.
+     */
     GraphData &operator=(GraphData &&other) noexcept
     {
         if (this != &other) {
@@ -47,13 +69,23 @@ public:
         return *this;
     }
 
+    /**
+     * @brief Gets the name member.
+     *
+     * @return A reference to the name.
+     */
     const QString &get_name(void) const { return name; }
 
+    /**
+     * @brief Gets the list of values.
+     *
+     * @return A reference to the values.
+     */
     const QList<QPointF> &get_values(void) const { return values; }
 
 private:
-    QString name;
-    QList<QPointF> values;
+    QString name; /**< Name of the data. */
+    QList<QPointF> values; /**< Points of the graph. */
 };
 
 class UniversalReader;
@@ -66,23 +98,65 @@ class DataProcessor : public QObject
     Q_OBJECT
 
 public:
+    /**
+     * @brief Data Processor constructor.
+     *
+     * @param parent QObject parent of the DataProcessor.
+     */
     explicit DataProcessor(QObject *parent = nullptr);
     ~DataProcessor();
 
+    /**
+     * @brief Add varibles data into incoming buffer.
+     *
+     * @note Thread-safe if the senders' info is updated when all senders are stopped.
+     *
+     * @param sender_id ID of the sender.
+     * @param data Data to be stored.
+     */
     void add_variables_data(uint64_t sender_id, QMap<uint64_t, QList<DataPoint>> &data);
 
-    static DataTime get_timestamp(); /**< Get current timestamp. */
-    static uint64_t
-    get_timestamp_diff_us(DataTime before,
-                          DataTime after); /**< Get the difference between two timestamps. */
-    static DataTime
-    timestamp_add_us_roundup(DataTime timestamp,
-                             uint64_t us); /**< Add microseconds to timestamp with rounding up. */
+    /**
+     * @brief Get current timestamp.
+     */
+    static DataTime get_timestamp();
+
+    /**
+     * @brief Get the difference between two timestamps.
+     *
+     * @param before Earlier trimestamp.
+     * @param after Timestamp after @p before.
+     * @return Time in microseconds between @p before and @p after.
+     */
+    static uint64_t get_timestamp_diff_us(DataTime before, DataTime after);
+
+    /**
+     * @brief Increase timestamp by provided time.
+     *
+     * @param timestamp Original timestamp.
+     * @param us Time in microseconds that should be added to original timestamp.
+     * @return @p timestamp plus @p us round up to the nearest DataTime.
+     */
+    static DataTime timestamp_add_us_roundup(DataTime timestamp, uint64_t us);
 
 public slots:
+    /**
+     * @brief Initialize DataProcessor.
+     */
     void setup(void);
+
+    /**
+     * @brief Process incoming data and send clean data to th chart.
+     * Triggered by timer.
+     */
     void process(void);
 
+    /**
+     * @brief Handle reader status report.
+     *
+     * @param reader_id Uniq ID of the reader.
+     * @param status Status of the reader.
+     */
     void reported_reader_status(uint64_t reader_id, UniversalReader::Status status);
 
     /* TODO: remove connection to the button. */
@@ -90,11 +164,31 @@ public slots:
     void stop_data_processing(); /**< Slot connected to the stop button. */
 
 signals:
-    void send_new_data(const QList<GraphData> &new_data); /**< Send new data to show in a graph. */
+    /**
+     * @brief Send new data to show in a chart.
+     *
+     * @param new_data Data to show in a chart.
+     */
+    void send_new_data(const QList<GraphData> &new_data);
+
+    /**
+     * @brief Report finish of the Data Processor.
+     */
     void finished(void);
 
-    void reader_start(uint64_t reader_id); /**< Start specific reader. */
-    void reader_stop(uint64_t reader_id); /**< Stop specific reader. */
+    /**
+     * @brief Start specific reader.
+     *
+     * @param reader_id Uniq ID of the reader.
+     */
+    void reader_start(uint64_t reader_id);
+
+    /**
+     * @brief Stop specific reader.
+     *
+     * @param reader_id Uniq ID of the reader.
+     */
+    void reader_stop(uint64_t reader_id);
 
 private:
     /**
@@ -114,7 +208,7 @@ private:
     QTimer *m_timer =
             nullptr; /**< Timer to execute processing function and send data to graph Widget. */
     QHash<uint64_t, DataSenderInfo>
-            m_senders; /**< Initialized data senders. Sender is is used as a key. */
+            m_senders; /**< Initialized data senders. Sender is used as a key. */
     QMap<uint64_t, QList<DataPoint>> m_in_buffers; /**< Buffers where senders store the data.
                                                      Buffer (variable) id is used as a key. Sender
                                                      Mutex is used for a thread-safety. */

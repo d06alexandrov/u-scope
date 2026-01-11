@@ -7,7 +7,7 @@ on:
     branches: [ develop ]
 
 jobs:
-  build-and-push:
+  app-build:
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/d06alexandrov/u-scope:0.1

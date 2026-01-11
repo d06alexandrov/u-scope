@@ -10,7 +10,7 @@ env:
   DOCKERFILE_DIR: ./.devcontainer
 
 jobs:
-  build-and-push:
+  docker-build-and-push:
     runs-on: ubuntu-latest
     permissions:
       contents: read

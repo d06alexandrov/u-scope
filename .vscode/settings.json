@@ -1,8 +1,4 @@
 {
     "qttools.loglevel": "debug",
-    "qt-ui.customWidgetsDesignerExePath": "/usr/lib/qt6/bin/designer",
-    "qt-core.additionalQtPaths": [
-        "/usr/bin/qtpaths6",
-    ],
     "editor.formatOnSave": true,
 }

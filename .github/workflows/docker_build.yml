@@ -3,15 +3,44 @@ name: Build Develop Image
 on:
   push:
     branches: [ develop ]
-    paths: [ '.devcontainer/Dockerfile' ]
+    paths: 
+      - '.devcontainer/Dockerfile'
+      - '.devcontainer/Dockerfile.win'
 
 env:
   REGISTRY: ghcr.io
-  DOCKERFILE_DIR: ./.devcontainer
 
 jobs:
+  detect-changes:
+    runs-on: ubuntu-latest
+    outputs:
+      files: ${{ steps.set-matrix.outputs.files }}
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Get changed files
+        id: changed-files
+        uses: tj-actions/changed-files@v44
+        with:
+          files: |
+            .devcontainer/Dockerfile
+            .devcontainer/Dockerfile.win
+
+      - name: Create Matrix
+        id: set-matrix
+        run: |
+          # Convert the space-separated list to a JSON array
+          JSON_FILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | jq -R -c 'split(" ")')
+          echo "files=$JSON_FILES" >> $GITHUB_OUTPUT
+
   docker-build-and-push:
     runs-on: ubuntu-latest
+    needs: detect-changes
+    if: needs.detect-changes.outputs.files != '[]' && needs.detect-changes.outputs.files != ''
+    strategy:
+      matrix:
+        dockerfile: ${{ fromJson(needs.detect-changes.outputs.files) }}
     permissions:
       contents: read
       packages: write
@@ -26,7 +55,7 @@ jobs:
       - name: Extract version from Dockerfile
         id: get_version
         run: |
-          VERSION=$(grep 'LABEL version=' ${{ env.DOCKERFILE_DIR }}/Dockerfile | cut -d'"' -f2)
+          VERSION=$(grep 'LABEL version=' ${{ matrix.dockerfile }} | cut -d'"' -f2)
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Login to GHCR
@@ -47,7 +76,7 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v6
         with:
-          context: ${{ env.DOCKERFILE_DIR }}
+          file: ${{ matrix.dockerfile }}
           target: base-img
           push: true
           tags: |

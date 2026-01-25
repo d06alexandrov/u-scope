@@ -1,10 +1,9 @@
-FROM ghcr.io/d06alexandrov/u-scope:linux_test AS base-img
+FROM dalogik/qt-docker:qt6.11.0-win64-mingw AS base-img
 
-LABEL version="0.2"
+LABEL version="0.2-win"
 
 # Install additional required packages
 RUN \
     apt-get update \
     && apt-get install -y git \
-    clang-format doxygen \
     && rm -rf /var/lib/apt/lists/*

@@ -78,6 +78,6 @@ jobs:
         with:
           file: ${{ matrix.dockerfile }}
           target: base-img
-          push: false
+          push: true
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}

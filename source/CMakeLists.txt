@@ -42,12 +42,17 @@ qt_add_translations(u-scope
 
 if (WIN32)
 install(TARGETS u-scope)
-
 qt_generate_deploy_app_script(
     TARGET u-scope
     OUTPUT_SCRIPT deploy_script
     NO_UNSUPPORTED_PLATFORM_ERROR
 )
-
 install(SCRIPT ${deploy_script})
+else()
+include(GNUInstallDirs)
+install(TARGETS u-scope
+    BUNDLE DESTINATION .
+    LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
+    RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
+)
 endif()

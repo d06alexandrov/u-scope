@@ -5,6 +5,6 @@ LABEL version="0.2"
 # Install additional required packages
 RUN \
     apt-get update \
-    && apt-get install -y git \
-    clang-format doxygen \
+    && apt-get install -y --no-install-suggests --no-install-recommends \
+    git clang-format doxygen \
     && rm -rf /var/lib/apt/lists/*

@@ -1,4 +1,4 @@
-FROM dalogik/qt-docker:qt6.11.0-win64-mingw AS base-img
+FROM dalogik/qt-docker:qt6.10.0-win64-mingw AS base-img
 
 LABEL version="0.3-win"
 

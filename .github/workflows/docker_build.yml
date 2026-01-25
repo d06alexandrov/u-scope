@@ -2,7 +2,7 @@ name: Build Develop Image
 
 on:
   push:
-#    branches: [ develop ]
+    branches: [ develop ]
     paths: 
       - '.devcontainer/Dockerfile'
       - '.devcontainer/Dockerfile.win'

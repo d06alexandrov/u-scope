@@ -80,3 +80,6 @@ CMakeLists.txt.user*
 .rcc/
 .uic/
 /build*/
+
+# Ignore regenerated cmake-kits
+cmake-kits.json

@@ -1,4 +1,5 @@
 {
     "qttools.loglevel": "debug",
     "editor.formatOnSave": true,
+    "qt-core.qtInstallationRoot": "/opt/qt"
 }

@@ -2,6 +2,12 @@ ARG IMAGE_VERSION
 
 FROM ghcr.io/d06alexandrov/u-scope:${IMAGE_VERSION}
 
+# Install additional packages
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+    sudo gdb ssh \
+    && rm -rf /var/lib/apt/lists/*
+
 # Grant sudo rights to the default ubuntu user
 RUN usermod -aG sudo ubuntu \
     && echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu \

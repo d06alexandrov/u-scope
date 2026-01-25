@@ -9,7 +9,6 @@ on:
 
 env:
   REGISTRY: ghcr.io
-  DOCKERFILE_DIR: ./.devcontainer
 
 jobs:
   detect-changes:
@@ -56,7 +55,7 @@ jobs:
       - name: Extract version from Dockerfile
         id: get_version
         run: |
-          VERSION=$(grep 'LABEL version=' ${{ env.DOCKERFILE_DIR }}/Dockerfile | cut -d'"' -f2)
+          VERSION=$(grep 'LABEL version=' ${{ matrix.dockerfile }} | cut -d'"' -f2)
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Login to GHCR
@@ -74,11 +73,11 @@ jobs:
             exit 1
           fi
 
-#      - name: Build and push
-#        uses: docker/build-push-action@v6
-#        with:
-#          context: ${{ env.DOCKERFILE_DIR }}
-#          target: base-img
-#          push: true
-#          tags: |
-#            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}
+      - name: Build and push
+        uses: docker/build-push-action@v6
+        with:
+          file: ${{ matrix.dockerfile }}
+          target: base-img
+          push: false
+          tags: |
+            ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}

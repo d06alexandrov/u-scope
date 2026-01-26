@@ -41,7 +41,7 @@ jobs:
           # Build
           cmake -B build -G Ninja
           cmake --build build --config Release --target u-scope
-          cmake --install build --config Release --component u-scope --prefix u-scope-win64
+          cmake --install build --config Release --prefix $GITHUB_WORKSPACE/u-scope-win64
 
       - name: Upload Linux artifacts
         if: matrix.platforms.os == 'linux'

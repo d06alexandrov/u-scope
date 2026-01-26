@@ -9,8 +9,12 @@ on:
 jobs:
   app-build:
     runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        platforms: [ {os: 'linux', tag: '0.3'}, {os: 'windows', tag: '0.3-win'}]
     container:
-      image: ghcr.io/d06alexandrov/u-scope:0.1
+      image: ghcr.io/d06alexandrov/u-scope:${{ matrix.platforms.tag }}
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -22,13 +26,33 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@v4
 
-      - name: Build an Application
+      - name: Build Linux Application
+        if: matrix.platforms.os == 'linux'
         run: |
           cmake -B build
           cmake --build build --config Release --target u-scope
 
-      - name: Upload artifacts
+      - name: Build Windows Application
+        if: matrix.platforms.os == 'windows'
+        run: |
+          # Create a directory Wine can own
+          mkdir -p /tmp/wineprefix
+          export WINEPREFIX=/tmp/wineprefix
+          # Build
+          cmake -B build -G Ninja
+          cmake --build build --config Release --target u-scope
+          cmake --install build --config Release --component u-scope --prefix u-scope-win64
+
+      - name: Upload Linux artifacts
+        if: matrix.platforms.os == 'linux'
         uses: actions/upload-artifact@v4
         with:
-          name: u-scope-app
+          name: u-scope-linux
           path: build/source/u-scope
+
+      - name: Upload Windows artifacts
+        if: matrix.platforms.os == 'windows'
+        uses: actions/upload-artifact@v4
+        with:
+          name: u-scope-win64
+          path: u-scope-win64

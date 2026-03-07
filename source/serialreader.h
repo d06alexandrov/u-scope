@@ -12,6 +12,11 @@ class DataProcessor;
  */
 struct SerialReaderConfig : UniversalReaderConfig
 {
+    std::shared_ptr<UniversalReaderConfig> clone() const override
+    {
+        return std::make_shared<SerialReaderConfig>(*this);
+    }
+
     QString port_name; /**< Serial port reference. */
     int32_t baud_rate; /**< Baud rate of the port. */
     QSerialPort::DataBits data_bits; /**< Amount of the data bits. */

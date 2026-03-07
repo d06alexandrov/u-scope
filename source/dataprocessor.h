@@ -163,6 +163,16 @@ public slots:
     void start_data_processing(); /**< Slot connected to the start button. */
     void stop_data_processing(); /**< Slot connected to the stop button. */
 
+    /**
+     * @brief Configure reader
+     *
+     * If the reader exists, it changes the config of it.
+     *
+     * @param id reader id
+     * @param config configuration of the reader
+     */
+    void configure_reader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config);
+
 signals:
     /**
      * @brief Send new data to show in a chart.

@@ -4,8 +4,10 @@
 
 #include <QList>
 #include <QMap>
+#include <QMetaType>
 #include <QObject>
 #include <QTimer>
+#include <memory>
 
 /**
  * @brief Configuration for the @ref UniversalReader.
@@ -13,8 +15,16 @@
 struct UniversalReaderConfig
 {
     virtual ~UniversalReaderConfig() = default;
+    /**
+     * @brief Clone Reader Config
+     *
+     * @return pointer to the copy of the config
+     */
+    virtual std::shared_ptr<UniversalReaderConfig> clone() const = 0;
     uint32_t update_period_ms; /**< Period in ms of sending data to data processor */
 };
+
+Q_DECLARE_METATYPE(std::shared_ptr<UniversalReaderConfig>)
 
 class DataProcessor;
 

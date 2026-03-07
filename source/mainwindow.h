@@ -61,6 +61,17 @@ private:
 
     ReaderId get_available_reader_idx(); /**< Get first available reader index. */
 
+signals:
+    /**
+     * @brief Send reader configuration to the Data Processor
+     *
+     * If the reader exists, it changes the config of it.
+     *
+     * @param id reader id
+     * @param config configuration of the reader
+     */
+    void configure_reader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config);
+
 private slots:
     void source_list_context_menu(const QPoint &pos);
 

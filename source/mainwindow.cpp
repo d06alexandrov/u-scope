@@ -87,6 +87,8 @@ void MainWindow::init_data_processor()
 
     connect(data_processor, &DataProcessor::send_new_data, this, &MainWindow::receive_new_data);
 
+    connect(this, &MainWindow::configure_reader, data_processor, &DataProcessor::configure_reader);
+
     connect(m_data_processor_thread, &QThread::finished, data_processor,
             &DataProcessor::deleteLater);
 
@@ -94,6 +96,10 @@ void MainWindow::init_data_processor()
             &DataProcessor::start_data_processing);
     connect(ui->pushButton_StopAll, &QPushButton::clicked, data_processor,
             &DataProcessor::stop_data_processing);
+
+    // Register Meta Type which will be used in a communication with Data Processor
+    qRegisterMetaType<std::shared_ptr<UniversalReaderConfig>>(
+            "std::shared_ptr<UniversalReaderConfig>");
 
     m_data_processor_thread->start();
 }
@@ -200,14 +206,13 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
 
                     auto config = dialog.get_config();
 
-                    // Should be configured by data processor
-                    config->update_period_ms = 30;
-
                     m_readers_config.insert(new_reader_id, config);
 
                     QStandardItem *new_item = new QStandardItem(tr("Source %1").arg(new_reader_id));
                     new_item->setData(QVariant::fromValue(new_reader_id), Qt::UserRole);
                     m_source_list_model->appendRow(new_item);
+
+                    emit configure_reader(new_reader_id, config);
                 }
             });
         }

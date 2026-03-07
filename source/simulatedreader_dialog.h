@@ -18,7 +18,8 @@ class SimulatedReaderDialog : public QDialog
     Q_OBJECT
 
 public:
-    explicit SimulatedReaderDialog(QWidget *parent = nullptr);
+    SimulatedReaderDialog(QWidget *parent = nullptr,
+                          std::shared_ptr<SimulatedReaderConfig> config = nullptr);
 
     std::shared_ptr<UniversalReaderConfig> get_config();
 
@@ -29,6 +30,7 @@ private:
     };
 
     Ui::SimulatedReaderDialog *ui = nullptr; /**< Pointer to the user interface. */
+    std::shared_ptr<SimulatedReaderConfig> m_config = nullptr;
 
 signals:
 };

@@ -42,6 +42,12 @@
           <property name="contextMenuPolicy">
            <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
           </property>
+          <property name="editTriggers">
+           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
+          </property>
+          <property name="headerHidden">
+           <bool>true</bool>
+          </property>
          </widget>
         </item>
        </layout>

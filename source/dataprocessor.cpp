@@ -173,3 +173,15 @@ void DataProcessor::configure_reader(ReaderId id, std::shared_ptr<UniversalReade
         }
     }
 }
+
+void DataProcessor::remove_reader(ReaderId id)
+{
+    if (m_senders.contains(id)) {
+        emit reader_stop(id);
+
+        // TODO: gracefully remove the reader
+
+        m_buffer_to_sender.remove(id);
+        m_senders.remove(id);
+    }
+}

@@ -173,6 +173,13 @@ public slots:
      */
     void configure_reader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config);
 
+    /**
+     * @brief Remove reader
+     *
+     * @param id reader id
+     */
+    void remove_reader(ReaderId id);
+
 signals:
     /**
      * @brief Send new data to show in a chart.

@@ -88,6 +88,7 @@ void MainWindow::init_data_processor()
     connect(data_processor, &DataProcessor::send_new_data, this, &MainWindow::receive_new_data);
 
     connect(this, &MainWindow::configure_reader, data_processor, &DataProcessor::configure_reader);
+    connect(this, &MainWindow::remove_reader, data_processor, &DataProcessor::remove_reader);
 
     connect(m_data_processor_thread, &QThread::finished, data_processor,
             &DataProcessor::deleteLater);
@@ -188,6 +189,11 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
             }
         });
         connect(delete_source_action, &QAction::triggered, this, [this, index, reader_id]() {
+            emit remove_reader(reader_id);
+
+            // TODO: gracefully remove config to prevent any issues during the data transmit from
+            // data processor to main window
+
             m_readers_config.remove(reader_id);
             m_source_list_model->removeRow(index.row(), index.parent());
         });

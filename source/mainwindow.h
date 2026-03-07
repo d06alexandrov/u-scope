@@ -72,6 +72,13 @@ signals:
      */
     void configure_reader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config);
 
+    /**
+     * @brief Remove reader configuration from the Data Processor
+     *
+     * @param id reader id
+     */
+    void remove_reader(ReaderId id);
+
 private slots:
     void source_list_context_menu(const QPoint &pos);
 

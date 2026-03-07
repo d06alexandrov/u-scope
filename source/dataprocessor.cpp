@@ -179,9 +179,9 @@ void DataProcessor::remove_reader(ReaderId id)
     if (m_senders.contains(id)) {
         emit reader_stop(id);
 
-        // TODO: gracefully remove the reader
+        auto sender_info = m_senders.take(id);
+        sender_info.thread->quit();
 
-        m_buffer_to_sender.remove(id);
         m_senders.remove(id);
     }
 }

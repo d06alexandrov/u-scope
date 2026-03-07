@@ -186,6 +186,8 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
                 config->update_period_ms = 30;
 
                 m_readers_config[new_reader_id] = config;
+
+                delete dialog;
             }
         });
         connect(delete_source_action, &QAction::triggered, this, [this, index, reader_id]() {

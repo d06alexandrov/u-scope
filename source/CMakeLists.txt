@@ -12,6 +12,9 @@ set(SOURCES
     universalreader.cpp
     universalreader.h
     commontypes.hpp
+    simulatedreader_dialog.h
+    simulatedreader_dialog.cpp
+    simulatedreader_dialog.ui
 )
 
 qt_add_executable(u-scope

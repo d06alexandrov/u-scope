@@ -30,9 +30,9 @@ DataProcessor::~DataProcessor()
     }
 }
 
-void DataProcessor::add_variables_data(uint64_t sender_id, QMap<uint64_t, QList<DataPoint>> &data)
+void DataProcessor::add_variables_data(ReaderId reader_id, QMap<VariableId, QList<DataPoint>> &data)
 {
-    auto &sender_info = m_senders[sender_id];
+    auto &sender_info = m_senders[reader_id];
     if (sender_info.buffer_mutex) {
         QMutexLocker locker(sender_info.buffer_mutex.get());
 
@@ -127,7 +127,7 @@ void DataProcessor::process(void)
 {
     QList<GraphData> new_data;
 
-    for (uint64_t var_id = 0; var_id < 2; var_id++) {
+    for (VariableId var_id = 0; var_id < 2; var_id++) {
         QList<QPointF> processed_values;
         QList<DataPoint> in_data;
 
@@ -155,7 +155,7 @@ void DataProcessor::process(void)
     emit send_new_data(new_data);
 }
 
-void DataProcessor::reported_reader_status(uint64_t reader_id, UniversalReader::Status status)
+void DataProcessor::reported_reader_status(ReaderId reader_id, UniversalReader::Status status)
 {
     auto reader_iter = m_senders.find(reader_id);
 

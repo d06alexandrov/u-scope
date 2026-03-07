@@ -111,10 +111,10 @@ public:
      *
      * @note Thread-safe if the senders' info is updated when all senders are stopped.
      *
-     * @param sender_id ID of the sender.
+     * @param reader_id ID of the sender.
      * @param data Data to be stored.
      */
-    void add_variables_data(uint64_t sender_id, QMap<uint64_t, QList<DataPoint>> &data);
+    void add_variables_data(ReaderId reader_id, QMap<VariableId, QList<DataPoint>> &data);
 
     /**
      * @brief Get current timestamp.
@@ -157,11 +157,28 @@ public slots:
      * @param reader_id Unique ID of the reader.
      * @param status Status of the reader.
      */
-    void reported_reader_status(uint64_t reader_id, UniversalReader::Status status);
+    void reported_reader_status(ReaderId reader_id, UniversalReader::Status status);
 
     /* TODO: remove connection to the button. */
     void start_data_processing(); /**< Slot connected to the start button. */
     void stop_data_processing(); /**< Slot connected to the stop button. */
+
+    /**
+     * @brief Configure reader
+     *
+     * If the reader exists, it changes the config of it.
+     *
+     * @param id reader id
+     * @param config configuration of the reader
+     */
+    void configure_reader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config);
+
+    /**
+     * @brief Remove reader
+     *
+     * @param id reader id
+     */
+    void remove_reader(ReaderId id);
 
 signals:
     /**
@@ -181,14 +198,14 @@ signals:
      *
      * @param reader_id Unique ID of the reader.
      */
-    void reader_start(uint64_t reader_id);
+    void reader_start(ReaderId reader_id);
 
     /**
      * @brief Stop specific reader.
      *
      * @param reader_id Unique ID of the reader.
      */
-    void reader_stop(uint64_t reader_id);
+    void reader_stop(ReaderId reader_id);
 
 private:
     /**
@@ -207,12 +224,13 @@ private:
 
     QTimer *m_timer =
             nullptr; /**< Timer to execute processing function and send data to graph Widget. */
-    QHash<uint64_t, DataSenderInfo>
+    QHash<ReaderId, DataSenderInfo>
             m_senders; /**< Initialized data senders. Sender is used as a key. */
-    QMap<uint64_t, QList<DataPoint>> m_in_buffers; /**< Buffers where senders store the data.
+    QMap<VariableId, QList<DataPoint>> m_in_buffers; /**< Buffers where senders store the data.
                                                      Buffer (variable) id is used as a key. Sender
                                                      Mutex is used for a thread-safety. */
-    QMap<uint64_t, QVector<DataPoint>> m_buffers; /**< Buffers to store raw data from senders.
+    QMap<VariableId, QVector<DataPoint>> m_buffers; /**< Buffers to store raw data from senders.
                                                      Buffer (variable) id is used as a key. */
-    QMap<uint64_t, uint64_t> m_buffer_to_sender; /**< Buffer id and to sender id correspondence. */
+    QMap<VariableId, ReaderId>
+            m_buffer_to_sender; /**< Buffer id and to sender id correspondence. */
 };

@@ -33,6 +33,11 @@ struct SimulatedReaderConfig : UniversalReaderConfig
      */
     using Config = std::variant<ConstConfig, SinConfig>;
 
+    std::shared_ptr<UniversalReaderConfig> clone() const override
+    {
+        return std::make_shared<SimulatedReaderConfig>(*this);
+    }
+
     uint64_t variable_id; /**< ID of the generated variable. */
     int32_t sample_rate; /**< Amount of samples per second. */
     Config form_conf; /**< Configuration for the specific form. */

@@ -30,9 +30,9 @@ DataProcessor::~DataProcessor()
     }
 }
 
-void DataProcessor::add_variables_data(uint64_t sender_id, QMap<uint64_t, QList<DataPoint>> &data)
+void DataProcessor::add_variables_data(ReaderId reader_id, QMap<VariableId, QList<DataPoint>> &data)
 {
-    auto &sender_info = m_senders[sender_id];
+    auto &sender_info = m_senders[reader_id];
     if (sender_info.buffer_mutex) {
         QMutexLocker locker(sender_info.buffer_mutex.get());
 
@@ -61,63 +61,6 @@ DataTime DataProcessor::timestamp_add_us_roundup(DataTime timestamp, uint64_t us
 
 void DataProcessor::setup(void)
 {
-    auto config = std::make_shared<SerialReaderConfig>();
-    config->port_name = QString("/dev/pts/3");
-    config->baud_rate = 115200;
-    config->data_bits = QSerialPort::Data8;
-    config->parity = QSerialPort::OddParity;
-    config->stop_bits = QSerialPort::OneStop;
-    config->flow_control = QSerialPort::NoFlowControl;
-
-    config->update_period_ms = 10;
-
-    DataSenderInfo new_sender{ new QThread(), new SerialReader(0, this, std::move(config)),
-                               std::make_shared<QMutex>() };
-
-    new_sender.sender->moveToThread(new_sender.thread);
-    connect(new_sender.thread, &QThread::started, new_sender.sender,
-            &UniversalReader::reader_setup);
-    connect(new_sender.thread, &QThread::finished, new_sender.sender, &QObject::deleteLater);
-    connect(new_sender.thread, &QThread::finished, new_sender.thread, &QObject::deleteLater);
-
-    connect(new_sender.sender, &UniversalReader::report_status, this,
-            &DataProcessor::reported_reader_status);
-    connect(this, &DataProcessor::reader_start, new_sender.sender, &UniversalReader::reader_start);
-    connect(this, &DataProcessor::reader_stop, new_sender.sender, &UniversalReader::reader_stop);
-
-    m_senders.insert(0, std::move(new_sender));
-    m_buffer_to_sender[0] = 0;
-
-    auto config2 = std::make_shared<SimulatedReaderConfig>();
-    config2->form_conf = SimulatedReaderConfig::SinConfig{
-        .frequency = 10,
-        .amplitude = 25,
-    };
-
-    config2->update_period_ms = 20;
-    config2->variable_id = 1;
-    config2->sample_rate = 1000;
-
-    DataSenderInfo new_sender2{ new QThread(), new SimulatedReader(1, this, std::move(config2)),
-                                std::make_shared<QMutex>() };
-
-    new_sender2.sender->moveToThread(new_sender2.thread);
-    connect(new_sender2.thread, &QThread::started, new_sender2.sender,
-            &UniversalReader::reader_setup);
-    connect(new_sender2.thread, &QThread::finished, new_sender2.sender, &QObject::deleteLater);
-    connect(new_sender2.thread, &QThread::finished, new_sender2.thread, &QObject::deleteLater);
-
-    connect(new_sender2.sender, &UniversalReader::report_status, this,
-            &DataProcessor::reported_reader_status);
-    connect(this, &DataProcessor::reader_start, new_sender2.sender, &UniversalReader::reader_start);
-    connect(this, &DataProcessor::reader_stop, new_sender2.sender, &UniversalReader::reader_stop);
-
-    m_senders.insert(1, std::move(new_sender2));
-    m_buffer_to_sender[1] = 1;
-
-    new_sender.thread->start();
-    new_sender2.thread->start();
-
     m_timer = new QTimer(this);
     connect(m_timer, &QTimer::timeout, this, &DataProcessor::process);
     m_timer->start(30);
@@ -127,11 +70,11 @@ void DataProcessor::process(void)
 {
     QList<GraphData> new_data;
 
-    for (uint64_t var_id = 0; var_id < 2; var_id++) {
+    for (auto [var_id, reader_id] : m_buffer_to_sender.asKeyValueRange()) {
         QList<QPointF> processed_values;
         QList<DataPoint> in_data;
 
-        auto &sender_info = m_senders[m_buffer_to_sender[var_id]];
+        auto &sender_info = m_senders[reader_id];
         if (sender_info.buffer_mutex) {
             QMutexLocker locker(sender_info.buffer_mutex.get());
             std::swap(in_data, m_in_buffers[var_id]);
@@ -149,13 +92,13 @@ void DataProcessor::process(void)
             processed_values.emplace_back(i - 100, val);
         }
 
-        new_data.emplace_back(QString("Test data2"), std::move(processed_values));
+        new_data.emplace_back(QString("Data"), std::move(processed_values));
     }
 
     emit send_new_data(new_data);
 }
 
-void DataProcessor::reported_reader_status(uint64_t reader_id, UniversalReader::Status status)
+void DataProcessor::reported_reader_status(ReaderId reader_id, UniversalReader::Status status)
 {
     auto reader_iter = m_senders.find(reader_id);
 
@@ -185,5 +128,60 @@ void DataProcessor::stop_data_processing()
             || (reader.latest_status == UniversalReader::Error)) {
             emit reader_stop(id);
         }
+    }
+}
+
+void DataProcessor::configure_reader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config)
+{
+    if (m_senders.contains(id)) {
+        // modify reader
+    } else {
+        auto config_copy = config->clone();
+
+        config_copy->update_period_ms = 20;
+
+        UniversalReader *reader = nullptr;
+
+        if (std::dynamic_pointer_cast<SimulatedReaderConfig>(config)) {
+            reader = new SimulatedReader(
+                    id, this, std::dynamic_pointer_cast<SimulatedReaderConfig>(config_copy));
+        }
+
+        if (reader != nullptr) {
+            DataSenderInfo new_sender{ new QThread(), reader, std::make_shared<QMutex>() };
+
+            new_sender.sender->moveToThread(new_sender.thread);
+
+            connect(new_sender.thread, &QThread::started, new_sender.sender,
+                    &UniversalReader::reader_setup);
+            connect(new_sender.thread, &QThread::finished, new_sender.sender,
+                    &QObject::deleteLater);
+            connect(new_sender.thread, &QThread::finished, new_sender.thread,
+                    &QObject::deleteLater);
+
+            connect(new_sender.sender, &UniversalReader::report_status, this,
+                    &DataProcessor::reported_reader_status);
+            connect(this, &DataProcessor::reader_start, new_sender.sender,
+                    &UniversalReader::reader_start);
+            connect(this, &DataProcessor::reader_stop, new_sender.sender,
+                    &UniversalReader::reader_stop);
+
+            m_senders.insert(id, std::move(new_sender));
+            m_buffer_to_sender[id] = id;
+
+            new_sender.thread->start();
+        }
+    }
+}
+
+void DataProcessor::remove_reader(ReaderId id)
+{
+    if (m_senders.contains(id)) {
+        emit reader_stop(id);
+
+        auto sender_info = m_senders.take(id);
+        sender_info.thread->quit();
+
+        m_senders.remove(id);
     }
 }

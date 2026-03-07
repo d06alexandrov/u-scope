@@ -8,6 +8,8 @@ SimulatedReader::SimulatedReader(uint64_t id, DataProcessor *processor,
                                  std::shared_ptr<SimulatedReaderConfig> config)
     : UniversalReader{ id, processor, config }
 {
+    // Fix variable id's and remove this temporary change
+    config->variable_id = id;
 }
 
 const SimulatedReaderConfig *SimulatedReader::get_config() const

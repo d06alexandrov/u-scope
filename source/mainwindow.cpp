@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
 #include "dataprocessor.h"
+#include "simulatedreader_dialog.h"
 #include "ui_mainwindow.h"
 
 #include <QChart>
@@ -8,12 +9,26 @@
 #include <QThread>
 #include <QValueAxis>
 
+namespace {
+/**
+ * @brief Config an axis
+ *
+ * @param axis pointer to the axis
+ * @param min minimum axis value
+ * @param max maximum axis value
+ * @param grid_cells amount of the grid cells
+ * @param grid_color color of the grid
+ */
+void config_axis(QValueAxis *axis, int min, int max, int grid_cells, const QColor grid_color);
+} // namespace
+
 MainWindow::MainWindow()
     : QMainWindow(nullptr)
     , ui(new Ui::MainWindow)
     , m_chart(new QChart)
     , m_series(new QLineSeries)
     , m_series2(new QLineSeries)
+    , m_source_list_model(new QStandardItemModel)
 {
     ui->setupUi(this);
 
@@ -42,6 +57,8 @@ MainWindow::MainWindow()
     }
 
     init_data_processor();
+
+    init_source_list();
 }
 
 MainWindow::~MainWindow()
@@ -70,6 +87,9 @@ void MainWindow::init_data_processor()
 
     connect(data_processor, &DataProcessor::send_new_data, this, &MainWindow::receive_new_data);
 
+    connect(this, &MainWindow::configure_reader, data_processor, &DataProcessor::configure_reader);
+    connect(this, &MainWindow::remove_reader, data_processor, &DataProcessor::remove_reader);
+
     connect(m_data_processor_thread, &QThread::finished, data_processor,
             &DataProcessor::deleteLater);
 
@@ -78,20 +98,12 @@ void MainWindow::init_data_processor()
     connect(ui->pushButton_StopAll, &QPushButton::clicked, data_processor,
             &DataProcessor::stop_data_processing);
 
+    // Register Meta Type which will be used in a communication with Data Processor
+    qRegisterMetaType<std::shared_ptr<UniversalReaderConfig>>(
+            "std::shared_ptr<UniversalReaderConfig>");
+
     m_data_processor_thread->start();
 }
-
-/**
- * @brief Config an axis
- *
- * @param axis pointer to the axis
- * @param min minimum axis value
- * @param max maximum axis value
- * @param grid_cells amount of the grid cells
- * @param grid_color color of the grid
- */
-static void config_axis(QValueAxis *axis, int min, int max, int grid_cells,
-                        const QColor grid_color);
 
 void MainWindow::init_graph()
 {
@@ -116,6 +128,107 @@ void MainWindow::init_graph()
     ui->dataPlot->setChart(m_chart);
 }
 
+void MainWindow::init_source_list()
+{
+    ui->sourceList->setModel(m_source_list_model);
+
+    connect(ui->sourceList, &QTreeView::customContextMenuRequested, this,
+            &MainWindow::source_list_context_menu);
+}
+
+ReaderId MainWindow::get_available_reader_idx()
+{
+    ReaderId reader_id = 0;
+
+    for (auto it = m_readers_config.lowerBound(reader_id); it != m_readers_config.end(); it++) {
+        if (it.key() == reader_id) {
+            reader_id++;
+        } else if (it.key() > reader_id) {
+            break;
+        }
+    }
+
+    if (reader_id >= this->maximum_reader_id) {
+        throw std::range_error("Reader amount limit exceeded");
+    }
+
+    return reader_id;
+}
+
+void MainWindow::source_list_context_menu(const QPoint &pos)
+{
+    QModelIndex index = ui->sourceList->indexAt(pos);
+
+    QMenu contextMenu(this);
+
+    if (index.isValid()) {
+        QAction *modify_source_action = contextMenu.addAction("Modify existing source");
+        QAction *delete_source_action = contextMenu.addAction("Delete existing source");
+
+        auto existing_item = m_source_list_model->itemFromIndex(index);
+
+        ReaderId reader_id = existing_item->data(Qt::UserRole).value<ReaderId>();
+
+        connect(modify_source_action, &QAction::triggered, this, [this, index, reader_id]() {
+            QDialog *dialog = nullptr;
+
+            if (auto config = std::dynamic_pointer_cast<SimulatedReaderConfig>(
+                        this->m_readers_config.value(reader_id))) {
+                dialog = new SimulatedReaderDialog(this, config);
+            }
+
+            if (dialog != nullptr && dialog->exec() == QDialog::Accepted) {
+                ReaderId new_reader_id = get_available_reader_idx();
+
+                auto config = dynamic_cast<SimulatedReaderDialog *>(dialog)->get_config();
+
+                // Should be configured by data processor
+                config->update_period_ms = 30;
+
+                m_readers_config[new_reader_id] = config;
+
+                delete dialog;
+            }
+        });
+        connect(delete_source_action, &QAction::triggered, this, [this, index, reader_id]() {
+            emit remove_reader(reader_id);
+
+            // TODO: gracefully remove config to prevent any issues during the data transmit from
+            // data processor to main window
+
+            m_readers_config.remove(reader_id);
+            m_source_list_model->removeRow(index.row(), index.parent());
+        });
+    } else {
+        if (m_readers_config.size() >= this->maximum_reader_id) {
+            QAction *new_source_action = contextMenu.addAction("Source amount limit was achieved");
+            new_source_action->setEnabled(false);
+        } else {
+            QAction *new_source_action = contextMenu.addAction("Configure new simulated source");
+
+            connect(new_source_action, &QAction::triggered, this, [this, index]() {
+                SimulatedReaderDialog dialog(this);
+
+                if (dialog.exec() == QDialog::Accepted) {
+                    ReaderId new_reader_id = get_available_reader_idx();
+
+                    auto config = dialog.get_config();
+
+                    m_readers_config.insert(new_reader_id, config);
+
+                    QStandardItem *new_item = new QStandardItem(tr("Source %1").arg(new_reader_id));
+                    new_item->setData(QVariant::fromValue(new_reader_id), Qt::UserRole);
+                    m_source_list_model->appendRow(new_item);
+
+                    emit configure_reader(new_reader_id, config);
+                }
+            });
+        }
+    }
+
+    contextMenu.exec(ui->sourceList->viewport()->mapToGlobal(pos));
+}
+
 void MainWindow::receive_new_data(const QList<GraphData> &new_data)
 {
     if (new_data.size() > 1) {
@@ -131,7 +244,8 @@ void MainWindow::receive_new_data(const QList<GraphData> &new_data)
     }
 }
 
-static void config_axis(QValueAxis *axis, int min, int max, int grid_cells, const QColor grid_color)
+namespace {
+void config_axis(QValueAxis *axis, int min, int max, int grid_cells, const QColor grid_color)
 {
     axis->setRange(min, max);
 
@@ -148,3 +262,4 @@ static void config_axis(QValueAxis *axis, int min, int max, int grid_cells, cons
 
     axis->setTickCount(grid_cells + 1);
 }
+} // namespace

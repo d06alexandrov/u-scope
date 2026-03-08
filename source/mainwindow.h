@@ -48,7 +48,7 @@ private:
 
     Ui::MainWindow *ui = nullptr; /**< Pointer to the Main Window user interface. */
     QChart *m_chart = nullptr; /**< Pointer to the main QChart. */
-    QLineSeries *m_series[12]; /**< Pointer to Chart's series'. */
+    QLineSeries *m_series[channels_amount]; /**< Pointer to Chart's series'. */
     QThread *m_data_processor_thread = nullptr; /**< Thread with a running Data Processor. */
     QMap<ReaderId, std::shared_ptr<UniversalReaderConfig>>
             m_readers_config; /**< Readers configuration. */

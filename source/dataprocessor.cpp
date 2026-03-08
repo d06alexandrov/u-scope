@@ -74,10 +74,9 @@ void DataProcessor::process(void)
 {
     QList<GraphData> new_data;
 
-    for (auto [reader_id, in_buffers] : m_in_buffers.asKeyValueRange()) {
+    for (auto [reader_id, sender_info] : m_senders.asKeyValueRange()) {
         QMap<VariableId, QList<DataPoint>> in_data;
 
-        auto &sender_info = m_senders[reader_id];
         if (sender_info.buffer_mutex) {
             QMutexLocker locker(sender_info.buffer_mutex.get());
             std::swap(in_data, m_in_buffers[reader_id]);
@@ -193,6 +192,17 @@ void DataProcessor::remove_reader(ReaderId id)
         sender_info.thread->quit();
 
         m_senders.remove(id);
+        m_in_buffers.remove(id);
+        m_buffers.remove(id);
+
+        for (auto it = m_var_to_channel.begin(); it != m_var_to_channel.end();) {
+            if (it.key().first == id) {
+                m_channel_to_var.remove(it.value());
+                it = m_var_to_channel.erase(it);
+            } else {
+                ++it;
+            }
+        }
     }
 }
 

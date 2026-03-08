@@ -73,7 +73,7 @@ public:
     /**
      * @brief Gets the channel id.
      *
-     * @return A reference to the name.
+     * @return The channel id of the data.
      */
     const ChannelId get_id() const { return m_id; }
 

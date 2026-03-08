@@ -89,6 +89,7 @@ void MainWindow::init_data_processor()
 
     connect(this, &MainWindow::configure_reader, data_processor, &DataProcessor::configure_reader);
     connect(this, &MainWindow::remove_reader, data_processor, &DataProcessor::remove_reader);
+    connect(this, &MainWindow::assign_channel, data_processor, &DataProcessor::assign_channel);
 
     connect(m_data_processor_thread, &QThread::finished, data_processor,
             &DataProcessor::deleteLater);
@@ -192,6 +193,7 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
         });
         connect(delete_source_action, &QAction::triggered, this, [this, index, reader_id]() {
             emit remove_reader(reader_id);
+            // TODO: remove correspondence between reader variables and channels
 
             // TODO: gracefully remove config to prevent any issues during the data transmit from
             // data processor to main window
@@ -221,6 +223,8 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
                     m_source_list_model->appendRow(new_item);
 
                     emit configure_reader(new_reader_id, config);
+                    // TODO: remove temporary correspondence between reader variable and a channel
+                    emit assign_channel(qMakePair(new_reader_id, 0), new_reader_id);
                 }
             });
         }
@@ -231,15 +235,13 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
 
 void MainWindow::receive_new_data(const QList<GraphData> &new_data)
 {
-    if (new_data.size() > 1) {
-        m_series2->replace(new_data.at(0).get_values());
-        m_series->replace(new_data.at(1).get_values());
-
-        if (new_data.at(0).get_values().size() > 0) {
-            ui->ch1Val->setText(QString::number(new_data.at(0).get_values().back().y()));
-        }
-        if (new_data.at(1).get_values().size() > 0) {
-            ui->ch2Val->setText(QString::number(new_data.at(1).get_values().back().y()));
+    for (auto &channel_data : new_data) {
+        if (channel_data.get_id() == 0) {
+            m_series->replace(channel_data.get_values());
+            ui->ch1Val->setText(QString::number(channel_data.get_values().back().y()));
+        } else if (channel_data.get_id() == 1) {
+            m_series2->replace(channel_data.get_values());
+            ui->ch2Val->setText(QString::number(channel_data.get_values().back().y()));
         }
     }
 }

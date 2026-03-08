@@ -33,7 +33,7 @@ void UniversalReader::reader_setup()
     }
 }
 
-void UniversalReader::reader_start(uint64_t id)
+void UniversalReader::reader_start(ReaderId id)
 {
     /* Skip if signal was sent to another reader.*/
     if (id != m_id) {
@@ -55,7 +55,7 @@ void UniversalReader::reader_start(uint64_t id)
         set_status(Error);
     }
 }
-void UniversalReader::reader_stop(uint64_t id)
+void UniversalReader::reader_stop(ReaderId id)
 {
     if (id != m_id) {
         return;

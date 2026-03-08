@@ -68,25 +68,35 @@ public:
 public slots:
     void reader_setup(); /**< Initialize common part of a reader and call setup method to initialize
                             specific readers. */
-    void reader_start(uint64_t id); /**< Start underlying reader and starts the periodic timer. */
-    void reader_stop(uint64_t id); /**< Stop underlying reader and stops the periodic timer. */
+    /**
+     * @brief Start the reader with its periodic timer
+     *
+     * @param id id of the reader
+     */
+    void reader_start(ReaderId id);
+    /**
+     * @brief Stop the reader with its periodic timer
+     *
+     * @param id id of the reader
+     */
+    void reader_stop(ReaderId id);
 
 private slots:
     void reader_process(); /**< Periodic function that calls process method and sends data to the
                               data processor. Triggered by timer. */
 
 signals:
-    void report_status(uint64_t id, Status status); /**< Report reader status change. */
+    void report_status(ReaderId id, Status status); /**< Report reader status change. */
 
 protected:
-    uint64_t m_id = 0; /**< ID of the reader. */
+    ReaderId m_id = 0; /**< ID of the reader. */
     Status m_status = Uninitialized; /**< Status of the reader. */
     DataProcessor *m_data_processor = nullptr; /**< Pointer to the DataProcessor. */
     std::shared_ptr<UniversalReaderConfig> m_config; /**< Reader configuration */
     QTimer *m_timer = nullptr; /**< Pointer to the timer for the periodical call of the
                                   reader_process maethod. */
 
-    QMap<uint64_t, QList<DataPoint>>
+    QMap<VariableId, QList<DataPoint>>
             m_buffer; /**< Buffer to store received data before it is sent to the data processor. */
 
     virtual void setup() = 0; /**< Initialization of a particular type of the reader. Called

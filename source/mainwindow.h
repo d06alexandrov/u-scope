@@ -79,6 +79,14 @@ signals:
      */
     void remove_reader(ReaderId id);
 
+    /**
+     * @brief Send correspondence between a variable and a channel to the Data Processor
+     *
+     * @param variable uniq identificator of a variable
+     * @param channel_id id of the channel
+     */
+    void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
+
 private slots:
     void source_list_context_menu(const QPoint &pos);
 

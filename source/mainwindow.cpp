@@ -26,35 +26,11 @@ MainWindow::MainWindow()
     : QMainWindow(nullptr)
     , ui(new Ui::MainWindow)
     , m_chart(new QChart)
-    , m_series(new QLineSeries)
-    , m_series2(new QLineSeries)
     , m_source_list_model(new QStandardItemModel)
 {
     ui->setupUi(this);
 
     init_graph();
-
-    try {
-        // Setting mock series
-        auto axisX = m_chart->axes(Qt::Horizontal).front();
-        auto axisY = m_chart->axes(Qt::Vertical).front();
-
-        m_chart->addSeries(m_series);
-
-        m_series->setName("Sample series");
-        m_series->attachAxis(axisX);
-        m_series->attachAxis(axisY);
-        m_series->setPointsVisible(true);
-
-        m_chart->addSeries(m_series2);
-
-        m_series2->setName("Sample series2");
-        m_series2->attachAxis(axisX);
-        m_series2->attachAxis(axisY);
-        m_series2->setPointsVisible(true);
-
-    } catch (const std::exception &e) {
-    }
 
     init_data_processor();
 
@@ -127,6 +103,17 @@ void MainWindow::init_graph()
     m_chart->legend()->hide();
 
     ui->dataPlot->setChart(m_chart);
+
+    for (int i = 0; i < this->channels_amount; ++i) {
+        m_series[i] = new QLineSeries(this);
+        // TODO: check if series was created
+
+        m_chart->addSeries(m_series[i]);
+
+        m_series[i]->attachAxis(axisX);
+        m_series[i]->attachAxis(axisY);
+        m_series[i]->setPointsVisible(true);
+    }
 }
 
 void MainWindow::init_source_list()
@@ -149,7 +136,7 @@ ReaderId MainWindow::get_available_reader_idx()
         }
     }
 
-    if (reader_id >= this->maximum_reader_id) {
+    if (reader_id >= this->readers_amount) {
         throw std::range_error("Reader amount limit exceeded");
     }
 
@@ -165,10 +152,20 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
     if (index.isValid()) {
         QAction *modify_source_action = contextMenu.addAction("Modify existing source");
         QAction *delete_source_action = contextMenu.addAction("Delete existing source");
+        QMenu *assign_channel_submenu = contextMenu.addMenu("Assign to channel");
 
         auto existing_item = m_source_list_model->itemFromIndex(index);
 
         ReaderId reader_id = existing_item->data(Qt::UserRole).value<ReaderId>();
+
+        for (size_t ch_num = 0; ch_num < this->channels_amount; ch_num++) {
+            QAction *channel_assign_action =
+                    assign_channel_submenu->addAction(tr("Channel %1").arg(ch_num + 1));
+
+            connect(channel_assign_action, &QAction::triggered, this, [this, reader_id, ch_num]() {
+                emit assign_channel(qMakePair(reader_id, 0), ch_num);
+            });
+        }
 
         connect(modify_source_action, &QAction::triggered, this, [this, index, reader_id]() {
             QDialog *dialog = nullptr;
@@ -202,7 +199,7 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
             m_source_list_model->removeRow(index.row(), index.parent());
         });
     } else {
-        if (m_readers_config.size() >= this->maximum_reader_id) {
+        if (m_readers_config.size() >= this->readers_amount) {
             QAction *new_source_action = contextMenu.addAction("Source amount limit was achieved");
             new_source_action->setEnabled(false);
         } else {
@@ -223,8 +220,6 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
                     m_source_list_model->appendRow(new_item);
 
                     emit configure_reader(new_reader_id, config);
-                    // TODO: remove temporary correspondence between reader variable and a channel
-                    emit assign_channel(qMakePair(new_reader_id, 0), new_reader_id);
                 }
             });
         }
@@ -236,12 +231,8 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
 void MainWindow::receive_new_data(const QList<GraphData> &new_data)
 {
     for (auto &channel_data : new_data) {
-        if (channel_data.get_id() == 0) {
-            m_series->replace(channel_data.get_values());
-            ui->ch1Val->setText(QString::number(channel_data.get_values().back().y()));
-        } else if (channel_data.get_id() == 1) {
-            m_series2->replace(channel_data.get_values());
-            ui->ch2Val->setText(QString::number(channel_data.get_values().back().y()));
+        if (channel_data.get_id() < this->channels_amount) {
+            m_series[channel_data.get_id()]->replace(channel_data.get_values());
         }
     }
 }

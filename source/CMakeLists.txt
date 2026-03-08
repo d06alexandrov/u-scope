@@ -49,6 +49,7 @@ qt_generate_deploy_app_script(
     TARGET u-scope
     OUTPUT_SCRIPT deploy_script
     NO_UNSUPPORTED_PLATFORM_ERROR
+    NO_TRANSLATIONS
 )
 install(SCRIPT ${deploy_script})
 else()

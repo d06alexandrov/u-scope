@@ -40,7 +40,7 @@ public:
      * @param processor pointer to the connected Data Processor instance.
      * @param config Serial port configuration.
      */
-    explicit SerialReader(uint64_t id, DataProcessor *processor,
+    explicit SerialReader(ReaderId id, DataProcessor *processor,
                           std::shared_ptr<SerialReaderConfig> config);
 
 public slots:

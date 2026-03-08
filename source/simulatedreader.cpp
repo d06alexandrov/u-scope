@@ -4,12 +4,10 @@
 
 #include <cmath>
 
-SimulatedReader::SimulatedReader(uint64_t id, DataProcessor *processor,
+SimulatedReader::SimulatedReader(ReaderId id, DataProcessor *processor,
                                  std::shared_ptr<SimulatedReaderConfig> config)
     : UniversalReader{ id, processor, config }
 {
-    // Fix variable id's and remove this temporary change
-    config->variable_id = id;
 }
 
 const SimulatedReaderConfig *SimulatedReader::get_config() const
@@ -60,8 +58,7 @@ void SimulatedReader::process()
             val = std::get<SimulatedReaderConfig::ConstConfig>(config->form_conf).value;
         } break;
         case SineWave: {
-            const auto &sin_conf =
-                    std::get<SimulatedReaderConfig::SinConfig>(config->form_conf);
+            const auto &sin_conf = std::get<SimulatedReaderConfig::SinConfig>(config->form_conf);
             const double x = DataProcessor::get_timestamp_diff_us(m_setup_timestamp, t) * 2 * M_PI
                     * sin_conf.frequency / 1000000;
 

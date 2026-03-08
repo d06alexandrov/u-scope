@@ -32,13 +32,17 @@ DataProcessor::~DataProcessor()
 
 void DataProcessor::add_variables_data(ReaderId reader_id, QMap<VariableId, QList<DataPoint>> &data)
 {
-    auto &sender_info = m_senders[reader_id];
-    if (sender_info.buffer_mutex) {
-        QMutexLocker locker(sender_info.buffer_mutex.get());
+    if (m_senders.contains(reader_id)) {
+        auto &sender_info = m_senders[reader_id];
+        if (sender_info.buffer_mutex) {
+            QMutexLocker locker(sender_info.buffer_mutex.get());
 
-        for (auto [variable_id, new_data] : data.asKeyValueRange()) {
-            m_in_buffers[variable_id].append(std::move(new_data));
+            for (auto [variable_id, new_data] : data.asKeyValueRange()) {
+                m_in_buffers[reader_id][variable_id].append(std::move(new_data));
+            }
         }
+    } else {
+        data.clear();
     }
 }
 
@@ -70,29 +74,35 @@ void DataProcessor::process(void)
 {
     QList<GraphData> new_data;
 
-    for (auto [var_id, reader_id] : m_buffer_to_sender.asKeyValueRange()) {
-        QList<QPointF> processed_values;
-        QList<DataPoint> in_data;
+    for (auto [reader_id, sender_info] : m_senders.asKeyValueRange()) {
+        QMap<VariableId, QList<DataPoint>> in_data;
 
-        auto &sender_info = m_senders[reader_id];
         if (sender_info.buffer_mutex) {
             QMutexLocker locker(sender_info.buffer_mutex.get());
-            std::swap(in_data, m_in_buffers[var_id]);
+            std::swap(in_data, m_in_buffers[reader_id]);
         }
 
-        m_buffers[var_id].append(std::move(in_data));
+        for (auto [variable_id, in_var_data] : in_data.asKeyValueRange()) {
+            if (auto it = m_var_to_channel.constFind(qMakePair(reader_id, variable_id));
+                it != m_var_to_channel.constEnd()) {
+                QList<QPointF> processed_values;
 
-        if (m_buffers[var_id].size() > 201) {
-            m_buffers[var_id].remove(0, m_buffers[var_id].size() - 201);
+                m_buffers[reader_id][variable_id].append(std::move(in_var_data));
+
+                if (m_buffers[reader_id][variable_id].size() > 201) {
+                    m_buffers[reader_id][variable_id].remove(
+                            0, m_buffers[reader_id][variable_id].size() - 201);
+                }
+
+                for (int i = 0; i < m_buffers[reader_id][variable_id].size(); i++) {
+                    const auto val = std::visit([](auto &&arg) { return static_cast<qreal>(arg); },
+                                                m_buffers[reader_id][variable_id].at(i).second);
+                    processed_values.emplace_back(i - 100, val);
+                }
+
+                new_data.emplace_back(it.value(), std::move(processed_values));
+            }
         }
-
-        for (int i = 0; i < m_buffers[var_id].size(); i++) {
-            const auto val = std::visit([](auto &&arg) { return static_cast<qreal>(arg); },
-                                        m_buffers[var_id].at(i).second);
-            processed_values.emplace_back(i - 100, val);
-        }
-
-        new_data.emplace_back(QString("Data"), std::move(processed_values));
     }
 
     emit send_new_data(new_data);
@@ -167,7 +177,6 @@ void DataProcessor::configure_reader(ReaderId id, std::shared_ptr<UniversalReade
                     &UniversalReader::reader_stop);
 
             m_senders.insert(id, std::move(new_sender));
-            m_buffer_to_sender[id] = id;
 
             new_sender.thread->start();
         }
@@ -183,5 +192,29 @@ void DataProcessor::remove_reader(ReaderId id)
         sender_info.thread->quit();
 
         m_senders.remove(id);
+        m_in_buffers.remove(id);
+        m_buffers.remove(id);
+
+        for (auto it = m_var_to_channel.begin(); it != m_var_to_channel.end();) {
+            if (it.key().first == id) {
+                m_channel_to_var.remove(it.value());
+                it = m_var_to_channel.erase(it);
+            } else {
+                ++it;
+            }
+        }
     }
+}
+
+void DataProcessor::assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id)
+{
+    if (auto it = m_channel_to_var.constFind(channel_id); it != m_channel_to_var.constEnd()) {
+        // TODO: send a command to the reader to stop the data transfer
+
+        m_var_to_channel.remove(it.value());
+        m_channel_to_var.remove(channel_id);
+    }
+
+    m_var_to_channel[variable] = channel_id;
+    m_channel_to_var[channel_id] = variable;
 }

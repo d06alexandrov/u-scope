@@ -8,6 +8,7 @@
 #include <QMap>
 #include <QMutex>
 #include <QObject>
+#include <QPair>
 #include <QPointF>
 #include <QString>
 #include <QThread>
@@ -23,12 +24,12 @@ public:
     /**
      * @brief GraphData constructor.
      *
-     * @param name Name of the data.
+     * @param id Channel ID of the data.
      * @param values Points of the graph.
      */
-    GraphData(QString name, QList<QPointF> values)
-        : name(std::move(name))
-        , values(std::move(values))
+    GraphData(ChannelId id, QList<QPointF> values)
+        : m_id(id)
+        , m_values(std::move(values))
     {
     }
 
@@ -38,8 +39,8 @@ public:
      * @param other The source object to copy from.
      */
     GraphData(const GraphData &other)
-        : name(other.name)
-        , values(other.values)
+        : m_id(other.m_id)
+        , m_values(other.m_values)
     {
     }
 
@@ -49,8 +50,8 @@ public:
      * @param other The rvalue reference of the object to move from.
      */
     GraphData(GraphData &&other) noexcept
-        : name(std::move(other.name))
-        , values(std::move(other.values))
+        : m_id(other.m_id)
+        , m_values(std::move(other.m_values))
     {
     }
 
@@ -63,29 +64,29 @@ public:
     GraphData &operator=(GraphData &&other) noexcept
     {
         if (this != &other) {
-            name = std::move(other.name);
-            values = std::move(other.values);
+            m_id = other.m_id;
+            m_values = std::move(other.m_values);
         }
         return *this;
     }
 
     /**
-     * @brief Gets the name member.
+     * @brief Gets the channel id.
      *
-     * @return A reference to the name.
+     * @return The channel id of the data.
      */
-    const QString &get_name(void) const { return name; }
+    const ChannelId get_id() const { return m_id; }
 
     /**
      * @brief Gets the list of values.
      *
      * @return A reference to the values.
      */
-    const QList<QPointF> &get_values(void) const { return values; }
+    const QList<QPointF> &get_values() const { return m_values; }
 
 private:
-    QString name; /**< Name of the data. */
-    QList<QPointF> values; /**< Points of the graph. */
+    ChannelId m_id; /**< Channel ID of the data. */
+    QList<QPointF> m_values; /**< Points of the graph. */
 };
 
 class UniversalReader;
@@ -180,6 +181,14 @@ public slots:
      */
     void remove_reader(ReaderId id);
 
+    /**
+     * @brief Bind particular variable to the channel
+     *
+     * @param variable uniq identificator of a variable
+     * @param channel_id id of the channel
+     */
+    void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
+
 signals:
     /**
      * @brief Send new data to show in a chart.
@@ -226,11 +235,13 @@ private:
             nullptr; /**< Timer to execute processing function and send data to graph Widget. */
     QHash<ReaderId, DataSenderInfo>
             m_senders; /**< Initialized data senders. Sender is used as a key. */
-    QMap<VariableId, QList<DataPoint>> m_in_buffers; /**< Buffers where senders store the data.
-                                                     Buffer (variable) id is used as a key. Sender
-                                                     Mutex is used for a thread-safety. */
-    QMap<VariableId, QVector<DataPoint>> m_buffers; /**< Buffers to store raw data from senders.
-                                                     Buffer (variable) id is used as a key. */
-    QMap<VariableId, ReaderId>
-            m_buffer_to_sender; /**< Buffer id and to sender id correspondence. */
+    QMap<ReaderId, QMap<VariableId, QList<DataPoint>>>
+            m_in_buffers; /**< Buffers where senders store the data. Sender Mutex is used for a
+                             thread-safety. */
+    QMap<ReaderId, QMap<VariableId, QVector<DataPoint>>>
+            m_buffers; /**< Buffers to store raw data from senders. */
+    QHash<QPair<ReaderId, VariableId>, ChannelId>
+            m_var_to_channel; /**< Correspondence between variables and channels. */
+    QHash<ChannelId, QPair<ReaderId, VariableId>> m_channel_to_var; /**< Correspondence between
+                                                                     channels and variables. */
 };

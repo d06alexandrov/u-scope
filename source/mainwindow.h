@@ -26,7 +26,8 @@ public:
     ~MainWindow();
 
 private:
-    static constexpr ReaderId maximum_reader_id = 10;
+    static constexpr ReaderId readers_amount = 10; /**< Maximum amount of readers. */
+    static constexpr size_t channels_amount = 12; /**< Amount of channels. */
 
     /**
      * @brief Configuration of the Graph
@@ -47,11 +48,10 @@ private:
 
     Ui::MainWindow *ui = nullptr; /**< Pointer to the Main Window user interface. */
     QChart *m_chart = nullptr; /**< Pointer to the main QChart. */
-    QLineSeries *m_series = nullptr;
-    QLineSeries *m_series2 = nullptr;
+    QLineSeries *m_series[channels_amount]; /**< Pointer to Chart's series'. */
     QThread *m_data_processor_thread = nullptr; /**< Thread with a running Data Processor. */
     QMap<ReaderId, std::shared_ptr<UniversalReaderConfig>>
-            m_readers_config; /**< Reasders configuration. */
+            m_readers_config; /**< Readers configuration. */
 
     QStandardItemModel *m_source_list_model = nullptr; /**< Source List model. */
 
@@ -78,6 +78,14 @@ signals:
      * @param id reader id
      */
     void remove_reader(ReaderId id);
+
+    /**
+     * @brief Send correspondence between a variable and a channel to the Data Processor
+     *
+     * @param variable uniq identificator of a variable
+     * @param channel_id id of the channel
+     */
+    void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
 
 private slots:
     void source_list_context_menu(const QPoint &pos);

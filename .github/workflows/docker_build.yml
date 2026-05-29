@@ -31,8 +31,13 @@ jobs:
       - name: Create Matrix
         id: set-matrix
         run: |
-          # Convert the space-separated list to a JSON array
-          JSON_FILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | jq -R -c 'split(" ")')
+          if [ "${{ github.event_name }}" == 'workflow_dispatch' ]; then
+            # If manual trigger, output both files explicitly
+            JSON_FILES='[".devcontainer/Dockerfile", ".devcontainer/Dockerfile.win"]'
+          else
+            # If push trigger, use the output from the changed-files step
+            JSON_FILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | jq -R -c 'split(" ")')
+          fi
           echo "files=$JSON_FILES" >> $GITHUB_OUTPUT
 
   docker-build-and-push:

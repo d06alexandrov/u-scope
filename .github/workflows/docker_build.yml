@@ -6,6 +6,7 @@ on:
     paths: 
       - '.devcontainer/Dockerfile'
       - '.devcontainer/Dockerfile.win'
+  workflow_dispatch:
 
 env:
   REGISTRY: ghcr.io

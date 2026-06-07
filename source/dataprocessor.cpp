@@ -100,13 +100,16 @@ void DataProcessor::process(void)
                             return get_timestamp_diff_us(point.first, current_time) > max_distance;
                         });
 
+                m_buffers[reader_id][variable_id].erase(m_buffers[reader_id][variable_id].begin(),
+                                                        cut_it);
+
                 for (auto val_it = cut_it; val_it != m_buffers[reader_id][variable_id].end();
                      val_it++) {
                     const auto val = std::visit([](auto &&arg) { return static_cast<qreal>(arg); },
                                                 val_it->second);
 
                     const qreal x_coord = static_cast<qreal>(m_left_bottom_corner.x())
-                            + (val_it->first - current_time + m_time_width)
+                            + (m_time_width - get_timestamp_diff_us(val_it->first, current_time))
                                     / static_cast<qreal>(m_time_width)
                                     * static_cast<qreal>(m_right_top_corner.x()
                                                          - m_left_bottom_corner.x());
@@ -234,5 +237,7 @@ void DataProcessor::assign_channel(QPair<ReaderId, VariableId> variable, Channel
 
 void DataProcessor::set_time_width(uint64_t us)
 {
-    m_time_width = us;
+    if (us > 0) {
+        m_time_width = us;
+    }
 }

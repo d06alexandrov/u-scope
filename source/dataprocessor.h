@@ -122,6 +122,10 @@ public:
 
     /**
      * @brief Get current timestamp.
+     *
+     * @note This function uses monotonic clock, so every new call returns a higher value. Except of
+     * the wrapping case.
+     *
      * @return Current time timestamp.
      */
     static DataTime get_timestamp();

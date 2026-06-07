@@ -76,7 +76,6 @@ void DataProcessor::setup(void)
 void DataProcessor::process(void)
 {
     QList<GraphData> new_data;
-    DataTime current_time = get_timestamp();
 
     for (auto [reader_id, sender_info] : m_senders.asKeyValueRange()) {
         QMap<VariableId, QList<DataPoint>> in_data;
@@ -85,6 +84,8 @@ void DataProcessor::process(void)
             QMutexLocker locker(sender_info.buffer_mutex.get());
             std::swap(in_data, m_in_buffers[reader_id]);
         }
+
+        DataTime current_time = get_timestamp();
 
         for (auto [variable_id, in_var_data] : in_data.asKeyValueRange()) {
             if (auto it = m_var_to_channel.constFind(qMakePair(reader_id, variable_id));
@@ -103,13 +104,12 @@ void DataProcessor::process(void)
                 m_buffers[reader_id][variable_id].erase(m_buffers[reader_id][variable_id].begin(),
                                                         cut_it);
 
-                for (auto val_it = cut_it; val_it != m_buffers[reader_id][variable_id].end();
-                     val_it++) {
+                for (auto &val_it : m_buffers[reader_id][variable_id]) {
                     const auto val = std::visit([](auto &&arg) { return static_cast<qreal>(arg); },
-                                                val_it->second);
+                                                val_it.second);
 
                     const qreal x_coord = static_cast<qreal>(m_left_bottom_corner.x())
-                            + (m_time_width - get_timestamp_diff_us(val_it->first, current_time))
+                            + (m_time_width - get_timestamp_diff_us(val_it.first, current_time))
                                     / static_cast<qreal>(m_time_width)
                                     * static_cast<qreal>(m_right_top_corner.x()
                                                          - m_left_bottom_corner.x());

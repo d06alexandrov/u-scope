@@ -55,7 +55,8 @@ MainWindow::~MainWindow()
 void MainWindow::init_data_processor()
 {
     m_data_processor_thread = new QThread;
-    DataProcessor *data_processor = new DataProcessor;
+    DataProcessor *data_processor =
+            new DataProcessor(GraphStyle::left_bottom_corner, GraphStyle::right_top_corner);
 
     data_processor->moveToThread(m_data_processor_thread);
 
@@ -66,6 +67,8 @@ void MainWindow::init_data_processor()
     connect(this, &MainWindow::configure_reader, data_processor, &DataProcessor::configure_reader);
     connect(this, &MainWindow::remove_reader, data_processor, &DataProcessor::remove_reader);
     connect(this, &MainWindow::assign_channel, data_processor, &DataProcessor::assign_channel);
+    connect(this, &MainWindow::set_window_time_width, data_processor,
+            &DataProcessor::set_time_width);
 
     connect(m_data_processor_thread, &QThread::finished, data_processor,
             &DataProcessor::deleteLater);

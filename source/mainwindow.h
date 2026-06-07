@@ -87,6 +87,13 @@ signals:
      */
     void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
 
+    /**
+     * @brief Set width of the displayed window in microseconds
+     *
+     * @param us window width in microseconds
+     */
+    void set_window_time_width(uint64_t us);
+
 private slots:
     void source_list_context_menu(const QPoint &pos);
 

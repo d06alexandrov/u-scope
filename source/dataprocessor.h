@@ -102,9 +102,12 @@ public:
     /**
      * @brief Data Processor constructor.
      *
+     * @param left_bottom_corner coordinate of the graph's left bottom corner
+     * @param right_top_corner coordinate of the graph's right top corner
      * @param parent QObject parent of the DataProcessor.
      */
-    explicit DataProcessor(QObject *parent = nullptr);
+    explicit DataProcessor(QPoint left_bottom_corner, QPoint right_top_corner,
+                           QObject *parent = nullptr);
     ~DataProcessor();
 
     /**
@@ -119,6 +122,7 @@ public:
 
     /**
      * @brief Get current timestamp.
+     * @return Current time timestamp.
      */
     static DataTime get_timestamp();
 
@@ -189,6 +193,13 @@ public slots:
      */
     void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
 
+    /**
+     * @brief Set width of the displayed window in microseconds
+     *
+     * @param us window width in microseconds
+     */
+    void set_time_width(uint64_t us);
+
 signals:
     /**
      * @brief Send new data to show in a chart.
@@ -217,6 +228,8 @@ signals:
     void reader_stop(ReaderId reader_id);
 
 private:
+    static constexpr uint64_t default_time_width = 1000000; /**< Default window width in us. */
+
     /**
      * @brief Structure to store information regarding Senders (Readers)
      */
@@ -244,4 +257,8 @@ private:
             m_var_to_channel; /**< Correspondence between variables and channels. */
     QHash<ChannelId, QPair<ReaderId, VariableId>> m_channel_to_var; /**< Correspondence between
                                                                      channels and variables. */
+
+    uint64_t m_time_width; /**< Window width in us. */
+    QPoint m_left_bottom_corner; /**< Coordinate of the graph's left bottom corner. */
+    QPoint m_right_top_corner; /**< Coordinate of the graph's right top corner. */
 };

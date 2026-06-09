@@ -1,0 +1,23 @@
+name: Antigravity Code Review
+on:
+  push:
+
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+    steps:
+      - name: Checkout Repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Antigravity PR Review
+        uses: google-github-actions/run-antigravity-cli@v1
+        with:
+          # Use your Google AI or Vertex AI API Key
+          api_key: ${{ secrets.ANTIGRAVITY_API_KEY }}
+          # The "grillme" command is a popular shortcut for deep reviews
+          command: "agy /grillme --pr 30 --focus logic,security"

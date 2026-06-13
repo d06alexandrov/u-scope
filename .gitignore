@@ -83,3 +83,7 @@ CMakeLists.txt.user*
 
 # Ignore regenerated cmake-kits
 cmake-kits.json
+
+# Gemini files
+.gemini/
+gha-creds-*.json

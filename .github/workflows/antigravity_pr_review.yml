@@ -1,0 +1,49 @@
+name: Antigravity PR Review
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened]
+    # Runs on all PRs by default. You can restrict to specific branches if needed.
+
+# Explicitly set permissions for the GITHUB_TOKEN to ensure least privilege (Security Best Practice)
+permissions:
+  contents: read
+  pull-requests: write # Required to post review comments on the PR
+
+jobs:
+  review:
+    name: Code Review with Antigravity
+    runs-on: ubuntu-latest
+    
+    # Optional: Prevent concurrent reviews on the same PR to save resources and avoid duplicate comments
+    concurrency:
+      group: ${{ github.workflow }}-${{ github.event.pull_request.number }}
+      cancel-in-progress: true
+
+    steps:
+      - name: Checkout PR code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # Required to accurately compare base and head branches
+
+      - name: Setup Antigravity
+        run: |
+          # Install the Antigravity CLI (agy)
+          curl -fsSL https://antigravity.google/cli/install.sh | bash
+          # Add the installation directory to GITHUB_PATH so agy is available in subsequent steps
+          echo "$HOME/.local/bin" >> $GITHUB_PATH
+
+      - name: Run Antigravity Review
+        env:
+          # Securely provide the Google AI Studio API Key and GitHub Token
+          GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          # Do NOT use untrusted variables like ${{ github.head_ref }} directly in inline scripts 
+          # to prevent script injection. Pass them via environment variables instead.
+          BASE_REF: ${{ github.event.pull_request.base.ref }}
+        run: |
+          # Fetch the base branch to ensure we have the commits to compare against
+          git fetch origin $BASE_REF:refs/remotes/origin/$BASE_REF
+          
+          # Run the Antigravity CLI to review the PR diff
+          agy prompt --print "review the PR diff between origin/$BASE_REF and HEAD"

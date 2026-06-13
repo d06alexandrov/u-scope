@@ -45,9 +45,12 @@ jobs:
           # Fetch the base branch to ensure we have the commits to compare against
           git fetch origin $BASE_REF:refs/remotes/origin/$BASE_REF
           
-          # Run the Antigravity CLI to review the PR diff and save to a file
+          # Fake a TTY using the 'script' command because the CLI explicitly requires a TTY to initialize
           # We provide a prompt to ensure it acts like a senior developer code review.
-          agy prompt --print "Act as an expert senior developer. Please perform a thorough code review of the diff between origin/$BASE_REF and HEAD. Provide actionable feedback, point out potential bugs, and suggest improvements. Format your response in markdown." > review.md
+          script -q -e -c "agy prompt --print 'Act as an expert senior developer. Please perform a thorough code review of the diff between origin/$BASE_REF and HEAD. Provide actionable feedback, point out potential bugs, and suggest improvements. Format your response in markdown.'" review_raw.md
+          
+          # Clean up ANSI escape codes and carriage returns that 'script' might capture
+          sed -r 's/\x1B\[[0-9;]*[a-zA-Z]//g' review_raw.md | tr -d '\r' > review.md
           
           # Post the review as a comment on the GitHub PR
           # We attempt to create a formal PR Review first, and fallback to a normal PR comment if that fails.

@@ -36,7 +36,9 @@ jobs:
 
       - name: Run Antigravity Review
         env:
-          # Securely provide the Google AI Studio API Key and GitHub Token
+          # Securely provide the Google AI Studio API Key
+          # Google AI Studio keys typically use the GEMINI_API_KEY environment variable.
+          GEMINI_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           GOOGLE_API_KEY: ${{ secrets.GOOGLE_API_KEY }}
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           # Do NOT use untrusted variables like ${{ github.head_ref }} directly in inline scripts 

@@ -14,6 +14,7 @@ jobs:
   review:
     name: Code Review with Antigravity
     runs-on: ubuntu-latest
+    timeout-minutes: 5
     
     # Optional: Prevent concurrent reviews on the same PR to save resources and avoid duplicate comments
     concurrency:

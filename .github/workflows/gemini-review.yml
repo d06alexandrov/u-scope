@@ -99,4 +99,4 @@ jobs:
               "https://github.com/gemini-cli-extensions/code-review"
             ]
           prompt: |-
-            /gemini-review
+            /pr-code-review

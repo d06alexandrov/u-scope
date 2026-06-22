@@ -131,7 +131,11 @@ Apply these severities consistently:
 
 ### Step 3: Submit the Review on GitHub
 
-1. **Create Pending Review:** Call `create_pending_pull_request_review`. Ignore errors like "can only have one pending review per pull request" and proceed to the next step.
+1. **Create Pending Review:** Call `pull_request_review_write` with `method` set to `"create"`. 
+
+    - **CRITICAL:** You **MUST OMIT** the `event` and `body` parameters entirely. If you include `event`, the API will attempt to submit the review prematurely and crash.
+
+    - Ignore errors like "can only have one pending review per pull request" and proceed to the next step.
 
 2. **Add Comments and Suggestions:** For each formulated review comment, call `add_comment_to_pending_review` tool to place an inline comment on the exact 'path' and 'line' number of the file.
 

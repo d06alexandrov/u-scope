@@ -21,7 +21,7 @@ jobs:
       contents: read
     steps:
       - name: PR Agent action step
-        uses: the-pr-agent/pr-agent@v0.37.0
+        uses: the-pr-agent/pr-agent@85178bef87b7a03081cd30592a5aad100284f9a7 # v0.37.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           config.model: "gemini/${{ vars.GEMINI_MODEL }}"

@@ -1,6 +1,9 @@
 #pragma once
 
 #include "commontypes.hpp"
+#include "universalreader.h"
+
+#include <memory>
 
 /**
  * @brief Configuration for the dialog of the @ref UniversalReader.

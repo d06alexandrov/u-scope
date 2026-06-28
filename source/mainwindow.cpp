@@ -79,8 +79,8 @@ void MainWindow::init_data_processor()
             &DataProcessor::stop_data_processing);
 
     // Register Meta Type which will be used in a communication with Data Processor
-    qRegisterMetaType<std::shared_ptr<UniversalReaderConfig>>(
-            "std::shared_ptr<UniversalReaderConfig>");
+    qRegisterMetaType<std::shared_ptr<UniversalReaderDialogConfig>>(
+            "std::shared_ptr<UniversalReaderDialogConfig>");
 
     m_data_processor_thread->start();
 }

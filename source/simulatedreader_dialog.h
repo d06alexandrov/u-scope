@@ -41,7 +41,7 @@ struct SimulatedReaderDialogConfig : UniversalReaderDialogConfig
     VariableId variable_id; /**< ID of the generated variable. */
     Config form_conf; /**< Configuration for the specific form. */
 
-    std::shared_ptr<UniversalReaderConfig> to_reader_config() const;
+    std::shared_ptr<UniversalReaderConfig> to_reader_config() const override;
 };
 
 /**

@@ -169,9 +169,8 @@ void DataProcessor::configure_reader(ReaderId id,
 
         UniversalReader *reader = nullptr;
 
-        if (std::dynamic_pointer_cast<SimulatedReaderConfig>(reader_config)) {
-            reader = new SimulatedReader(
-                    id, this, std::dynamic_pointer_cast<SimulatedReaderConfig>(reader_config));
+        if (auto sim_config = std::dynamic_pointer_cast<SimulatedReaderConfig>(reader_config)) {
+            reader = new SimulatedReader(id, this, sim_config);
         }
 
         if (reader != nullptr) {

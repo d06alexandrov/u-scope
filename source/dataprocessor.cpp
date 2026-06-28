@@ -157,20 +157,20 @@ void DataProcessor::stop_data_processing()
     }
 }
 
-void DataProcessor::configure_reader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config)
+void DataProcessor::configure_reader(ReaderId id,
+                                     std::shared_ptr<UniversalReaderDialogConfig> config)
 {
     if (m_senders.contains(id)) {
         // modify reader
     } else {
-        auto config_copy = config->clone();
+        auto reader_config = config->to_reader_config();
 
-        config_copy->update_period_ms = 20;
+        reader_config->update_period_ms = 20;
 
         UniversalReader *reader = nullptr;
 
-        if (std::dynamic_pointer_cast<SimulatedReaderConfig>(config)) {
-            reader = new SimulatedReader(
-                    id, this, std::dynamic_pointer_cast<SimulatedReaderConfig>(config_copy));
+        if (auto sim_config = std::dynamic_pointer_cast<SimulatedReaderConfig>(reader_config)) {
+            reader = new SimulatedReader(id, this, sim_config);
         }
 
         if (reader != nullptr) {

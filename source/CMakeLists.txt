@@ -11,6 +11,7 @@ set(SOURCES
     simulatedreader.h
     universalreader.cpp
     universalreader.h
+    universalreader_dialog.h
     commontypes.hpp
     simulatedreader_dialog.h
     simulatedreader_dialog.cpp

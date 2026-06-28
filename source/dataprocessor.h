@@ -2,6 +2,7 @@
 
 #include "commontypes.hpp"
 #include "universalreader.h"
+#include "universalreader_dialog.h"
 
 #include <QHash>
 #include <QList>
@@ -180,7 +181,7 @@ public slots:
      * @param id reader id
      * @param config configuration of the reader
      */
-    void configure_reader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config);
+    void configure_reader(ReaderId id, std::shared_ptr<UniversalReaderDialogConfig> config);
 
     /**
      * @brief Remove reader

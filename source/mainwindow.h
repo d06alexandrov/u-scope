@@ -2,6 +2,7 @@
 
 #include "dataprocessor.h"
 #include "universalreader.h"
+#include "universalreader_dialog.h"
 
 #include <QChart>
 #include <QLineSeries>
@@ -50,7 +51,7 @@ private:
     QChart *m_chart = nullptr; /**< Pointer to the main QChart. */
     QLineSeries *m_series[channels_amount]; /**< Pointer to Chart's series'. */
     QThread *m_data_processor_thread = nullptr; /**< Thread with a running Data Processor. */
-    QMap<ReaderId, std::shared_ptr<UniversalReaderConfig>>
+    QMap<ReaderId, std::shared_ptr<UniversalReaderDialogConfig>>
             m_readers_config; /**< Readers configuration. */
 
     QStandardItemModel *m_source_list_model = nullptr; /**< Source List model. */
@@ -70,7 +71,7 @@ signals:
      * @param id reader id
      * @param config configuration of the reader
      */
-    void configure_reader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config);
+    void configure_reader(ReaderId id, std::shared_ptr<UniversalReaderDialogConfig> config);
 
     /**
      * @brief Remove reader configuration from the Data Processor

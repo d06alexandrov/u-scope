@@ -170,27 +170,7 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
             });
         }
 
-        connect(modify_source_action, &QAction::triggered, this, [this, index, reader_id]() {
-            QDialog *dialog = nullptr;
-
-            if (auto config = std::dynamic_pointer_cast<SimulatedReaderConfig>(
-                        this->m_readers_config.value(reader_id))) {
-                dialog = new SimulatedReaderDialog(this, config);
-            }
-
-            if (dialog != nullptr && dialog->exec() == QDialog::Accepted) {
-                ReaderId new_reader_id = get_available_reader_idx();
-
-                auto config = dynamic_cast<SimulatedReaderDialog *>(dialog)->get_config();
-
-                // Should be configured by data processor
-                config->update_period_ms = 30;
-
-                m_readers_config[new_reader_id] = config;
-
-                delete dialog;
-            }
-        });
+        modify_source_action->setEnabled(false);
         connect(delete_source_action, &QAction::triggered, this, [this, index, reader_id]() {
             emit remove_reader(reader_id);
             // TODO: remove correspondence between reader variables and channels

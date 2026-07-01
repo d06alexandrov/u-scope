@@ -51,8 +51,6 @@ SimulatedReaderDialog::SimulatedReaderDialog(
         // TODO: Add existing elements in case of modification
         for (const auto &[variable_id, form_conf] : config->form_configs.asKeyValueRange()) {
             add_element_to_list(variable_id, form_conf);
-
-            this->m_original_variable_ids.insert(variable_id);
         }
 
         this->m_original_variable_ids = this->m_reserved_variable_ids;
@@ -71,7 +69,7 @@ SimulatedReaderDialog::SimulatedReaderDialog(
 
                         const auto config = dialog.get_config();
 
-                        add_element_to_list(new_variable_id, *config);
+                        add_element_to_list(new_variable_id, config);
                     }
                 }
             });

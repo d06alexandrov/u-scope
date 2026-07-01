@@ -11,40 +11,6 @@ namespace Ui {
 class SimulatedReaderDialogForm;
 }
 QT_END_NAMESPACE
-#if 0
-/**
- * @brief Configuration for the @ref SimulatedReader.
- */
-struct SimulatedReaderDialogConfig : UniversalReaderDialogConfig
-{
-    /**
-     * @brief Constant value.
-     */
-    struct ConstConfig
-    {
-        double value; /**< Constant value. */
-    };
-
-    /**
-     * @brief Sinusoidal wave.
-     */
-    struct SinConfig
-    {
-        int32_t frequency; /**< Frequency of the sinusoid. */
-        double amplitude; /**< Amplitude of the sinusoid. */
-    };
-
-    /**
-     * @brief Variants of a simulated form.
-     */
-    using Config = std::variant<ConstConfig, SinConfig>;
-
-    QHash<VariableId, Config> form_configs; /**< Configurations of the simulated values. */
-
-    std::shared_ptr<UniversalReaderConfig> to_reader_config() const override;
-};
-
-#endif
 
 /**
  * @brief Dialog window to configure Simulated Reader Form
@@ -69,7 +35,7 @@ public:
      *
      * @return Pointer to the configuration of the simulated reader form.
      */
-    std::shared_ptr<const SimulatedReaderDialogConfig::Config> get_config();
+    SimulatedReaderDialogConfig::Config get_config();
 
 private:
     enum TypeIndexes {

@@ -34,16 +34,16 @@ SimulatedReaderDialogForm::SimulatedReaderDialogForm(
     ui->configStackedWidget->setCurrentIndex(ui->graphType->currentIndex());
 }
 
-std::shared_ptr<const SimulatedReaderDialogConfig::Config> SimulatedReaderDialogForm::get_config()
+SimulatedReaderDialogConfig::Config SimulatedReaderDialogForm::get_config()
 {
-    auto config = std::make_shared<SimulatedReaderDialogConfig::Config>();
+    SimulatedReaderDialogConfig::Config config;
 
     if (ui->graphType->currentIndex() == TypeIndexes::Constant) {
-        *config = SimulatedReaderDialogConfig::ConstConfig{
+        config = SimulatedReaderDialogConfig::ConstConfig{
             .value = ui->constantValue->value(),
         };
     } else if (ui->graphType->currentIndex() == TypeIndexes::Sinusoid) {
-        *config = SimulatedReaderDialogConfig::SinConfig{
+        config = SimulatedReaderDialogConfig::SinConfig{
             .frequency = ui->sinusoidalFrequency->value(),
             .amplitude = ui->sinusoidalAmplitude->value(),
         };

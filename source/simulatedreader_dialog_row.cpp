@@ -7,6 +7,11 @@ SimulatedReaderDialogRow::SimulatedReaderDialogRow(QWidget *parent)
     , ui(new Ui::SimulatedReaderDialogRow())
 {
     ui->setupUi(this);
+
+    connect(ui->modifyButton, &QPushButton::clicked, this,
+            &SimulatedReaderDialogRow::editRequested);
+    connect(ui->deleteButton, &QPushButton::clicked, this,
+            &SimulatedReaderDialogRow::deleteRequested);
 }
 
 void SimulatedReaderDialogRow::set_text(const QString &text)

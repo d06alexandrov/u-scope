@@ -36,4 +36,12 @@ private:
     Ui::SimulatedReaderDialogRow *ui = nullptr; /**< Pointer to the user interface. */
 
 signals:
+    /**
+     * @brief Signal emitted when the edit button is clicked.
+     */
+    void editRequested();
+    /**
+     * @brief Signal emitted when the delete button is clicked.
+     */
+    void deleteRequested();
 };

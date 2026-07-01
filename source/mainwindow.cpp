@@ -210,7 +210,7 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
                     new_item->setData(QVariant::fromValue(new_reader_id), ItemRoles::ReaderIdRole);
                     m_source_list_model->appendRow(new_item);
 
-                    if (config->variable_names.size() > 0) {
+                    if (!config->variable_names.isEmpty()) {
                         for (const auto [id, name] : config->variable_names.asKeyValueRange()) {
                             QStandardItem *new_variable_item =
                                     new QStandardItem(tr("#%1 %2").arg(id).arg(name));

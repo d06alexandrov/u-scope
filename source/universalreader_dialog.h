@@ -3,6 +3,7 @@
 #include "commontypes.hpp"
 #include "universalreader.h"
 
+#include <QMap>
 #include <memory>
 
 /**
@@ -17,4 +18,7 @@ struct UniversalReaderDialogConfig
      * @return pointer to the copy of the config
      */
     virtual std::shared_ptr<UniversalReaderConfig> to_reader_config() const = 0;
+
+public:
+    QMap<VariableId, QString> variable_names; /**< Names of the variables. */
 };

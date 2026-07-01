@@ -65,11 +65,15 @@ std::shared_ptr<UniversalReaderDialogConfig> SimulatedReaderDialog::get_config()
         config->form_conf = SimulatedReaderDialogConfig::ConstConfig{
             .value = ui->constantValue->value(),
         };
+        config->variable_id = 0;
+        config->variable_names.insert(config->variable_id, tr("Constant"));
     } else if (ui->graphType->currentIndex() == TypeIndexes::Sinusoid) {
         config->form_conf = SimulatedReaderDialogConfig::SinConfig{
             .frequency = ui->sinusoidalFrequency->value(),
             .amplitude = ui->sinusoidalAmplitude->value(),
         };
+        config->variable_id = 0;
+        config->variable_names.insert(config->variable_id, tr("Sinusoid"));
     } else {
         throw std::runtime_error("Unknown simulated type");
     }

@@ -24,6 +24,7 @@ jobs:
         uses: the-pr-agent/pr-agent@85178bef87b7a03081cd30592a5aad100284f9a7 # v0.37.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          config.ai_timeout: ${{ vars.GEMINI_AI_TIMEOUT }}
           config.model: "gemini/${{ vars.GEMINI_MODEL }}"
           config.fallback_models: '["gemini/${{ vars.GEMINI_FALLBACK_MODEL }}"]'
           GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}

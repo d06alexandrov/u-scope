@@ -2,6 +2,7 @@
 
 #include "universalreader.h"
 
+#include <QHash>
 #include <QObject>
 
 class DataProcessor;
@@ -11,6 +12,8 @@ class DataProcessor;
  */
 struct SimulatedReaderConfig : UniversalReaderConfig
 {
+    static constexpr int32_t default_sample_rate = 100; /**< Default sample rate. */
+
     /**
      * @brief Constant value.
      */
@@ -38,10 +41,12 @@ struct SimulatedReaderConfig : UniversalReaderConfig
         return std::make_shared<SimulatedReaderConfig>(*this);
     }
 
-    VariableId variable_id; /**< ID of the generated variable. */
+    QHash<VariableId, Config> form_configs; /**< Configurations of the simulated values. */
+
     int32_t sample_rate; /**< Amount of samples per second. */
-    Config form_conf; /**< Configuration for the specific form. */
 };
+
+Q_DECLARE_METATYPE(SimulatedReaderConfig::Config)
 
 /**
  * @brief Simulated reader.
@@ -64,13 +69,6 @@ public:
 public slots:
 
 private:
-    enum SimulatedForm {
-        Undefined, /**< Form was not defined. */
-        Constant, /**< Constant value. */
-        SineWave, /**< Sinusoid. */
-    };
-
-    SimulatedForm m_form = Undefined; /**< Type of a simulated form. */
     DataTime m_setup_timestamp = 0; /**< Setup timestamp. */
     DataTime m_prev_sample_timestamp = 0; /**< Timestamp of a previous sample. */
 

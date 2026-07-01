@@ -26,7 +26,7 @@ MainWindow::MainWindow()
     : QMainWindow(nullptr)
     , ui(new Ui::MainWindow)
     , m_chart(new QChart)
-    , m_source_list_model(new QStandardItemModel)
+    , m_source_list_model(new QStandardItemModel(this))
 {
     ui->setupUi(this);
 

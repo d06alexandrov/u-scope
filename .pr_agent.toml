@@ -1,0 +1,49 @@
+[config]
+
+allow_dynamic_context = true
+
+[pr_description]
+
+publish_description_as_comment = true
+
+[pr_reviewer]
+
+enable_review_labels_effort = false
+
+extra_instructions = """
+You are a strict Principal C++/Qt Architect. Review this PR using the following rule set. If none of these rules are violated, do NOT leave nitpick comments.
+
+### 1. MEMORY & LIFECYCLE (CRITICAL)
+- **Rule M1:** Flag any raw `new`/`delete` calls. Suggest `std::make_unique` or `std::make_shared`.
+- **Rule M2 (Qt):** If a `QObject` is allocated on the heap, verify it has a parent passed to its constructor, OR that it is explicitly added to a layout/scene, OR managed by a smart pointer. Flag unparented `QObject` pointers as memory leaks.
+- **Rule M3:** Check for dangling references in lambda captures (e.g., capturing `this` by reference in an asynchronous Qt concurrent call or delayed signal).
+
+### 2. QT-SPECIFIC ARCHITECTURE
+- **Rule Q1:** Strictly enforce Modern PMF (Pointer-to-Member-Function) syntax for signals and slots. Flag any use of the legacy `SIGNAL()` and `SLOT()` string macros.
+- **Rule Q2:** Flag blocking calls (e.g., `QThread::sleep()`, heavy synchronous I/O) running on the GUI / Main Thread.
+- **Rule Q3:** When passing strings to Qt APIs, enforce `QStringView` or `QLatin1String` where possible to prevent hidden deep-copy allocations of `QString`.
+
+### 3. C++ MODERNIZATION & PERFORMANCE
+- **Rule P1:** Flag large objects passed by value. Suggest `const &`.
+- **Rule P2:** Ensure overriding virtual methods explicitly use the `override` keyword.
+- **Rule P3:** Check that STL algorithms (e.g., `std::find_if`, `std::transform`) are preferred over raw `for`-loops where applicable.
+
+### 4. BEHAVIORAL CONSTRAINTS
+- Ignore all code formatting, indentation, and bracket placement (assume `clang-format` is used).
+- Ignore variable naming conventions.
+- If you suggest a code change, you MUST provide a compiled-checked snippet.
+"""
+
+[pr_code_suggestions]
+
+commitable_code_suggestions = true
+ask_and_reflect = true
+
+extra_instructions = """
+- Focus exclusively on fixing memory leaks, Qt signal/slot thread affinity bugs, and removing unnecessary deep copies.
+- Do not suggest stylistic changes.
+- CRITICAL: You must preserve the exact original indentation and whitespace of the code.
+- NEVER add, remove, or modify leading spaces, tabs, or padding on the modified lines or the surrounding context lines.
+- Do not attempt to fix or standardize indentation unless the explicit purpose of the PR is to fix formatting.
+- Match the exact spacing of the original file down to the character.
+"""

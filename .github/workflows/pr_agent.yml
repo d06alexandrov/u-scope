@@ -32,6 +32,6 @@ jobs:
           github_action_config.auto_describe: "true"
           github_action_config.auto_improve: "true"
 
-          pr_description.publish_description_as_comment: "true"
-          pr_code_suggestions.commitable_code_suggestions: "true"
-          pr_reviewer.enable_review_labels_effort: "false"
+#          pr_description.publish_description_as_comment: "true"
+#          pr_code_suggestions.commitable_code_suggestions: "true"
+#          pr_reviewer.enable_review_labels_effort: "false"

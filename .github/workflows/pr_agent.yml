@@ -25,6 +25,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           config.ai_timeout: ${{ vars.GEMINI_AI_TIMEOUT }}
+          config.max_model_tokens: ${{ vars.GEMINI_MAX_MODEL_TOKENS }}
           config.model: "gemini/${{ vars.GEMINI_MODEL }}"
           config.fallback_models: '["gemini/${{ vars.GEMINI_FALLBACK_MODEL }}"]'
           GOOGLE_AI_STUDIO.GEMINI_API_KEY: ${{ secrets.GEMINI_API_KEY }}
@@ -34,4 +35,5 @@ jobs:
 
           pr_description.publish_description_as_comment: "true"
           pr_code_suggestions.commitable_code_suggestions: "true"
+          pr_code_suggestions.ask_and_reflect: "true"
           pr_reviewer.enable_review_labels_effort: "false"

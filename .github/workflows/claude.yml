@@ -47,3 +47,6 @@ jobs:
           #       "NODE_ENV": "test"
           #     }
           #   }
+
+      - name: cat
+        run: cat /home/runner/work/_temp/claude-execution-output.json

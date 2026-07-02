@@ -48,5 +48,5 @@ jobs:
           #     }
           #   }
 
-      - name: cat
+      - name: cat json
         run: cat /home/runner/work/_temp/claude-execution-output.json

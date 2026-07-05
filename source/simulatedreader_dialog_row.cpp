@@ -14,6 +14,11 @@ SimulatedReaderDialogRow::SimulatedReaderDialogRow(QWidget *parent)
             &SimulatedReaderDialogRow::deleteRequested);
 }
 
+SimulatedReaderDialogRow::~SimulatedReaderDialogRow()
+{
+    delete ui;
+}
+
 void SimulatedReaderDialogRow::set_text(const QString &text)
 {
     ui->label->setText(text);

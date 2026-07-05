@@ -75,6 +75,11 @@ SimulatedReaderDialog::SimulatedReaderDialog(
             });
 }
 
+SimulatedReaderDialog::~SimulatedReaderDialog()
+{
+    delete ui;
+}
+
 std::shared_ptr<UniversalReaderDialogConfig> SimulatedReaderDialog::get_config()
 {
     auto config = std::make_shared<SimulatedReaderDialogConfig>();

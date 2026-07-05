@@ -34,6 +34,11 @@ SimulatedReaderDialogForm::SimulatedReaderDialogForm(
     ui->configStackedWidget->setCurrentIndex(ui->graphType->currentIndex());
 }
 
+SimulatedReaderDialogForm::~SimulatedReaderDialogForm()
+{
+    delete ui;
+}
+
 SimulatedReaderDialogConfig::Config SimulatedReaderDialogForm::get_config()
 {
     SimulatedReaderDialogConfig::Config config;

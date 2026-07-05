@@ -63,6 +63,11 @@ public:
                           std::shared_ptr<const SimulatedReaderDialogConfig> config = nullptr);
 
     /**
+     * @brief Destructor of the dialog window.
+     */
+    ~SimulatedReaderDialog();
+
+    /**
      * @brief Get configuration of the simulated reader.
      *
      * @return Pointer to the configuration of the simulated reader.

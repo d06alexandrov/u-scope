@@ -10,7 +10,8 @@ class SimulatedReaderDialogRow;
 QT_END_NAMESPACE
 
 /**
- * @brief Dialog window to configure Simulated Reader Form
+ * @brief One row of the simulated reader dialog, containing a label and two buttons (edit and
+ * delete).
  */
 class SimulatedReaderDialogRow : public QWidget
 {
@@ -18,12 +19,16 @@ class SimulatedReaderDialogRow : public QWidget
 
 public:
     /**
-     * @brief Constructor of the dialog window.
+     * @brief Constructor of the dialog row.
      *
      * @param parent Parent widget.
-     * @param config Pointer to the configuration of the simulated reader.
      */
     SimulatedReaderDialogRow(QWidget *parent = nullptr);
+
+    /**
+     * @brief Destructor of the dialog row.
+     */
+    ~SimulatedReaderDialogRow();
 
     /**
      * @brief Set the text of the label in the row.

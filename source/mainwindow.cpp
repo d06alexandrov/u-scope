@@ -25,7 +25,6 @@ void config_axis(QValueAxis *axis, int min, int max, int grid_cells, const QColo
 MainWindow::MainWindow()
     : QMainWindow(nullptr)
     , ui(new Ui::MainWindow)
-    , m_chart(new QChart)
     , m_source_list_model(new QStandardItemModel(this))
 {
     ui->setupUi(this);
@@ -98,20 +97,20 @@ void MainWindow::init_graph()
     config_axis(axisY, GraphStyle::left_bottom_corner.y(), GraphStyle::right_top_corner.y(),
                 GraphStyle::vertical_grid, GraphStyle::grid_line_color);
 
-    m_chart->addAxis(axisX, Qt::AlignBottom);
-    m_chart->addAxis(axisY, Qt::AlignLeft);
+    auto main_chart = ui->dataPlot->chart();
 
-    m_chart->setBackgroundBrush(QBrush(GraphStyle::background_color));
+    main_chart->addAxis(axisX, Qt::AlignBottom);
+    main_chart->addAxis(axisY, Qt::AlignLeft);
 
-    m_chart->legend()->hide();
+    main_chart->setBackgroundBrush(QBrush(GraphStyle::background_color));
 
-    ui->dataPlot->setChart(m_chart);
+    main_chart->legend()->hide();
 
     for (int i = 0; i < this->channels_amount; ++i) {
         m_series[i] = new QLineSeries(this);
         // TODO: check if series was created
 
-        m_chart->addSeries(m_series[i]);
+        main_chart->addSeries(m_series[i]);
 
         m_series[i]->attachAxis(axisX);
         m_series[i]->attachAxis(axisY);

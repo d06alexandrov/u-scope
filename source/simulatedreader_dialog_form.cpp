@@ -4,8 +4,8 @@
 
 #include <variant>
 
-SimulatedReaderDialogForm::SimulatedReaderDialogForm(
-        QWidget *parent, std::shared_ptr<const SimulatedReaderDialogConfig::Config> config)
+SimulatedReaderDialogForm::SimulatedReaderDialogForm(QWidget *parent,
+                                                     const SimulatedReaderConfig::Config *config)
     : QDialog{ parent }
     , ui(new Ui::SimulatedReaderDialogForm)
 {
@@ -16,12 +16,11 @@ SimulatedReaderDialogForm::SimulatedReaderDialogForm(
 
     if (config != nullptr) {
         std::visit(overloads{
-                           [ui = this->ui](
-                                   const SimulatedReaderDialogConfig::ConstConfig &const_conf) {
+                           [ui = this->ui](const SimulatedReaderConfig::ConstConfig &const_conf) {
                                ui->graphType->setCurrentIndex(TypeIndexes::Constant);
                                ui->constantValue->setValue(const_conf.value);
                            },
-                           [ui = this->ui](const SimulatedReaderDialogConfig::SinConfig &sin_conf) {
+                           [ui = this->ui](const SimulatedReaderConfig::SinConfig &sin_conf) {
                                ui->graphType->setCurrentIndex(TypeIndexes::Sinusoid);
                                ui->sinusoidalFrequency->setValue(sin_conf.frequency);
                                ui->sinusoidalAmplitude->setValue(sin_conf.amplitude);
@@ -39,16 +38,16 @@ SimulatedReaderDialogForm::~SimulatedReaderDialogForm()
     delete ui;
 }
 
-SimulatedReaderDialogConfig::Config SimulatedReaderDialogForm::get_config()
+SimulatedReaderConfig::Config SimulatedReaderDialogForm::get_config()
 {
-    SimulatedReaderDialogConfig::Config config;
+    SimulatedReaderConfig::Config config;
 
     if (ui->graphType->currentIndex() == TypeIndexes::Constant) {
-        config = SimulatedReaderDialogConfig::ConstConfig{
+        config = SimulatedReaderConfig::ConstConfig{
             .value = ui->constantValue->value(),
         };
     } else if (ui->graphType->currentIndex() == TypeIndexes::Sinusoid) {
-        config = SimulatedReaderDialogConfig::SinConfig{
+        config = SimulatedReaderConfig::SinConfig{
             .frequency = ui->sinusoidalFrequency->value(),
             .amplitude = ui->sinusoidalAmplitude->value(),
         };

@@ -26,9 +26,8 @@ public:
      * @param parent Parent widget.
      * @param config Pointer to the configuration of the simulated reader.
      */
-    SimulatedReaderDialogForm(
-            QWidget *parent = nullptr,
-            std::shared_ptr<const SimulatedReaderDialogConfig::Config> config = nullptr);
+    SimulatedReaderDialogForm(QWidget *parent = nullptr,
+                              const SimulatedReaderConfig::Config *config = nullptr);
 
     /**
      * @brief Destructor of the dialog window.
@@ -40,7 +39,7 @@ public:
      *
      * @return Pointer to the configuration of the simulated reader form.
      */
-    SimulatedReaderDialogConfig::Config get_config();
+    SimulatedReaderConfig::Config get_config();
 
 private:
     enum TypeIndexes {

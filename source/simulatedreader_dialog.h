@@ -19,33 +19,12 @@ QT_END_NAMESPACE
  */
 struct SimulatedReaderDialogConfig : UniversalReaderDialogConfig
 {
-    /**
-     * @brief Constant value.
-     */
-    struct ConstConfig
-    {
-        double value; /**< Constant value. */
-    };
-
-    /**
-     * @brief Sinusoidal wave.
-     */
-    struct SinConfig
-    {
-        int32_t frequency; /**< Frequency of the sinusoid. */
-        double amplitude; /**< Amplitude of the sinusoid. */
-    };
-
-    /**
-     * @brief Variants of a simulated form.
-     */
-    using Config = std::variant<ConstConfig, SinConfig>;
-
-    QHash<VariableId, Config> form_configs; /**< Configurations of the simulated values. */
+    QHash<VariableId, SimulatedReaderConfig::Config>
+            form_configs; /**< Configurations of the simulated values. */
 
     std::shared_ptr<UniversalReaderConfig> to_reader_config() const override;
 
-    static QString get_form_config_short_name(const Config &form_conf);
+    static QString get_form_config_short_name(const SimulatedReaderConfig::Config &form_conf);
 };
 
 /**
@@ -91,7 +70,7 @@ private:
     QSet<VariableId> m_original_variable_ids; /**< Set of original variable IDs. */
     QSet<VariableId>
             m_reserved_variable_ids; /**< Set of currently used or original variable IDs. */
-    QHash<VariableId, SimulatedReaderDialogConfig::Config>
+    QHash<VariableId, SimulatedReaderConfig::Config>
             m_form_configs; /**< Configurations of the simulated values. */
 
     /**
@@ -100,7 +79,7 @@ private:
      * @param variable_id ID of the variable to add.
      * @param form_conf Configuration of the simulated form to add.
      */
-    void add_element_to_list(VariableId variable_id, SimulatedReaderDialogConfig::Config form_conf);
+    void add_element_to_list(VariableId variable_id, SimulatedReaderConfig::Config form_conf);
 
     /**
      * @brief Remove an element from the list of simulated forms.
@@ -115,8 +94,7 @@ private:
      * @param variable_id ID of the existing variable to modify.
      * @param form_conf New configuration of the simulated form.
      */
-    void modify_element_in_list(VariableId variable_id,
-                                SimulatedReaderDialogConfig::Config form_conf);
+    void modify_element_in_list(VariableId variable_id, SimulatedReaderConfig::Config form_conf);
 
 signals:
 };

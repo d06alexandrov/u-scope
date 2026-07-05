@@ -15,36 +15,22 @@ std::shared_ptr<UniversalReaderConfig> SimulatedReaderDialogConfig::to_reader_co
 {
     auto config = std::make_shared<SimulatedReaderConfig>();
 
-    for (const auto &[variable_id, form_conf] : this->form_configs.asKeyValueRange()) {
-        std::visit(overloads{ [&config, variable_id](const ConstConfig &const_conf) {
-                                 config->form_configs.insert(variable_id,
-                                                             SimulatedReaderConfig::ConstConfig{
-                                                                     .value = const_conf.value });
-                             },
-                              [&config, variable_id](const SinConfig &sin_conf) {
-                                  config->form_configs.insert(
-                                          variable_id,
-                                          SimulatedReaderConfig::SinConfig{
-                                                  .frequency = sin_conf.frequency,
-                                                  .amplitude = sin_conf.amplitude });
-                              } },
-                   form_conf);
-    }
-
+    config->form_configs = this->form_configs;
     config->sample_rate = SimulatedReaderConfig::default_sample_rate;
 
     return config;
 }
 
-QString SimulatedReaderDialogConfig::get_form_config_short_name(const Config &form_conf)
+QString SimulatedReaderDialogConfig::get_form_config_short_name(
+        const SimulatedReaderConfig::Config &form_conf)
 {
     return std::visit(
-            overloads{ [](const SimulatedReaderDialogConfig::ConstConfig &const_conf) {
+            overloads{ [](const SimulatedReaderConfig::ConstConfig &const_conf) {
                           return QCoreApplication::translate("SimulatedReaderDialogConfig",
                                                              "Constant %1")
                                   .arg(const_conf.value);
                       },
-                       [](const SimulatedReaderDialogConfig::SinConfig &sin_conf) {
+                       [](const SimulatedReaderConfig::SinConfig &sin_conf) {
                            return QCoreApplication::translate("SimulatedReaderDialogConfig",
                                                               "Sinusoid (%1 Amplitude) %2 Hz")
                                    .arg(sin_conf.amplitude)
@@ -111,7 +97,7 @@ std::shared_ptr<UniversalReaderDialogConfig> SimulatedReaderDialog::get_config()
 }
 
 void SimulatedReaderDialog::add_element_to_list(VariableId variable_id,
-                                                SimulatedReaderDialogConfig::Config form_conf)
+                                                SimulatedReaderConfig::Config form_conf)
 {
     auto new_item = new QListWidgetItem();
     auto row_widget = new SimulatedReaderDialogRow();
@@ -130,9 +116,9 @@ void SimulatedReaderDialog::add_element_to_list(VariableId variable_id,
             return;
         }
 
-        SimulatedReaderDialogForm dialog(this,
-                                         std::make_shared<SimulatedReaderDialogConfig::Config>(
-                                                 this->m_form_configs.value(variable_id)));
+        const auto current_config = this->m_form_configs.value(variable_id);
+
+        SimulatedReaderDialogForm dialog(this, &current_config);
 
         if (dialog.exec() == QDialog::Accepted) {
             modify_element_in_list(variable_id, dialog.get_config());
@@ -163,7 +149,7 @@ void SimulatedReaderDialog::remove_element_from_list(VariableId variable_id)
 }
 
 void SimulatedReaderDialog::modify_element_in_list(VariableId variable_id,
-                                                   SimulatedReaderDialogConfig::Config form_conf)
+                                                   SimulatedReaderConfig::Config form_conf)
 {
     for (int i = 0; i < this->ui->simulationForms->count(); i++) {
         const auto &element_data =

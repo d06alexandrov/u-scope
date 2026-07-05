@@ -127,9 +127,30 @@ void SimulatedReaderDialog::add_element_to_list(
                     } },
             form_conf);
 
+    connect(
+            row_widget, &SimulatedReaderDialogRow::deleteRequested, this,
+            [this, variable_id]() { this->remove_element_from_list(variable_id); },
+            Qt::QueuedConnection);
+
     this->ui->simulationForms->insertItem(this->ui->simulationForms->count() - 1, new_item);
     this->ui->simulationForms->setItemWidget(new_item, row_widget);
 
     this->m_reserved_variable_ids.insert(variable_id);
     this->m_form_configs[variable_id] = form_conf;
+}
+
+void SimulatedReaderDialog::remove_element_from_list(const VariableId variable_id)
+{
+    this->m_form_configs.remove(variable_id);
+    this->m_reserved_variable_ids.remove(variable_id);
+
+    for (int i = 0; i < this->ui->simulationForms->count(); i++) {
+        const auto &element_data =
+                this->ui->simulationForms->item(i)->data(ItemRoles::VariableIdRole);
+
+        if (element_data.isValid() && (element_data.value<VariableId>() == variable_id)) {
+            delete this->ui->simulationForms->takeItem(i);
+            break;
+        }
+    }
 }

@@ -91,8 +91,16 @@ private:
     QHash<VariableId, SimulatedReaderDialogConfig::Config>
             m_form_configs; /**< Configurations of the simulated values. */
 
+    /**
+     * @brief Add a new element to the list of simulated forms.
+     */
     void add_element_to_list(const VariableId variable_id,
                              const SimulatedReaderDialogConfig::Config &form_conf);
+
+    /**
+     * @brief Remove an element from the list of simulated forms.
+     */
+    void remove_element_from_list(const VariableId variable_id);
 
 signals:
 };

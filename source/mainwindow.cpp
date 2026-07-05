@@ -38,12 +38,14 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-    if ((m_data_processor_thread != nullptr) && (m_data_processor_thread->isRunning())) {
-        m_data_processor_thread->quit();
+    if (m_data_processor_thread != nullptr) {
+        if (m_data_processor_thread->isRunning()) {
+            m_data_processor_thread->quit();
 
-        if (!m_data_processor_thread->wait(1000)) {
-            m_data_processor_thread->terminate();
-            m_data_processor_thread->wait();
+            if (!m_data_processor_thread->wait(1000)) {
+                m_data_processor_thread->terminate();
+                m_data_processor_thread->wait();
+            }
         }
 
         delete m_data_processor_thread;

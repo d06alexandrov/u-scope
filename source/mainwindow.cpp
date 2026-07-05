@@ -38,30 +38,25 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
-    if (m_data_processor_thread != nullptr) {
-        if (m_data_processor_thread->isRunning()) {
-            m_data_processor_thread->quit();
+    if (m_data_processor_thread.isRunning()) {
+        m_data_processor_thread.quit();
 
-            if (!m_data_processor_thread->wait(1000)) {
-                m_data_processor_thread->terminate();
-                m_data_processor_thread->wait();
-            }
+        if (!m_data_processor_thread.wait(1000)) {
+            m_data_processor_thread.terminate();
+            m_data_processor_thread.wait();
         }
-
-        delete m_data_processor_thread;
     }
     delete ui;
 }
 
 void MainWindow::init_data_processor()
 {
-    m_data_processor_thread = new QThread;
     DataProcessor *data_processor =
             new DataProcessor(GraphStyle::left_bottom_corner, GraphStyle::right_top_corner);
 
-    data_processor->moveToThread(m_data_processor_thread);
+    data_processor->moveToThread(&m_data_processor_thread);
 
-    connect(m_data_processor_thread, &QThread::started, data_processor, &DataProcessor::setup);
+    connect(&m_data_processor_thread, &QThread::started, data_processor, &DataProcessor::setup);
 
     connect(data_processor, &DataProcessor::send_new_data, this, &MainWindow::receive_new_data);
 
@@ -71,7 +66,7 @@ void MainWindow::init_data_processor()
     connect(this, &MainWindow::set_window_time_width, data_processor,
             &DataProcessor::set_time_width);
 
-    connect(m_data_processor_thread, &QThread::finished, data_processor,
+    connect(&m_data_processor_thread, &QThread::finished, data_processor,
             &DataProcessor::deleteLater);
 
     connect(ui->pushButton_StartAll, &QPushButton::clicked, data_processor,
@@ -83,7 +78,7 @@ void MainWindow::init_data_processor()
     qRegisterMetaType<std::shared_ptr<UniversalReaderDialogConfig>>(
             "std::shared_ptr<UniversalReaderDialogConfig>");
 
-    m_data_processor_thread->start();
+    m_data_processor_thread.start();
 }
 
 void MainWindow::init_graph()

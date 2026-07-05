@@ -22,13 +22,17 @@ DataProcessor::DataProcessor(QPoint left_bottom_corner, QPoint right_top_corner,
 DataProcessor::~DataProcessor()
 {
     for (auto &x : m_senders) {
-        if ((x.thread != nullptr) && (x.thread->isRunning())) {
-            x.thread->quit();
+        if (x.thread != nullptr) {
+            if (x.thread->isRunning()) {
+                x.thread->quit();
 
-            if (!x.thread->wait(1000)) {
-                x.thread->terminate();
-                x.thread->wait();
+                if (!x.thread->wait(1000)) {
+                    x.thread->terminate();
+                    x.thread->wait();
+                }
             }
+
+            delete x.thread;
         }
     }
 }

@@ -19,13 +19,6 @@ void SimulatedReader::setup()
 {
     const auto config = get_config();
 
-    for (const auto &form_conf : config->form_configs) {
-        if (!std::holds_alternative<SimulatedReaderConfig::ConstConfig>(form_conf)
-            && !std::holds_alternative<SimulatedReaderConfig::SinConfig>(form_conf)) {
-            throw std::runtime_error("Unknown simulated type");
-        }
-    }
-
     if (config->sample_rate > 1000000) {
         throw std::range_error("Sample rate is limited to 1MHz");
     } else if (config->sample_rate < 1) {

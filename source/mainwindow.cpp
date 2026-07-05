@@ -155,6 +155,10 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
     if (index.isValid()) {
         auto existing_item = m_source_list_model->itemFromIndex(index);
 
+        if (existing_item == nullptr) {
+            return;
+        }
+
         const ReaderId reader_id = existing_item->data(ItemRoles::ReaderIdRole).value<ReaderId>();
 
         if (existing_item->data(ItemRoles::VariableIdRole).isValid()) {

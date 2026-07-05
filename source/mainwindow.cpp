@@ -153,34 +153,46 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
     QMenu contextMenu(this);
 
     if (index.isValid()) {
-        QAction *modify_source_action = contextMenu.addAction("Modify existing source");
-        QAction *delete_source_action = contextMenu.addAction("Delete existing source");
-        QMenu *assign_channel_submenu = contextMenu.addMenu("Assign to channel");
-
         auto existing_item = m_source_list_model->itemFromIndex(index);
 
-        ReaderId reader_id = existing_item->data(Qt::UserRole).value<ReaderId>();
-
-        for (size_t ch_num = 0; ch_num < this->channels_amount; ch_num++) {
-            QAction *channel_assign_action =
-                    assign_channel_submenu->addAction(tr("Channel %1").arg(ch_num + 1));
-
-            connect(channel_assign_action, &QAction::triggered, this, [this, reader_id, ch_num]() {
-                emit assign_channel(qMakePair(reader_id, 0), ch_num);
-            });
+        if (existing_item == nullptr) {
+            return;
         }
 
-        modify_source_action->setEnabled(false);
-        connect(delete_source_action, &QAction::triggered, this, [this, index, reader_id]() {
-            emit remove_reader(reader_id);
-            // TODO: remove correspondence between reader variables and channels
+        const ReaderId reader_id = existing_item->data(ItemRoles::ReaderIdRole).value<ReaderId>();
 
-            // TODO: gracefully remove config to prevent any issues during the data transmit from
-            // data processor to main window
+        if (existing_item->data(ItemRoles::VariableIdRole).isValid()) {
+            // Variable item was clicked
+            const VariableId variable_id =
+                    existing_item->data(ItemRoles::VariableIdRole).value<VariableId>();
+            QMenu *assign_channel_submenu = contextMenu.addMenu("Assign to channel");
 
-            m_readers_config.remove(reader_id);
-            m_source_list_model->removeRow(index.row(), index.parent());
-        });
+            for (size_t ch_num = 0; ch_num < this->channels_amount; ch_num++) {
+                QAction *channel_assign_action =
+                        assign_channel_submenu->addAction(tr("Channel %1").arg(ch_num + 1));
+
+                connect(channel_assign_action, &QAction::triggered, this,
+                        [this, reader_id, variable_id, ch_num]() {
+                            emit assign_channel(qMakePair(reader_id, variable_id), ch_num);
+                        });
+            }
+        } else {
+            // Reader item was clicked
+            QAction *modify_source_action = contextMenu.addAction("Modify existing source");
+            QAction *delete_source_action = contextMenu.addAction("Delete existing source");
+
+            modify_source_action->setEnabled(false);
+            connect(delete_source_action, &QAction::triggered, this, [this, index, reader_id]() {
+                emit remove_reader(reader_id);
+                // TODO: remove correspondence between reader variables and channels
+
+                // TODO: gracefully remove config to prevent any issues during the data transmit
+                // from data processor to main window
+
+                m_readers_config.remove(reader_id);
+                m_source_list_model->removeRow(index.row(), index.parent());
+            });
+        }
     } else {
         if (m_readers_config.size() >= this->readers_amount) {
             QAction *new_source_action = contextMenu.addAction("Source amount limit was achieved");
@@ -194,13 +206,25 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
                 if (dialog.exec() == QDialog::Accepted) {
                     ReaderId new_reader_id = get_available_reader_idx();
 
-                    auto config = dialog.get_config();
+                    const auto config = dialog.get_config();
 
                     m_readers_config.insert(new_reader_id, config);
 
                     QStandardItem *new_item = new QStandardItem(tr("Source %1").arg(new_reader_id));
-                    new_item->setData(QVariant::fromValue(new_reader_id), Qt::UserRole);
+                    new_item->setData(QVariant::fromValue(new_reader_id), ItemRoles::ReaderIdRole);
                     m_source_list_model->appendRow(new_item);
+
+                    if (!config->variable_names.isEmpty()) {
+                        for (const auto [id, name] : config->variable_names.asKeyValueRange()) {
+                            QStandardItem *new_variable_item =
+                                    new QStandardItem(tr("#%1 %2").arg(id).arg(name));
+                            new_variable_item->setData(QVariant::fromValue(new_reader_id),
+                                                       ItemRoles::ReaderIdRole);
+                            new_variable_item->setData(QVariant::fromValue(id),
+                                                       ItemRoles::VariableIdRole);
+                            new_item->appendRow(new_variable_item);
+                        }
+                    }
 
                     emit configure_reader(new_reader_id, config);
                 }

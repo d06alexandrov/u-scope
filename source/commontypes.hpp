@@ -20,7 +20,7 @@ using DataPoint = QPair<DataTime, DataVariant>; /**< Combination of the timestam
                                                    provided by universal readers. */
 
 using ReaderId = uint64_t; /**< ID of the reader. */
-Q_DECLARE_METATYPE(ReaderId);
+Q_DECLARE_METATYPE(ReaderId)
 
 using VariableId = uint64_t; /**< ID of the variable. */
 

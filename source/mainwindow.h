@@ -31,6 +31,14 @@ private:
     static constexpr size_t channels_amount = 12; /**< Amount of channels. */
 
     /**
+     * @brief Roles of the items in the source list.
+     */
+    enum ItemRoles {
+        ReaderIdRole = Qt::UserRole + 1, /**< Role for the reader id. */
+        VariableIdRole = Qt::UserRole + 2, /**< Role for the variable id. */
+    };
+
+    /**
      * @brief Configuration of the Graph
      */
     struct GraphStyle

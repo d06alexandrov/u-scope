@@ -7,15 +7,21 @@ set(SOURCES
     mainwindow.ui
     serialreader.cpp
     serialreader.h
-    simulatedreader.cpp
-    simulatedreader.h
     universalreader.cpp
     universalreader.h
     universalreader_dialog.h
     commontypes.hpp
-    simulatedreader_dialog.h
     simulatedreader_dialog.cpp
+    simulatedreader_dialog_form.cpp
+    simulatedreader_dialog_form.h
+    simulatedreader_dialog_form.ui
+    simulatedreader_dialog.h
+    simulatedreader_dialog_row.cpp
+    simulatedreader_dialog_row.h
+    simulatedreader_dialog_row.ui
     simulatedreader_dialog.ui
+    simulatedreader.cpp
+    simulatedreader.h
 )
 
 qt_add_executable(u-scope

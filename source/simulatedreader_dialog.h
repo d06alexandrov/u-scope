@@ -4,6 +4,9 @@
 #include "universalreader_dialog.h"
 
 #include <QDialog>
+#include <QHash>
+#include <QSet>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -16,32 +19,12 @@ QT_END_NAMESPACE
  */
 struct SimulatedReaderDialogConfig : UniversalReaderDialogConfig
 {
-    /**
-     * @brief Constant value.
-     */
-    struct ConstConfig
-    {
-        double value; /**< Constant value. */
-    };
-
-    /**
-     * @brief Sinusoidal wave.
-     */
-    struct SinConfig
-    {
-        int32_t frequency; /**< Frequency of the sinusoid. */
-        double amplitude; /**< Amplitude of the sinusoid. */
-    };
-
-    /**
-     * @brief Variants of a simulated form.
-     */
-    using Config = std::variant<ConstConfig, SinConfig>;
-
-    VariableId variable_id; /**< ID of the generated variable. */
-    Config form_conf; /**< Configuration for the specific form. */
+    QHash<VariableId, SimulatedReaderConfig::Config>
+            form_configs; /**< Configurations of the simulated values. */
 
     std::shared_ptr<UniversalReaderConfig> to_reader_config() const override;
+
+    static QString get_form_config_short_name(const SimulatedReaderConfig::Config &form_conf);
 };
 
 /**
@@ -59,7 +42,12 @@ public:
      * @param config Pointer to the configuration of the simulated reader.
      */
     SimulatedReaderDialog(QWidget *parent = nullptr,
-                          std::shared_ptr<const SimulatedReaderConfig> config = nullptr);
+                          std::shared_ptr<const SimulatedReaderDialogConfig> config = nullptr);
+
+    /**
+     * @brief Destructor of the dialog window.
+     */
+    ~SimulatedReaderDialog();
 
     /**
      * @brief Get configuration of the simulated reader.
@@ -69,14 +57,44 @@ public:
     std::shared_ptr<UniversalReaderDialogConfig> get_config();
 
 private:
-    enum TypeIndexes {
-        Constant = 0,
-        Sinusoid = 1,
+    /**
+     * @brief Roles of the items in the list.
+     */
+    enum ItemRoles {
+        VariableIdRole = Qt::UserRole + 1, /**< Role for the variable ID. */
     };
 
     Ui::SimulatedReaderDialog *ui = nullptr; /**< Pointer to the user interface. */
-    std::shared_ptr<const SimulatedReaderConfig> m_config =
+    std::shared_ptr<const SimulatedReaderDialogConfig> m_config =
             nullptr; /**< Pointer to the previous configuration of the simulated reader. */
+    QSet<VariableId> m_original_variable_ids; /**< Set of original variable IDs. */
+    QSet<VariableId>
+            m_reserved_variable_ids; /**< Set of currently used or original variable IDs. */
+    QHash<VariableId, SimulatedReaderConfig::Config>
+            m_form_configs; /**< Configurations of the simulated values. */
+
+    /**
+     * @brief Add a new element to the list of simulated forms.
+     *
+     * @param variable_id ID of the variable to add.
+     * @param form_conf Configuration of the simulated form to add.
+     */
+    void add_element_to_list(VariableId variable_id, SimulatedReaderConfig::Config form_conf);
+
+    /**
+     * @brief Remove an element from the list of simulated forms.
+     *
+     * @param variable_id ID of the variable to remove.
+     */
+    void remove_element_from_list(VariableId variable_id);
+
+    /**
+     * @brief Modify an existing element in the list of simulated forms.
+     *
+     * @param variable_id ID of the existing variable to modify.
+     * @param form_conf New configuration of the simulated form.
+     */
+    void modify_element_in_list(VariableId variable_id, SimulatedReaderConfig::Config form_conf);
 
 signals:
 };

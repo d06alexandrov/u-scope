@@ -4,8 +4,11 @@
 #include "simulatedreader_dialog_row.h"
 #include "ui_simulatedreader_dialog.h"
 
+#include <QCoreApplication>
 #include <QDebug>
+#include <QObject>
 #include <QPushButton>
+#include <QtLogging>
 #include <variant>
 
 std::shared_ptr<UniversalReaderConfig> SimulatedReaderDialogConfig::to_reader_config() const
@@ -33,6 +36,23 @@ std::shared_ptr<UniversalReaderConfig> SimulatedReaderDialogConfig::to_reader_co
     return config;
 }
 
+QString SimulatedReaderDialogConfig::get_form_config_short_name(const Config &form_conf)
+{
+    return std::visit(
+            overloads{ [](const SimulatedReaderDialogConfig::ConstConfig &const_conf) {
+                          return QCoreApplication::translate("SimulatedReaderDialogConfig",
+                                                             "Constant %1")
+                                  .arg(const_conf.value);
+                      },
+                       [](const SimulatedReaderDialogConfig::SinConfig &sin_conf) {
+                           return QCoreApplication::translate("SimulatedReaderDialogConfig",
+                                                              "Sinusoid (%1 Amplitude) %2 Hz")
+                                   .arg(sin_conf.amplitude)
+                                   .arg(sin_conf.frequency);
+                       } },
+            form_conf);
+}
+
 SimulatedReaderDialog::SimulatedReaderDialog(
         QWidget *parent, std::shared_ptr<const SimulatedReaderDialogConfig> config)
     : QDialog{ parent }
@@ -48,7 +68,6 @@ SimulatedReaderDialog::SimulatedReaderDialog(
     }
 
     if (config != nullptr) {
-        // TODO: Add existing elements in case of modification
         for (const auto &[variable_id, form_conf] : config->form_configs.asKeyValueRange()) {
             add_element_to_list(variable_id, form_conf);
         }
@@ -59,7 +78,6 @@ SimulatedReaderDialog::SimulatedReaderDialog(
     connect(ui->simulationForms, &QListWidget::itemClicked, this,
             [this, add_button](QListWidgetItem *item) {
                 if (item == add_button) {
-
                     SimulatedReaderDialogForm dialog(this);
 
                     if (dialog.exec() == QDialog::Accepted) {
@@ -67,9 +85,7 @@ SimulatedReaderDialog::SimulatedReaderDialog(
                                 UniversalReaderDialogConfig::get_available_variable_idx(
                                         this->m_reserved_variable_ids);
 
-                        const auto config = dialog.get_config();
-
-                        add_element_to_list(new_variable_id, config);
+                        add_element_to_list(new_variable_id, dialog.get_config());
                     }
                 }
             });
@@ -87,26 +103,15 @@ std::shared_ptr<UniversalReaderDialogConfig> SimulatedReaderDialog::get_config()
     config->form_configs = this->m_form_configs;
 
     for (const auto &[variable_id, form_conf] : this->m_form_configs.asKeyValueRange()) {
-        std::visit(overloads{ [&config, variable_id](
-                                      const SimulatedReaderDialogConfig::ConstConfig &const_conf) {
-                                 config->variable_names.insert(
-                                         variable_id, tr("Constant %1").arg(const_conf.value));
-                             },
-                              [&config, variable_id](
-                                      const SimulatedReaderDialogConfig::SinConfig &sin_conf) {
-                                  config->variable_names.insert(variable_id,
-                                                                tr("Sinusoid (%1 Amplitude) %2 Hz")
-                                                                        .arg(sin_conf.amplitude)
-                                                                        .arg(sin_conf.frequency));
-                              } },
-                   form_conf);
+        config->variable_names.insert(
+                variable_id, SimulatedReaderDialogConfig::get_form_config_short_name(form_conf));
     }
 
     return config;
 }
 
-void SimulatedReaderDialog::add_element_to_list(
-        const VariableId variable_id, const SimulatedReaderDialogConfig::Config &form_conf)
+void SimulatedReaderDialog::add_element_to_list(VariableId variable_id,
+                                                SimulatedReaderDialogConfig::Config form_conf)
 {
     auto new_item = new QListWidgetItem();
     auto row_widget = new SimulatedReaderDialogRow();
@@ -115,31 +120,33 @@ void SimulatedReaderDialog::add_element_to_list(
 
     new_item->setData(ItemRoles::VariableIdRole, QVariant::fromValue(variable_id));
 
-    std::visit(
-            overloads{
-                    [this, row_widget](const SimulatedReaderDialogConfig::ConstConfig &const_conf) {
-                        row_widget->set_text(tr("Constant %1").arg(const_conf.value));
-                    },
-                    [this, row_widget](const SimulatedReaderDialogConfig::SinConfig &sin_conf) {
-                        row_widget->set_text(tr("Sinusoid (%1 Amplitude) %2 Hz")
-                                                     .arg(sin_conf.amplitude)
-                                                     .arg(sin_conf.frequency));
-                    } },
-            form_conf);
+    row_widget->set_text(SimulatedReaderDialogConfig::get_form_config_short_name(form_conf));
 
-    connect(
-            row_widget, &SimulatedReaderDialogRow::deleteRequested, this,
-            [this, variable_id]() { this->remove_element_from_list(variable_id); },
-            Qt::QueuedConnection);
+    connect(row_widget, &SimulatedReaderDialogRow::deleteRequested, this,
+            [this, variable_id]() { this->remove_element_from_list(variable_id); });
+
+    connect(row_widget, &SimulatedReaderDialogRow::editRequested, this, [this, variable_id]() {
+        if (!this->m_form_configs.contains(variable_id)) {
+            return;
+        }
+
+        SimulatedReaderDialogForm dialog(this,
+                                         std::make_shared<SimulatedReaderDialogConfig::Config>(
+                                                 this->m_form_configs.value(variable_id)));
+
+        if (dialog.exec() == QDialog::Accepted) {
+            modify_element_in_list(variable_id, dialog.get_config());
+        }
+    });
 
     this->ui->simulationForms->insertItem(this->ui->simulationForms->count() - 1, new_item);
     this->ui->simulationForms->setItemWidget(new_item, row_widget);
 
     this->m_reserved_variable_ids.insert(variable_id);
-    this->m_form_configs[variable_id] = form_conf;
+    this->m_form_configs[variable_id] = std::move(form_conf);
 }
 
-void SimulatedReaderDialog::remove_element_from_list(const VariableId variable_id)
+void SimulatedReaderDialog::remove_element_from_list(VariableId variable_id)
 {
     this->m_form_configs.remove(variable_id);
     this->m_reserved_variable_ids.remove(variable_id);
@@ -153,4 +160,29 @@ void SimulatedReaderDialog::remove_element_from_list(const VariableId variable_i
             break;
         }
     }
+}
+
+void SimulatedReaderDialog::modify_element_in_list(VariableId variable_id,
+                                                   SimulatedReaderDialogConfig::Config form_conf)
+{
+    for (int i = 0; i < this->ui->simulationForms->count(); i++) {
+        const auto &element_data =
+                this->ui->simulationForms->item(i)->data(ItemRoles::VariableIdRole);
+
+        if (element_data.isValid() && (element_data.value<VariableId>() == variable_id)) {
+            auto row_widget = qobject_cast<SimulatedReaderDialogRow *>(
+                    this->ui->simulationForms->itemWidget(this->ui->simulationForms->item(i)));
+
+            if (row_widget != nullptr) {
+                row_widget->set_text(
+                        SimulatedReaderDialogConfig::get_form_config_short_name(form_conf));
+            } else {
+                qWarning() << tr("Widget at index %1 has an unexpected type.").arg(i);
+            }
+
+            break;
+        }
+    }
+
+    this->m_form_configs[variable_id] = std::move(form_conf);
 }

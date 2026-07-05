@@ -6,6 +6,7 @@
 #include <QDialog>
 #include <QHash>
 #include <QSet>
+#include <QString>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -43,6 +44,8 @@ struct SimulatedReaderDialogConfig : UniversalReaderDialogConfig
     QHash<VariableId, Config> form_configs; /**< Configurations of the simulated values. */
 
     std::shared_ptr<UniversalReaderConfig> to_reader_config() const override;
+
+    static QString get_form_config_short_name(const Config &form_conf);
 };
 
 /**
@@ -93,14 +96,27 @@ private:
 
     /**
      * @brief Add a new element to the list of simulated forms.
+     *
+     * @param variable_id ID of the variable to add.
+     * @param form_conf Configuration of the simulated form to add.
      */
-    void add_element_to_list(const VariableId variable_id,
-                             const SimulatedReaderDialogConfig::Config &form_conf);
+    void add_element_to_list(VariableId variable_id, SimulatedReaderDialogConfig::Config form_conf);
 
     /**
      * @brief Remove an element from the list of simulated forms.
+     *
+     * @param variable_id ID of the variable to remove.
      */
-    void remove_element_from_list(const VariableId variable_id);
+    void remove_element_from_list(VariableId variable_id);
+
+    /**
+     * @brief Modify an existing element in the list of simulated forms.
+     *
+     * @param variable_id ID of the existing variable to modify.
+     * @param form_conf New configuration of the simulated form.
+     */
+    void modify_element_in_list(VariableId variable_id,
+                                SimulatedReaderDialogConfig::Config form_conf);
 
 signals:
 };

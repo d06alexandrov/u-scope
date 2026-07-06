@@ -1,27 +1,28 @@
+cmake_minimum_required(VERSION 3.23)
+
+# Add interface library to propagate common header
+add_library(common_headers INTERFACE
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/commontypes.hpp
+)
+
+target_sources(common_headers PUBLIC
+  FILE_SET HEADERS
+    BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include
+    FILES ${CMAKE_CURRENT_SOURCE_DIR}/include/commontypes.hpp
+)
+
+target_link_libraries(common_headers INTERFACE Qt${QT_VERSION_MAJOR}::Core)
+
+
+# Add directory with readers library
+add_subdirectory(readers)
+
+
 set(SOURCES
     dataprocessor.cpp
-    dataprocessor.h
     main.cpp
     mainwindow.cpp
-    mainwindow.h
     mainwindow.ui
-    serialreader.cpp
-    serialreader.h
-    universalreader.cpp
-    universalreader.h
-    universalreader_dialog.h
-    commontypes.hpp
-    simulatedreader_dialog.cpp
-    simulatedreader_dialog_form.cpp
-    simulatedreader_dialog_form.h
-    simulatedreader_dialog_form.ui
-    simulatedreader_dialog.h
-    simulatedreader_dialog_row.cpp
-    simulatedreader_dialog_row.h
-    simulatedreader_dialog_row.ui
-    simulatedreader_dialog.ui
-    simulatedreader.cpp
-    simulatedreader.h
 )
 
 qt_add_executable(u-scope
@@ -30,8 +31,15 @@ qt_add_executable(u-scope
 
 find_package(Qt6 REQUIRED COMPONENTS Widgets Charts SerialPort)
 
-target_link_libraries(u-scope PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Charts
-Qt${QT_VERSION_MAJOR}::SerialPort)
+target_link_libraries(u-scope PRIVATE
+    Qt${QT_VERSION_MAJOR}::Widgets
+    Qt${QT_VERSION_MAJOR}::Charts
+    Qt${QT_VERSION_MAJOR}::SerialPort
+    common_headers
+    universal_reader
+    serial_reader
+    simulated_reader
+)
 
 set_target_properties(u-scope PROPERTIES
     MACOSX_BUNDLE_BUNDLE_VERSION ${PROJECT_VERSION}

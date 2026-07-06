@@ -1,9 +1,9 @@
 cmake_minimum_required(VERSION 3.23)
 
+find_package(Qt6 REQUIRED COMPONENTS Widgets Charts SerialPort)
+
 # Add interface library to propagate common header
-add_library(common_headers INTERFACE
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/commontypes.hpp
-)
+add_library(common_headers INTERFACE)
 
 target_sources(common_headers PUBLIC
   FILE_SET HEADERS
@@ -29,12 +29,9 @@ qt_add_executable(u-scope
     ${SOURCES}
 )
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Charts SerialPort)
-
 target_link_libraries(u-scope PRIVATE
     Qt${QT_VERSION_MAJOR}::Widgets
     Qt${QT_VERSION_MAJOR}::Charts
-    Qt${QT_VERSION_MAJOR}::SerialPort
     common_headers
     universal_reader
     serial_reader

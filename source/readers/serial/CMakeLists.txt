@@ -1,7 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
-
-find_package(Qt6 REQUIRED COMPONENTS Core SerialPort)
-
 qt_add_library(serial_reader STATIC 
     serialreader.cpp
 )

@@ -1,7 +1,3 @@
-cmake_minimum_required(VERSION 3.16)
-
-find_package(Qt6 REQUIRED COMPONENTS Core Widgets)
-
 qt_add_library(simulated_reader STATIC 
     simulatedreader_dialog.cpp
     simulatedreader_dialog_form.cpp

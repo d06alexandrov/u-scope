@@ -186,8 +186,6 @@ void DataProcessor::configure_reader(ReaderId id,
                     &UniversalReader::reader_setup);
             connect(new_sender.thread, &QThread::finished, new_sender.sender,
                     &QObject::deleteLater);
-            connect(new_sender.thread, &QThread::finished, new_sender.thread,
-                    &QObject::deleteLater);
 
             connect(new_sender.sender, &UniversalReader::report_status, this,
                     &DataProcessor::reported_reader_status);

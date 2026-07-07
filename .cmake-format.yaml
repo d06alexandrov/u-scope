@@ -3,14 +3,59 @@ parse:
   _help_additional_commands:
   - Specify structure for custom cmake functions
   additional_commands:
-    foo:
+    qt_add_library:
       flags:
-      - BAR
-      - BAZ
+        - STATIC
+        - SHARED
+        - MODULE
+        - INTERFACE
+        - OBJECT
+        - MANUAL_FINALIZATION
       kwargs:
-        HEADERS: '*'
+    qt_add_translations:
+      flags:
+        - NO_GENERATE_PLURALS_TS_FILE
+        - MERGE_QT_TRANSLATIONS
+        - IMMEDIATE_CALL
+      kwargs:
+        TARGETS: '*'
+        SOURCE_TARGETS: '*'
+        TS_FILE_BASE: 1
+        TS_FILES: '*'
+        PLURALS_TS_FILE: 1
+        RESOURCE_PREFIX: 1
+        OUTPUT_TARGETS: 1
+        TS_FILES_OUTPUT_VARIABLE: 1
+        TS_OUTPUT_DIRECTORY: 1
+        QM_FILES_OUTPUT_VARIABLE: 1
+        QM_OUTPUT_DIRECTORY: 1
         SOURCES: '*'
-        DEPENDS: '*'
+        INCLUDE_DIRECTORIES: '*'
+        LUPDATE_TARGET: 1
+        LUPDATE_OPTIONS: '*'
+        LRELEASE_TARGET: 1
+        LRELEASE_OPTIONS: '*'
+        QT_TRANSLATION_CATALOGS: '*'
+    qt_generate_deploy_app_script:
+      flags:
+        - NO_TRANSLATIONS
+        - NO_COMPILER_RUNTIME
+        - NO_UNSUPPORTED_PLATFORM_ERROR
+        - NO_PLUGINS
+      kwargs:
+        TARGET: 1
+        OUTPUT_SCRIPT: 1
+        EXCLUDE_PLUGIN_TYPES: '*'
+        INCLUDE_PLUGIN_TYPES: '*'
+        EXCLUDE_PLUGINS: '*'
+        INCLUDE_PLUGINS: '*'
+        DEPLOY_TOOL_OPTIONS: '*'
+        PRE_INCLUDE_REGEXES: '*'
+        PRE_EXCLUDE_REGEXES: '*'
+        POST_INCLUDE_REGEXES: '*'
+        POST_EXCLUDE_REGEXES: '*'
+        POST_INCLUDE_FILES: '*'
+        POST_EXCLUDE_FILES: '*'
   _help_override_spec:
   - Override configurations per-command where available
   override_spec: {}

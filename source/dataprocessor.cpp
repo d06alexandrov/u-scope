@@ -37,22 +37,6 @@ DataProcessor::~DataProcessor()
     }
 }
 
-void DataProcessor::add_variables_data(ReaderId reader_id, QMap<VariableId, QList<DataPoint>> &data)
-{
-    if (m_senders.contains(reader_id)) {
-        auto &sender_info = m_senders[reader_id];
-        if (sender_info.buffer_mutex) {
-            QMutexLocker locker(sender_info.buffer_mutex.get());
-
-            for (auto [variable_id, new_data] : data.asKeyValueRange()) {
-                m_in_buffers[reader_id][variable_id].append(std::move(new_data));
-            }
-        }
-    } else {
-        data.clear();
-    }
-}
-
 DataTime DataProcessor::get_timestamp()
 {
     return std::chrono::duration_cast<std::chrono::microseconds>(
@@ -81,34 +65,24 @@ void DataProcessor::process(void)
 {
     QList<GraphData> new_data;
 
-    for (auto [reader_id, sender_info] : m_senders.asKeyValueRange()) {
-        QMap<VariableId, QList<DataPoint>> in_data;
+    DataTime current_time = get_timestamp();
 
-        if (sender_info.buffer_mutex) {
-            QMutexLocker locker(sender_info.buffer_mutex.get());
-            std::swap(in_data, m_in_buffers[reader_id]);
-        }
+    for (auto [reader_id, reader_data] : m_buffers.asKeyValueRange()) {
+        for (auto [variable_id, var_data] : reader_data.asKeyValueRange()) {
+            auto it = m_var_to_channel.constFind(qMakePair(reader_id, variable_id));
 
-        DataTime current_time = get_timestamp();
-
-        for (auto [variable_id, in_var_data] : in_data.asKeyValueRange()) {
-            if (auto it = m_var_to_channel.constFind(qMakePair(reader_id, variable_id));
-                it != m_var_to_channel.constEnd()) {
+            if (it != m_var_to_channel.constEnd()) {
                 QList<QPointF> processed_values;
 
-                m_buffers[reader_id][variable_id].append(std::move(in_var_data));
-
                 auto cut_it = std::lower_bound(
-                        m_buffers[reader_id][variable_id].begin(),
-                        m_buffers[reader_id][variable_id].end(), m_time_width,
+                        var_data.begin(), var_data.end(), m_time_width,
                         [current_time](const DataPoint &point, uint64_t max_distance) {
                             return get_timestamp_diff_us(point.first, current_time) > max_distance;
                         });
 
-                m_buffers[reader_id][variable_id].erase(m_buffers[reader_id][variable_id].begin(),
-                                                        cut_it);
+                var_data.erase(var_data.begin(), cut_it);
 
-                for (auto &val_it : m_buffers[reader_id][variable_id]) {
+                for (auto &val_it : var_data) {
                     const auto val = std::visit([](auto &&arg) { return static_cast<qreal>(arg); },
                                                 val_it.second);
 
@@ -121,6 +95,8 @@ void DataProcessor::process(void)
                 }
 
                 new_data.emplace_back(it.value(), std::move(processed_values));
+            } else {
+                var_data.clear();
             }
         }
     }
@@ -174,11 +150,11 @@ void DataProcessor::configure_reader(ReaderId id,
         UniversalReader *reader = nullptr;
 
         if (auto sim_config = std::dynamic_pointer_cast<SimulatedReaderConfig>(reader_config)) {
-            reader = new SimulatedReader(id, this, sim_config);
+            reader = new SimulatedReader(id, sim_config);
         }
 
         if (reader != nullptr) {
-            DataSenderInfo new_sender{ new QThread(), reader, std::make_shared<QMutex>() };
+            DataSenderInfo new_sender{ new QThread(), reader };
 
             new_sender.sender->moveToThread(new_sender.thread);
 
@@ -189,6 +165,8 @@ void DataProcessor::configure_reader(ReaderId id,
 
             connect(new_sender.sender, &UniversalReader::report_status, this,
                     &DataProcessor::reported_reader_status);
+            connect(new_sender.sender, &UniversalReader::data_ready, this,
+                    &DataProcessor::receive_data);
             connect(this, &DataProcessor::reader_start, new_sender.sender,
                     &UniversalReader::reader_start);
             connect(this, &DataProcessor::reader_stop, new_sender.sender,
@@ -210,7 +188,6 @@ void DataProcessor::remove_reader(ReaderId id)
         sender_info.thread->quit();
 
         m_senders.remove(id);
-        m_in_buffers.remove(id);
         m_buffers.remove(id);
 
         for (auto it = m_var_to_channel.begin(); it != m_var_to_channel.end();) {
@@ -241,5 +218,14 @@ void DataProcessor::set_time_width(uint64_t us)
 {
     if (us > 0) {
         m_time_width = us;
+    }
+}
+
+void DataProcessor::receive_data(ReaderId reader_id, QMap<VariableId, QList<DataPoint>> data)
+{
+    if (m_senders.contains(reader_id)) {
+        for (auto [variable_id, new_data] : data.asKeyValueRange()) {
+            m_buffers[reader_id][variable_id].append(std::move(new_data));
+        }
     }
 }

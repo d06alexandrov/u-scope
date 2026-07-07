@@ -4,9 +4,8 @@
 
 #include <cmath>
 
-SimulatedReader::SimulatedReader(ReaderId id, DataProcessor *processor,
-                                 std::shared_ptr<SimulatedReaderConfig> config)
-    : UniversalReader{ id, processor, config }
+SimulatedReader::SimulatedReader(ReaderId id, std::shared_ptr<SimulatedReaderConfig> config)
+    : UniversalReader{ id, config }
 {
 }
 

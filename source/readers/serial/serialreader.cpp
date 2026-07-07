@@ -2,9 +2,8 @@
 
 #include "dataprocessor.h"
 
-SerialReader::SerialReader(ReaderId id, DataProcessor *processor,
-                           std::shared_ptr<SerialReaderConfig> config)
-    : UniversalReader{ id, processor, config }
+SerialReader::SerialReader(ReaderId id, std::shared_ptr<SerialReaderConfig> config)
+    : UniversalReader{ id, config }
     , m_serial(new QSerialPort(this))
 {
 }

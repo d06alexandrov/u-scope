@@ -112,16 +112,6 @@ public:
     ~DataProcessor();
 
     /**
-     * @brief Add varibles data into incoming buffer.
-     *
-     * @note Thread-safe if the senders' info is updated when all senders are stopped.
-     *
-     * @param reader_id ID of the sender.
-     * @param data Data to be stored.
-     */
-    void add_variables_data(ReaderId reader_id, QMap<VariableId, QList<DataPoint>> &data);
-
-    /**
      * @brief Get current timestamp.
      *
      * @note This function uses monotonic clock, so every new call returns a higher value. Except of
@@ -205,6 +195,14 @@ public slots:
      */
     void set_time_width(uint64_t us);
 
+    /**
+     * @brief Receive data from the reader and store it in the buffer.
+     *
+     * @param reader_id ID of the reader.
+     * @param data Data from the reader to be stored in the buffer.
+     */
+    void receive_data(ReaderId reader_id, QMap<VariableId, QList<DataPoint>> data);
+
 signals:
     /**
      * @brief Send new data to show in a chart.
@@ -242,8 +240,6 @@ private:
     {
         QThread *thread = nullptr; /**< Pointer to the sender's thread. */
         UniversalReader *sender = nullptr; /**< Pointer to the sender. */
-        std::shared_ptr<QMutex> buffer_mutex =
-                nullptr; /**< Mutex that protects data from this particular sender. */
 
         UniversalReader::Status latest_status =
                 UniversalReader::Uninitialized; /**< Latest known status of the sender. */
@@ -253,9 +249,6 @@ private:
             nullptr; /**< Timer to execute processing function and send data to graph Widget. */
     QHash<ReaderId, DataSenderInfo>
             m_senders; /**< Initialized data senders. Sender is used as a key. */
-    QMap<ReaderId, QMap<VariableId, QList<DataPoint>>>
-            m_in_buffers; /**< Buffers where senders store the data. Sender Mutex is used for a
-                             thread-safety. */
     QMap<ReaderId, QMap<VariableId, QVector<DataPoint>>>
             m_buffers; /**< Buffers to store raw data from senders. */
     QHash<QPair<ReaderId, VariableId>, ChannelId>

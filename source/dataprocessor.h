@@ -14,7 +14,6 @@
 #include <QString>
 #include <QThread>
 #include <QTimer>
-#include <QVector>
 
 /**
  * @brief Class to store data of one particular graph.
@@ -111,44 +110,6 @@ public:
                            QObject *parent = nullptr);
     ~DataProcessor();
 
-    /**
-     * @brief Add varibles data into incoming buffer.
-     *
-     * @note Thread-safe if the senders' info is updated when all senders are stopped.
-     *
-     * @param reader_id ID of the sender.
-     * @param data Data to be stored.
-     */
-    void add_variables_data(ReaderId reader_id, QMap<VariableId, QList<DataPoint>> &data);
-
-    /**
-     * @brief Get current timestamp.
-     *
-     * @note This function uses monotonic clock, so every new call returns a higher value. Except of
-     * the wrapping case.
-     *
-     * @return Current time timestamp.
-     */
-    static DataTime get_timestamp();
-
-    /**
-     * @brief Get the difference between two timestamps.
-     *
-     * @param before Earlier timestamp.
-     * @param after Timestamp after @p before.
-     * @return Time in microseconds between @p before and @p after.
-     */
-    static uint64_t get_timestamp_diff_us(DataTime before, DataTime after);
-
-    /**
-     * @brief Increase timestamp by provided time.
-     *
-     * @param timestamp Original timestamp.
-     * @param us Time in microseconds that should be added to original timestamp.
-     * @return @p timestamp plus @p us round up to the nearest DataTime.
-     */
-    static DataTime timestamp_add_us_roundup(DataTime timestamp, uint64_t us);
-
 public slots:
     /**
      * @brief Initialize DataProcessor.
@@ -203,7 +164,15 @@ public slots:
      *
      * @param us window width in microseconds
      */
-    void set_time_width(uint64_t us);
+    void set_time_width(int64_t us);
+
+    /**
+     * @brief Receive data from the reader and store it in the buffer.
+     *
+     * @param reader_id ID of the reader.
+     * @param data Data from the reader to be stored in the buffer.
+     */
+    void receive_data(ReaderId reader_id, QMap<VariableId, QList<UData::Point>> data);
 
 signals:
     /**
@@ -233,7 +202,7 @@ signals:
     void reader_stop(ReaderId reader_id);
 
 private:
-    static constexpr uint64_t default_time_width = 1000000; /**< Default window width in us. */
+    static constexpr int64_t default_time_width = 1000000; /**< Default window width in us. */
 
     /**
      * @brief Structure to store information regarding Senders (Readers)
@@ -242,8 +211,6 @@ private:
     {
         QThread *thread = nullptr; /**< Pointer to the sender's thread. */
         UniversalReader *sender = nullptr; /**< Pointer to the sender. */
-        std::shared_ptr<QMutex> buffer_mutex =
-                nullptr; /**< Mutex that protects data from this particular sender. */
 
         UniversalReader::Status latest_status =
                 UniversalReader::Uninitialized; /**< Latest known status of the sender. */
@@ -253,17 +220,14 @@ private:
             nullptr; /**< Timer to execute processing function and send data to graph Widget. */
     QHash<ReaderId, DataSenderInfo>
             m_senders; /**< Initialized data senders. Sender is used as a key. */
-    QMap<ReaderId, QMap<VariableId, QList<DataPoint>>>
-            m_in_buffers; /**< Buffers where senders store the data. Sender Mutex is used for a
-                             thread-safety. */
-    QMap<ReaderId, QMap<VariableId, QVector<DataPoint>>>
+    QMap<ReaderId, QMap<VariableId, QList<UData::Point>>>
             m_buffers; /**< Buffers to store raw data from senders. */
     QHash<QPair<ReaderId, VariableId>, ChannelId>
             m_var_to_channel; /**< Correspondence between variables and channels. */
     QHash<ChannelId, QPair<ReaderId, VariableId>> m_channel_to_var; /**< Correspondence between
                                                                      channels and variables. */
 
-    uint64_t m_time_width; /**< Window width in us. */
+    int64_t m_time_width; /**< Window width in us. */
     QPoint m_left_bottom_corner; /**< Coordinate of the graph's left bottom corner. */
     QPoint m_right_top_corner; /**< Coordinate of the graph's right top corner. */
 };

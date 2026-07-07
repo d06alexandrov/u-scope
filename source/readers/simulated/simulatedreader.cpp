@@ -1,12 +1,9 @@
 #include "simulatedreader.h"
 
-#include "dataprocessor.h"
-
 #include <cmath>
 
-SimulatedReader::SimulatedReader(ReaderId id, DataProcessor *processor,
-                                 std::shared_ptr<SimulatedReaderConfig> config)
-    : UniversalReader{ id, processor, config }
+SimulatedReader::SimulatedReader(ReaderId id, std::shared_ptr<SimulatedReaderConfig> config)
+    : UniversalReader{ id, config }
 {
 }
 
@@ -25,12 +22,12 @@ void SimulatedReader::setup()
         throw std::range_error("Sample rate must be at least 1");
     }
 
-    m_setup_timestamp = DataProcessor::get_timestamp();
+    m_setup_timestamp = UData::get_timestamp();
 }
 
 void SimulatedReader::start()
 {
-    m_prev_sample_timestamp = DataProcessor::get_timestamp();
+    m_prev_sample_timestamp = UData::get_timestamp();
 }
 
 void SimulatedReader::stop() { }
@@ -38,10 +35,10 @@ void SimulatedReader::stop() { }
 void SimulatedReader::process()
 {
     const auto config = get_config();
-    const auto current_timestamp = DataProcessor::get_timestamp();
+    const auto current_timestamp = UData::get_timestamp();
     const auto sample_interval_us = 1000000UL / config->sample_rate;
 
-    DataTime prev_sample_timestamp = m_prev_sample_timestamp;
+    UData::Time prev_sample_timestamp = m_prev_sample_timestamp;
 
     for (const auto &[variable_id, form_conf] :
          this->get_config()->form_configs.asKeyValueRange()) {
@@ -49,27 +46,25 @@ void SimulatedReader::process()
         prev_sample_timestamp = m_prev_sample_timestamp;
 
         std::visit(overloads{ [&](const SimulatedReaderConfig::ConstConfig &const_conf) {
-                                 for (DataTime t = DataProcessor::timestamp_add_us_roundup(
+                                 for (UData::Time t = UData::timestamp_add_us_roundup(
                                               prev_sample_timestamp, sample_interval_us);
                                       t < current_timestamp;
-                                      t = DataProcessor::timestamp_add_us_roundup(
-                                              t, sample_interval_us)) {
+                                      t = UData::timestamp_add_us_roundup(t, sample_interval_us)) {
                                      m_buffer[variable_id].push_back(
-                                             DataPoint(t, const_conf.value));
+                                             UData::Point(t, const_conf.value));
                                      prev_sample_timestamp = t;
                                  }
                              },
                               [&](const SimulatedReaderConfig::SinConfig &sin_conf) {
-                                  for (DataTime t = DataProcessor::timestamp_add_us_roundup(
+                                  for (UData::Time t = UData::timestamp_add_us_roundup(
                                                prev_sample_timestamp, sample_interval_us);
                                        t < current_timestamp;
-                                       t = DataProcessor::timestamp_add_us_roundup(
-                                               t, sample_interval_us)) {
-                                      const double x = DataProcessor::get_timestamp_diff_us(
+                                       t = UData::timestamp_add_us_roundup(t, sample_interval_us)) {
+                                      const double x = UData::get_timestamp_diff_us(
                                                                this->m_setup_timestamp, t)
                                               * 2 * M_PI * sin_conf.frequency / 1000000;
                                       m_buffer[variable_id].push_back(
-                                              DataPoint(t, sin(x) * sin_conf.amplitude));
+                                              UData::Point(t, sin(x) * sin_conf.amplitude));
                                       prev_sample_timestamp = t;
                                   }
                               } },

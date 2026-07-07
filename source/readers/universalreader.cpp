@@ -1,14 +1,10 @@
 #include "universalreader.h"
 
-#include "dataprocessor.h"
-
 #include <QDebug>
 
-UniversalReader::UniversalReader(uint64_t id, DataProcessor *processor,
-                                 std::shared_ptr<UniversalReaderConfig> config)
+UniversalReader::UniversalReader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config)
     : QObject{ nullptr }
     , m_id(id)
-    , m_data_processor(processor)
     , m_config(std::move(config))
 {
 }
@@ -80,7 +76,7 @@ void UniversalReader::reader_process()
         process();
 
         if (!m_buffer.isEmpty()) {
-            m_data_processor->add_variables_data(m_id, m_buffer);
+            emit data_ready(m_id, std::move(m_buffer));
             m_buffer.clear();
         }
     }

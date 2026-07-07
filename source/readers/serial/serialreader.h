@@ -36,12 +36,10 @@ public:
     /**
      * @brief Constructor.
      *
-     * @param id id of the reader.
-     * @param processor pointer to the connected Data Processor instance.
+     * @param id ID of the reader.
      * @param config Serial port configuration.
      */
-    explicit SerialReader(ReaderId id, DataProcessor *processor,
-                          std::shared_ptr<SerialReaderConfig> config);
+    explicit SerialReader(ReaderId id, std::shared_ptr<SerialReaderConfig> config);
 
 public slots:
     /**

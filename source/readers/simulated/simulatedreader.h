@@ -5,8 +5,6 @@
 #include <QHash>
 #include <QObject>
 
-class DataProcessor;
-
 /**
  * @brief Configuration for the @ref SimulatedReader.
  */
@@ -59,18 +57,16 @@ public:
     /**
      * @brief Constructor.
      *
-     * @param id id of the reader.
-     * @param processor Pointer to the connected Data Processor instance.
+     * @param id ID of the reader.
      * @param config Simulated reader configuration.
      */
-    explicit SimulatedReader(ReaderId id, DataProcessor *processor,
-                             std::shared_ptr<SimulatedReaderConfig> config);
+    explicit SimulatedReader(ReaderId id, std::shared_ptr<SimulatedReaderConfig> config);
 
 public slots:
 
 private:
-    DataTime m_setup_timestamp = 0; /**< Setup timestamp. */
-    DataTime m_prev_sample_timestamp = 0; /**< Timestamp of a previous sample. */
+    UData::Time m_setup_timestamp = 0; /**< Setup timestamp. */
+    UData::Time m_prev_sample_timestamp = 0; /**< Timestamp of a previous sample. */
 
     /**
      * @brief Get the configuration.

@@ -26,8 +26,6 @@ struct UniversalReaderConfig
 
 Q_DECLARE_METATYPE(std::shared_ptr<UniversalReaderConfig>)
 
-class DataProcessor;
-
 /**
  * @brief Class that provides an unified way to create different data readers.
  */
@@ -51,12 +49,10 @@ public:
     /**
      * @brief Constructor.
      *
-     * @param id id of the reader.
-     * @param processor pointer to the connected Data Processor instance.
+     * @param id ID of the reader.
      * @param config Reader configuration that includes config of the child.
      */
-    explicit UniversalReader(uint64_t id, DataProcessor *processor,
-                             std::shared_ptr<UniversalReaderConfig> config);
+    explicit UniversalReader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config);
     UniversalReader(const UniversalReader &processor) = delete;
     UniversalReader(UniversalReader &&processor) = delete;
 
@@ -87,16 +83,17 @@ private slots:
 
 signals:
     void report_status(ReaderId id, Status status); /**< Report reader status change. */
+    void data_ready(ReaderId reader_id,
+                    QMap<VariableId, QList<UData::Point>> data); /**< Send data when it's ready. */
 
 protected:
     ReaderId m_id = 0; /**< ID of the reader. */
     Status m_status = Uninitialized; /**< Status of the reader. */
-    DataProcessor *m_data_processor = nullptr; /**< Pointer to the DataProcessor. */
     std::shared_ptr<UniversalReaderConfig> m_config; /**< Reader configuration */
     QTimer *m_timer = nullptr; /**< Pointer to the timer for the periodical call of the
                                   reader_process maethod. */
 
-    QMap<VariableId, QList<DataPoint>>
+    QMap<VariableId, QList<UData::Point>>
             m_buffer; /**< Buffer to store received data before it is sent to the data processor. */
 
     virtual void setup() = 0; /**< Initialization of a particular type of the reader. Called

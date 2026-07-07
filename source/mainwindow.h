@@ -100,7 +100,7 @@ signals:
      *
      * @param us window width in microseconds
      */
-    void set_window_time_width(uint64_t us);
+    void set_window_time_width(int64_t us);
 
 private slots:
     void source_list_context_menu(const QPoint &pos);

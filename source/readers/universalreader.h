@@ -52,7 +52,7 @@ public:
      * @param id ID of the reader.
      * @param config Reader configuration that includes config of the child.
      */
-    explicit UniversalReader(uint64_t id, std::shared_ptr<UniversalReaderConfig> config);
+    explicit UniversalReader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config);
     UniversalReader(const UniversalReader &processor) = delete;
     UniversalReader(UniversalReader &&processor) = delete;
 

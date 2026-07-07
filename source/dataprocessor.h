@@ -14,7 +14,6 @@
 #include <QString>
 #include <QThread>
 #include <QTimer>
-#include <QVector>
 
 /**
  * @brief Class to store data of one particular graph.
@@ -165,7 +164,7 @@ public slots:
      *
      * @param us window width in microseconds
      */
-    void set_time_width(uint64_t us);
+    void set_time_width(int64_t us);
 
     /**
      * @brief Receive data from the reader and store it in the buffer.
@@ -203,7 +202,7 @@ signals:
     void reader_stop(ReaderId reader_id);
 
 private:
-    static constexpr uint64_t default_time_width = 1000000; /**< Default window width in us. */
+    static constexpr int64_t default_time_width = 1000000; /**< Default window width in us. */
 
     /**
      * @brief Structure to store information regarding Senders (Readers)
@@ -221,14 +220,14 @@ private:
             nullptr; /**< Timer to execute processing function and send data to graph Widget. */
     QHash<ReaderId, DataSenderInfo>
             m_senders; /**< Initialized data senders. Sender is used as a key. */
-    QMap<ReaderId, QMap<VariableId, QVector<UData::Point>>>
+    QMap<ReaderId, QMap<VariableId, QList<UData::Point>>>
             m_buffers; /**< Buffers to store raw data from senders. */
     QHash<QPair<ReaderId, VariableId>, ChannelId>
             m_var_to_channel; /**< Correspondence between variables and channels. */
     QHash<ChannelId, QPair<ReaderId, VariableId>> m_channel_to_var; /**< Correspondence between
                                                                      channels and variables. */
 
-    uint64_t m_time_width; /**< Window width in us. */
+    int64_t m_time_width; /**< Window width in us. */
     QPoint m_left_bottom_corner; /**< Coordinate of the graph's left bottom corner. */
     QPoint m_right_top_corner; /**< Coordinate of the graph's right top corner. */
 };

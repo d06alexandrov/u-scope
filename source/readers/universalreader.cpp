@@ -2,7 +2,7 @@
 
 #include <QDebug>
 
-UniversalReader::UniversalReader(uint64_t id, std::shared_ptr<UniversalReaderConfig> config)
+UniversalReader::UniversalReader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config)
     : QObject{ nullptr }
     , m_id(id)
     , m_config(std::move(config))

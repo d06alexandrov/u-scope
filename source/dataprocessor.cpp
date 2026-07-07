@@ -49,8 +49,8 @@ void DataProcessor::process(void)
 
     UData::Time current_time = UData::get_timestamp();
 
-    for (auto [reader_id, reader_data] : m_buffers.asKeyValueRange()) {
-        for (auto [variable_id, var_data] : reader_data.asKeyValueRange()) {
+    for (auto &&[reader_id, reader_data] : m_buffers.asKeyValueRange()) {
+        for (auto &&[variable_id, var_data] : reader_data.asKeyValueRange()) {
             auto it = m_var_to_channel.constFind(qMakePair(reader_id, variable_id));
 
             if (it != m_var_to_channel.constEnd()) {
@@ -58,7 +58,7 @@ void DataProcessor::process(void)
 
                 auto cut_it = std::lower_bound(
                         var_data.begin(), var_data.end(), m_time_width,
-                        [current_time](const UData::Point &point, uint64_t max_distance) {
+                        [current_time](const UData::Point &point, int64_t max_distance) {
                             return UData::get_timestamp_diff_us(point.first, current_time)
                                     > max_distance;
                         });
@@ -198,7 +198,7 @@ void DataProcessor::assign_channel(QPair<ReaderId, VariableId> variable, Channel
     m_channel_to_var[channel_id] = variable;
 }
 
-void DataProcessor::set_time_width(uint64_t us)
+void DataProcessor::set_time_width(int64_t us)
 {
     if (us > 0) {
         m_time_width = us;
@@ -208,8 +208,10 @@ void DataProcessor::set_time_width(uint64_t us)
 void DataProcessor::receive_data(ReaderId reader_id, QMap<VariableId, QList<UData::Point>> data)
 {
     if (m_senders.contains(reader_id)) {
-        for (auto [variable_id, new_data] : data.asKeyValueRange()) {
-            m_buffers[reader_id][variable_id].append(std::move(new_data));
+        for (auto &&[variable_id, new_data] : data.asKeyValueRange()) {
+            if (m_var_to_channel.contains(qMakePair(reader_id, variable_id))) {
+                m_buffers[reader_id][variable_id].append(std::move(new_data));
+            }
         }
     }
 }

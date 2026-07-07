@@ -1,3 +1,4 @@
+# Format cmake files
 find_program(CMAKE_FORMAT cmake-format)
 
 if(CMAKE_FORMAT)

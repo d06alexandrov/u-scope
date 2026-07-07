@@ -84,7 +84,7 @@ private slots:
 signals:
     void report_status(ReaderId id, Status status); /**< Report reader status change. */
     void data_ready(ReaderId reader_id,
-                    QMap<VariableId, QList<DataPoint>> data); /**< Send data when it's ready. */
+                    QMap<VariableId, QList<UData::Point>> data); /**< Send data when it's ready. */
 
 protected:
     ReaderId m_id = 0; /**< ID of the reader. */
@@ -93,7 +93,7 @@ protected:
     QTimer *m_timer = nullptr; /**< Pointer to the timer for the periodical call of the
                                   reader_process maethod. */
 
-    QMap<VariableId, QList<DataPoint>>
+    QMap<VariableId, QList<UData::Point>>
             m_buffer; /**< Buffer to store received data before it is sent to the data processor. */
 
     virtual void setup() = 0; /**< Initialization of a particular type of the reader. Called

@@ -1,10 +1,7 @@
 # Base class for readers
 qt_add_library(universal_reader STATIC)
 
-target_include_directories(
-    universal_reader PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-                            ${CMAKE_CURRENT_SOURCE_DIR}/../
-)
+target_include_directories(universal_reader PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_sources(
     universal_reader PRIVATE # cmake-format: sortable

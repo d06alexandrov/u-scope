@@ -1,7 +1,5 @@
 #include "serialreader.h"
 
-#include "dataprocessor.h"
-
 SerialReader::SerialReader(ReaderId id, std::shared_ptr<SerialReaderConfig> config)
     : UniversalReader{ id, config }
     , m_serial(new QSerialPort(this))
@@ -12,10 +10,10 @@ void SerialReader::data_received()
 {
     const QByteArray new_data = m_serial->readAll();
 
-    const auto timestamp = DataProcessor::get_timestamp();
+    const auto timestamp = UData::get_timestamp();
 
     for (auto x : new_data) {
-        m_buffer[0].push_back(DataPoint(timestamp, x));
+        m_buffer[0].push_back(UData::Point(timestamp, x));
     }
 }
 

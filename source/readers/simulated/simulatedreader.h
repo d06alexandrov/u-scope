@@ -65,8 +65,8 @@ public:
 public slots:
 
 private:
-    DataTime m_setup_timestamp = 0; /**< Setup timestamp. */
-    DataTime m_prev_sample_timestamp = 0; /**< Timestamp of a previous sample. */
+    UData::Time m_setup_timestamp = 0; /**< Setup timestamp. */
+    UData::Time m_prev_sample_timestamp = 0; /**< Timestamp of a previous sample. */
 
     /**
      * @brief Get the configuration.

@@ -111,34 +111,6 @@ public:
                            QObject *parent = nullptr);
     ~DataProcessor();
 
-    /**
-     * @brief Get current timestamp.
-     *
-     * @note This function uses monotonic clock, so every new call returns a higher value. Except of
-     * the wrapping case.
-     *
-     * @return Current time timestamp.
-     */
-    static DataTime get_timestamp();
-
-    /**
-     * @brief Get the difference between two timestamps.
-     *
-     * @param before Earlier timestamp.
-     * @param after Timestamp after @p before.
-     * @return Time in microseconds between @p before and @p after.
-     */
-    static uint64_t get_timestamp_diff_us(DataTime before, DataTime after);
-
-    /**
-     * @brief Increase timestamp by provided time.
-     *
-     * @param timestamp Original timestamp.
-     * @param us Time in microseconds that should be added to original timestamp.
-     * @return @p timestamp plus @p us round up to the nearest DataTime.
-     */
-    static DataTime timestamp_add_us_roundup(DataTime timestamp, uint64_t us);
-
 public slots:
     /**
      * @brief Initialize DataProcessor.
@@ -201,7 +173,7 @@ public slots:
      * @param reader_id ID of the reader.
      * @param data Data from the reader to be stored in the buffer.
      */
-    void receive_data(ReaderId reader_id, QMap<VariableId, QList<DataPoint>> data);
+    void receive_data(ReaderId reader_id, QMap<VariableId, QList<UData::Point>> data);
 
 signals:
     /**
@@ -249,7 +221,7 @@ private:
             nullptr; /**< Timer to execute processing function and send data to graph Widget. */
     QHash<ReaderId, DataSenderInfo>
             m_senders; /**< Initialized data senders. Sender is used as a key. */
-    QMap<ReaderId, QMap<VariableId, QVector<DataPoint>>>
+    QMap<ReaderId, QMap<VariableId, QVector<UData::Point>>>
             m_buffers; /**< Buffers to store raw data from senders. */
     QHash<QPair<ReaderId, VariableId>, ChannelId>
             m_var_to_channel; /**< Correspondence between variables and channels. */

@@ -8,7 +8,6 @@
 #include <QMutexLocker>
 #include <QThread>
 #include <QVariant>
-#include <chrono>
 #include <cmath>
 
 DataProcessor::DataProcessor(QPoint left_bottom_corner, QPoint right_top_corner, QObject *parent)
@@ -37,23 +36,6 @@ DataProcessor::~DataProcessor()
     }
 }
 
-DataTime DataProcessor::get_timestamp()
-{
-    return std::chrono::duration_cast<std::chrono::microseconds>(
-                   std::chrono::steady_clock::now().time_since_epoch())
-            .count();
-}
-
-uint64_t DataProcessor::get_timestamp_diff_us(DataTime before, DataTime after)
-{
-    return after - before;
-}
-
-DataTime DataProcessor::timestamp_add_us_roundup(DataTime timestamp, uint64_t us)
-{
-    return timestamp + us;
-}
-
 void DataProcessor::setup(void)
 {
     m_timer = new QTimer(this);
@@ -65,7 +47,7 @@ void DataProcessor::process(void)
 {
     QList<GraphData> new_data;
 
-    DataTime current_time = get_timestamp();
+    UData::Time current_time = UData::get_timestamp();
 
     for (auto [reader_id, reader_data] : m_buffers.asKeyValueRange()) {
         for (auto [variable_id, var_data] : reader_data.asKeyValueRange()) {
@@ -76,8 +58,9 @@ void DataProcessor::process(void)
 
                 auto cut_it = std::lower_bound(
                         var_data.begin(), var_data.end(), m_time_width,
-                        [current_time](const DataPoint &point, uint64_t max_distance) {
-                            return get_timestamp_diff_us(point.first, current_time) > max_distance;
+                        [current_time](const UData::Point &point, uint64_t max_distance) {
+                            return UData::get_timestamp_diff_us(point.first, current_time)
+                                    > max_distance;
                         });
 
                 var_data.erase(var_data.begin(), cut_it);
@@ -87,7 +70,8 @@ void DataProcessor::process(void)
                                                 val_it.second);
 
                     const qreal x_coord = static_cast<qreal>(m_left_bottom_corner.x())
-                            + (m_time_width - get_timestamp_diff_us(val_it.first, current_time))
+                            + (m_time_width
+                               - UData::get_timestamp_diff_us(val_it.first, current_time))
                                     / static_cast<qreal>(m_time_width)
                                     * static_cast<qreal>(m_right_top_corner.x()
                                                          - m_left_bottom_corner.x());
@@ -221,7 +205,7 @@ void DataProcessor::set_time_width(uint64_t us)
     }
 }
 
-void DataProcessor::receive_data(ReaderId reader_id, QMap<VariableId, QList<DataPoint>> data)
+void DataProcessor::receive_data(ReaderId reader_id, QMap<VariableId, QList<UData::Point>> data)
 {
     if (m_senders.contains(reader_id)) {
         for (auto [variable_id, new_data] : data.asKeyValueRange()) {

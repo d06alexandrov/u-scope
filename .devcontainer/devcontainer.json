@@ -5,7 +5,7 @@
 	"build": {
 		"dockerfile": "Dockerfile.dev",
 		"args": {
-			"IMAGE_VERSION": "0.4"
+			"IMAGE_VERSION": "0.5"
 		}
 	},
 	"remoteUser": "ubuntu",

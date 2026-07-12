@@ -9,6 +9,7 @@
 #include <QThread>
 #include <QVariant>
 #include <cmath>
+#include <variant>
 
 DataProcessor::DataProcessor(QPoint left_bottom_corner, QPoint right_top_corner, QObject *parent)
     : QObject{ parent }
@@ -136,6 +137,9 @@ void DataProcessor::configure_reader(ReaderId id,
 
         if (auto sim_config = std::dynamic_pointer_cast<SimulatedReaderConfig>(reader_config)) {
             reader = new SimulatedReader(id, sim_config);
+        } else if (auto serial_config =
+                           std::dynamic_pointer_cast<SerialReaderConfig>(reader_config)) {
+            reader = new SerialReader(id, serial_config);
         }
 
         if (reader != nullptr) {

@@ -9,7 +9,6 @@
 #include <QThread>
 #include <QVariant>
 #include <cmath>
-#include <variant>
 
 DataProcessor::DataProcessor(QPoint left_bottom_corner, QPoint right_top_corner, QObject *parent)
     : QObject{ parent }

@@ -63,11 +63,34 @@ private:
 
     QStandardItemModel *m_source_list_model = nullptr; /**< Source List model. */
 
-    void init_data_processor(); /**< Initialize and run Data Processor. */
-    void init_graph(); /**< Initialize graph. */
-    void init_source_list(); /**< Initialize source list. */
+    /**
+     * @brief Initialize and run Data Processor.
+     */
+    void init_data_processor();
 
-    ReaderId get_available_reader_idx(); /**< Get first available reader index. */
+    /**
+     * @brief Initialize graph.
+     */
+    void init_graph();
+
+    /**
+     * @brief Initialize source list.
+     */
+    void init_source_list();
+
+    /**
+     * @brief Get available reader index.
+     *
+     * @return Available reader index.
+     */
+    ReaderId get_available_reader_idx();
+
+    /**
+     * @brief Add reader to the source list and data processor.
+     *
+     * @param config Configuration of the reader.
+     */
+    void add_reader(const std::shared_ptr<UniversalReaderDialogConfig> &config);
 
 signals:
     /**
@@ -103,9 +126,18 @@ signals:
     void set_window_time_width(int64_t us);
 
 private slots:
+    /**
+     * @brief Show context menu for the source list.
+     *
+     * @param pos Position of the mouse cursor.
+     */
     void source_list_context_menu(const QPoint &pos);
 
 public slots:
-    void receive_new_data(const QList<GraphData> &new_data); /**< Slot to receive graph data
-                                                                from Data Processor */
+    /**
+     * @brief Receive new data from Data Processor and display it on the graph.
+     *
+     * @param new_data List of new data to be displayed on the graph.
+     */
+    void receive_new_data(const QList<GraphData> &new_data);
 };

@@ -24,7 +24,7 @@ jobs:
 
     steps:
       - name: Checkout repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v7
 
       - name: Build Linux Application
         if: matrix.platforms.os == 'linux'
@@ -45,14 +45,14 @@ jobs:
 
       - name: Upload Linux artifacts
         if: matrix.platforms.os == 'linux'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: u-scope-linux
           path: build/source/u-scope
 
       - name: Upload Windows artifacts
         if: matrix.platforms.os == 'windows'
-        uses: actions/upload-artifact@v4
+        uses: actions/upload-artifact@v7
         with:
           name: u-scope-win64
           path: u-scope-win64

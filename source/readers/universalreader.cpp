@@ -66,9 +66,12 @@ void UniversalReader::reader_stop(ReaderId id)
 
     stop();
 
-    for (auto &&[key, value] : m_buffer_map.asKeyValueRange()) {
-        value->clear();
+    for (auto &&[key, buffer] : m_buffer_map.asKeyValueRange()) {
+        buffer->clear();
+        m_buffer_pool.emplace(std::move(buffer));
     }
+
+    m_buffer_map.clear();
 
     set_status(Stopped);
 }
@@ -116,7 +119,8 @@ bool UniversalReader::store_data(const VariableId &id, UData::Point &&data)
         if (m_buffer_pool.empty()) {
             return false;
         }
-        auto new_buffer = m_buffer_pool.top();
+        auto new_buffer = std::move(m_buffer_pool.top());
+        m_buffer_pool.pop();
         m_buffer_map.insert(id, std::move(new_buffer));
     }
 

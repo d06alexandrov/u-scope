@@ -16,6 +16,7 @@ DataProcessor::DataProcessor(QPoint left_bottom_corner, QPoint right_top_corner,
     , m_left_bottom_corner(left_bottom_corner)
     , m_right_top_corner(right_top_corner)
 {
+    qRegisterMetaType<UniversalReaderBufferMap>("UniversalReaderBufferMap");
 }
 
 DataProcessor::~DataProcessor()
@@ -210,8 +211,10 @@ void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap da
     if (m_senders.contains(reader_id)) {
         for (auto &&[variable_id, new_data] : data.asKeyValueRange()) {
             if (m_var_to_channel.contains(qMakePair(reader_id, variable_id))) {
-                m_buffers[reader_id][variable_id].append(
-                        QList<UData::Point>(new_data->begin(), new_data->end()));
+                auto &destination_buffer = m_buffers[reader_id][variable_id];
+                destination_buffer.reserve(destination_buffer.size() + new_data->size());
+                std::copy(new_data->begin(), new_data->end(),
+                          std::back_inserter(destination_buffer));
             }
         }
 

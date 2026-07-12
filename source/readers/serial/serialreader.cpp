@@ -32,6 +32,9 @@ void SerialReader::setup()
     m_serial->setFlowControl(get_config()->flow_control);
 
     connect(m_serial, &QSerialPort::readyRead, this, &SerialReader::data_received);
+
+    // Reserve more than enough space for the buffer
+    allocate_buffer_pool(2, (get_config()->baud_rate + 7) / 8);
 }
 
 void SerialReader::start()

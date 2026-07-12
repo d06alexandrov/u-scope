@@ -6,8 +6,10 @@
 #include <QMap>
 #include <QMetaType>
 #include <QObject>
+#include <QSet>
 #include <QTimer>
 #include <memory>
+#include <stack>
 
 /**
  * @brief Configuration for the @ref UniversalReader.
@@ -25,6 +27,13 @@ struct UniversalReaderConfig
 };
 
 Q_DECLARE_METATYPE(std::shared_ptr<UniversalReaderConfig>)
+
+/**
+ * @brief Type of the buffer that is used to store data from the reader.
+ */
+using UniversalReaderBufferMap = QMap<VariableId, std::shared_ptr<std::vector<UData::Point>>>;
+
+Q_DECLARE_METATYPE(UniversalReaderBufferMap)
 
 /**
  * @brief Class that provides an unified way to create different data readers.
@@ -65,36 +74,56 @@ public slots:
     void reader_setup(); /**< Initialize common part of a reader and call setup method to initialize
                             specific readers. */
     /**
-     * @brief Start the reader with its periodic timer
+     * @brief Start the reader with its periodic timer.
      *
-     * @param id id of the reader
+     * @param id ID of the reader.
      */
     void reader_start(ReaderId id);
     /**
-     * @brief Stop the reader with its periodic timer
+     * @brief Stop the reader with its periodic timer.
      *
-     * @param id id of the reader
+     * @param id ID of the reader.
      */
     void reader_stop(ReaderId id);
+    /**
+     * @brief Return memory buffer to the reader.
+     *
+     * @param buffer Buffer to be released.
+     */
+    void release_buffer(UniversalReaderBufferMap buffer);
 
 private slots:
     void reader_process(); /**< Periodic function that calls process method and sends data to the
                               data processor. Triggered by timer. */
 
 signals:
-    void report_status(ReaderId id, Status status); /**< Report reader status change. */
-    void data_ready(ReaderId reader_id,
-                    QMap<VariableId, QList<UData::Point>> data); /**< Send data when it's ready. */
+    /**
+     * @brief Report reader status change.
+     *
+     * @param id ID of the reader.
+     * @param status New status of the reader.
+     */
+    void report_status(ReaderId id, Status status);
+    /**
+     * @brief Send data to the data processor when it is ready.
+     *
+     * @param reader_id ID of the reader.
+     * @param data Data to be sent to the data processor.
+     */
+    void data_ready(ReaderId reader_id, UniversalReaderBufferMap data);
+
+private:
+    UniversalReaderBufferMap m_buffer_map; /**< Buffer to store received data before it is sent to
+                                              the data processor. */
+    std::stack<std::shared_ptr<std::vector<UData::Point>>>
+            m_buffer_pool; /**< Pool of variable buffers that can be reused. */
 
 protected:
     ReaderId m_id = 0; /**< ID of the reader. */
     Status m_status = Uninitialized; /**< Status of the reader. */
     std::shared_ptr<UniversalReaderConfig> m_config; /**< Reader configuration */
     QTimer *m_timer = nullptr; /**< Pointer to the timer for the periodical call of the
-                                  reader_process maethod. */
-
-    QMap<VariableId, QList<UData::Point>>
-            m_buffer; /**< Buffer to store received data before it is sent to the data processor. */
+                                  reader_process method. */
 
     virtual void setup() = 0; /**< Initialization of a particular type of the reader. Called
                                  from reader_setup method. */
@@ -103,5 +132,24 @@ protected:
     virtual void process() = 0; /**< Prepare data before sending to the data processor. Called
                                    periodically from reader_process method. */
 
-    void set_status(Status new_status); /**< Set new status of the reader. */
+    /**
+     * @brief Set new status of the reader and emit report_status signal if status was changed.
+     *
+     * @param new_status New status of the reader.
+     */
+    void set_status(Status new_status);
+    /**
+     * @brief Allocate pool of buffers to store data from the reader.
+     *
+     * @param amount Number of buffers to allocate.
+     * @param reserved_size Number of points to reserve in each buffer.
+     */
+    void allocate_buffer_pool(int amount, size_t reserved_size);
+    /**
+     * @brief Store one data point in the buffer.
+     *
+     * @param id ID of the variable.
+     * @param data Data point to be stored.
+     */
+    bool store_data(const VariableId &id, UData::Point &&data);
 };

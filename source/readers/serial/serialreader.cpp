@@ -13,7 +13,7 @@ void SerialReader::data_received()
     const auto timestamp = UData::get_timestamp();
 
     for (auto x : new_data) {
-        m_buffer[0].push_back(UData::Point(timestamp, x));
+        store_data(0, UData::Point(timestamp, x));
     }
 }
 

@@ -172,7 +172,7 @@ public slots:
      * @param reader_id ID of the reader.
      * @param data Data from the reader to be stored in the buffer.
      */
-    void receive_data(ReaderId reader_id, QMap<VariableId, QList<UData::Point>> data);
+    void receive_data(ReaderId reader_id, UniversalReaderBufferMap data);
 
 signals:
     /**

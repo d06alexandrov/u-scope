@@ -65,9 +65,20 @@ void UniversalReader::reader_stop(ReaderId id)
     m_timer->stop();
 
     stop();
-    m_buffer.clear();
+
+    for (auto &&[key, value] : m_buffer_map.asKeyValueRange()) {
+        value->clear();
+    }
 
     set_status(Stopped);
+}
+
+void UniversalReader::release_buffer(UniversalReaderBufferMap buffer_map)
+{
+    for (auto &&[key, buffer] : buffer_map.asKeyValueRange()) {
+        buffer->clear();
+        m_buffer_pool.emplace(std::move(buffer));
+    }
 }
 
 void UniversalReader::reader_process()
@@ -75,9 +86,9 @@ void UniversalReader::reader_process()
     if ((m_status == Running) && (m_timer->isActive())) {
         process();
 
-        if (!m_buffer.isEmpty()) {
-            emit data_ready(m_id, std::move(m_buffer));
-            m_buffer.clear();
+        if (!m_buffer_map.isEmpty()) {
+            emit data_ready(m_id, std::move(m_buffer_map));
+            m_buffer_map.clear();
         }
     }
 }
@@ -88,4 +99,28 @@ void UniversalReader::set_status(Status new_status)
         m_status = new_status;
         emit report_status(m_id, new_status);
     }
+}
+
+void UniversalReader::allocate_buffer_pool(int amount, size_t reserved_size)
+{
+    for (int i = 0; i < amount; i++) {
+        auto new_buffer = std::make_shared<std::vector<UData::Point>>();
+        new_buffer->reserve(reserved_size);
+        m_buffer_pool.emplace(std::move(new_buffer));
+    }
+}
+
+bool UniversalReader::store_data(const VariableId &id, UData::Point &&data)
+{
+    if (!m_buffer_map.contains(id)) {
+        if (m_buffer_pool.empty()) {
+            return false;
+        }
+        auto new_buffer = m_buffer_pool.top();
+        m_buffer_map.insert(id, std::move(new_buffer));
+    }
+
+    m_buffer_map[id]->emplace_back(std::move(data));
+
+    return true;
 }

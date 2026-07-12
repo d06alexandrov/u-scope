@@ -205,13 +205,17 @@ void DataProcessor::set_time_width(int64_t us)
     }
 }
 
-void DataProcessor::receive_data(ReaderId reader_id, QMap<VariableId, QList<UData::Point>> data)
+void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap data)
 {
     if (m_senders.contains(reader_id)) {
         for (auto &&[variable_id, new_data] : data.asKeyValueRange()) {
             if (m_var_to_channel.contains(qMakePair(reader_id, variable_id))) {
-                m_buffers[reader_id][variable_id].append(std::move(new_data));
+                m_buffers[reader_id][variable_id].append(
+                        QList<UData::Point>(new_data->begin(), new_data->end()));
             }
         }
+
+        QMetaObject::invokeMethod(m_senders[reader_id].sender, "release_buffer",
+                                  Qt::QueuedConnection, Q_ARG(UniversalReaderBufferMap, data));
     }
 }

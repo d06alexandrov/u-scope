@@ -23,13 +23,24 @@ struct SerialReaderDialogConfig : UniversalReaderDialogConfig
     std::shared_ptr<UniversalReaderConfig> to_reader_config() const override;
 };
 
+/**
+ * @brief Dialog for configuring a serial reader.
+ */
 class SerialReaderDialog : public QDialog
 {
     Q_OBJECT
 
 public:
+    /**
+     * @brief Constructor of the dialog window.
+     *
+     * @param parent Parent widget.
+     */
     SerialReaderDialog(QWidget *parent = nullptr);
 
+    /**
+     * @brief Constructor of the dialog window.
+     */
     ~SerialReaderDialog();
 
     /**

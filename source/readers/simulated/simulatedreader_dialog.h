@@ -24,6 +24,11 @@ struct SimulatedReaderDialogConfig : UniversalReaderDialogConfig
 
     std::shared_ptr<UniversalReaderConfig> to_reader_config() const override;
 
+    /**
+     * @brief Get a short name for a given simulated form configuration.
+     *
+     * @param form_conf The simulated form configuration.
+     */
     static QString get_form_config_short_name(const SimulatedReaderConfig::Config &form_conf);
 };
 

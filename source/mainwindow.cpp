@@ -1,6 +1,7 @@
 #include "mainwindow.h"
 
 #include "dataprocessor.h"
+#include "serialreader_dialog.h"
 #include "simulatedreader_dialog.h"
 #include "ui_mainwindow.h"
 
@@ -142,6 +143,28 @@ ReaderId MainWindow::get_available_reader_idx()
     return reader_id;
 }
 
+void MainWindow::add_reader(const std::shared_ptr<UniversalReaderDialogConfig> &config)
+{
+    ReaderId new_reader_id = get_available_reader_idx();
+
+    m_readers_config.insert(new_reader_id, config);
+
+    QStandardItem *new_item = new QStandardItem(tr("Source %1").arg(new_reader_id));
+    new_item->setData(QVariant::fromValue(new_reader_id), ItemRoles::ReaderIdRole);
+    m_source_list_model->appendRow(new_item);
+
+    if (!config->variable_names.isEmpty()) {
+        for (const auto [id, name] : config->variable_names.asKeyValueRange()) {
+            QStandardItem *new_variable_item = new QStandardItem(tr("#%1 %2").arg(id).arg(name));
+            new_variable_item->setData(QVariant::fromValue(new_reader_id), ItemRoles::ReaderIdRole);
+            new_variable_item->setData(QVariant::fromValue(id), ItemRoles::VariableIdRole);
+            new_item->appendRow(new_variable_item);
+        }
+    }
+
+    emit configure_reader(new_reader_id, config);
+}
+
 void MainWindow::source_list_context_menu(const QPoint &pos)
 {
     QModelIndex index = ui->sourceList->indexAt(pos);
@@ -194,35 +217,25 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
             QAction *new_source_action = contextMenu.addAction("Source amount limit was achieved");
             new_source_action->setEnabled(false);
         } else {
-            QAction *new_source_action = contextMenu.addAction("Configure new simulated source");
+            QAction *new_simulated_source_action =
+                    contextMenu.addAction("Configure new simulated source");
 
-            connect(new_source_action, &QAction::triggered, this, [this, index]() {
+            connect(new_simulated_source_action, &QAction::triggered, this, [this, index]() {
                 SimulatedReaderDialog dialog(this);
 
                 if (dialog.exec() == QDialog::Accepted) {
-                    ReaderId new_reader_id = get_available_reader_idx();
+                    add_reader(dialog.get_config());
+                }
+            });
 
-                    const auto config = dialog.get_config();
+            QAction *new_serial_source_action =
+                    contextMenu.addAction("Configure new serial port source");
 
-                    m_readers_config.insert(new_reader_id, config);
+            connect(new_serial_source_action, &QAction::triggered, this, [this, index]() {
+                SerialReaderDialog dialog(this);
 
-                    QStandardItem *new_item = new QStandardItem(tr("Source %1").arg(new_reader_id));
-                    new_item->setData(QVariant::fromValue(new_reader_id), ItemRoles::ReaderIdRole);
-                    m_source_list_model->appendRow(new_item);
-
-                    if (!config->variable_names.isEmpty()) {
-                        for (const auto [id, name] : config->variable_names.asKeyValueRange()) {
-                            QStandardItem *new_variable_item =
-                                    new QStandardItem(tr("#%1 %2").arg(id).arg(name));
-                            new_variable_item->setData(QVariant::fromValue(new_reader_id),
-                                                       ItemRoles::ReaderIdRole);
-                            new_variable_item->setData(QVariant::fromValue(id),
-                                                       ItemRoles::VariableIdRole);
-                            new_item->appendRow(new_variable_item);
-                        }
-                    }
-
-                    emit configure_reader(new_reader_id, config);
+                if (dialog.exec() == QDialog::Accepted) {
+                    add_reader(dialog.get_config());
                 }
             });
         }

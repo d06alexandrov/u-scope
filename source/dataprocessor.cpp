@@ -136,6 +136,9 @@ void DataProcessor::configure_reader(ReaderId id,
 
         if (auto sim_config = std::dynamic_pointer_cast<SimulatedReaderConfig>(reader_config)) {
             reader = new SimulatedReader(id, sim_config);
+        } else if (auto serial_config =
+                           std::dynamic_pointer_cast<SerialReaderConfig>(reader_config)) {
+            reader = new SerialReader(id, serial_config);
         }
 
         if (reader != nullptr) {

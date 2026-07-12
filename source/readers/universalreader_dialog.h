@@ -33,7 +33,8 @@ public:
      * @param current_ids The set of currently used variable IDs.
      * @return An available variable ID.
      */
-    static VariableId get_available_variable_idx(const QSet<VariableId> &current_ids)
+    static VariableId
+    get_available_variable_idx(const QSet<VariableId> &current_ids = QSet<VariableId>())
     {
         VariableId new_variable_id = current_ids.size();
 

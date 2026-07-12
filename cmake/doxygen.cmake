@@ -7,6 +7,7 @@ if(Doxygen_FOUND)
 
     configure_file(
         ${CMAKE_CURRENT_SOURCE_DIR}/Doxyfile.in ${CMAKE_BINARY_DIR}/Doxyfile
+        @ONLY
     )
 
     doxygen_add_docs(doxygen_docs CONFIG_FILE ${CMAKE_BINARY_DIR}/Doxyfile)

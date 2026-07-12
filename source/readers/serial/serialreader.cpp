@@ -13,7 +13,7 @@ void SerialReader::data_received()
     const auto timestamp = UData::get_timestamp();
 
     for (auto x : new_data) {
-        m_buffer[0].push_back(UData::Point(timestamp, x));
+        store_data(0, UData::Point(timestamp, x));
     }
 }
 
@@ -32,6 +32,9 @@ void SerialReader::setup()
     m_serial->setFlowControl(get_config()->flow_control);
 
     connect(m_serial, &QSerialPort::readyRead, this, &SerialReader::data_received);
+
+    // Reserve more than enough space for the buffer
+    allocate_buffer_pool(2, (get_config()->baud_rate + 7) / 8);
 }
 
 void SerialReader::start()

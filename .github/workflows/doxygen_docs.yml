@@ -32,5 +32,5 @@ jobs:
       - name: Upload Doxygen artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: u-scope-linux
+          name: u-scope-doxygen
           path: build/doxygen/html

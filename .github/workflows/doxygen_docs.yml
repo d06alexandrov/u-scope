@@ -9,8 +9,6 @@ on:
 jobs:
   doxygen-generate:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
     container:
       image: ghcr.io/d06alexandrov/u-scope:0.5
       credentials:

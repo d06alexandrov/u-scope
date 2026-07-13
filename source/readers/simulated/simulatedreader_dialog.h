@@ -28,6 +28,7 @@ struct SimulatedReaderDialogConfig : UniversalReaderDialogConfig
      * @brief Get a short name for a given simulated form configuration.
      *
      * @param form_conf The simulated form configuration.
+     * @return A short name representing the simulated form configuration.
      */
     static QString get_form_config_short_name(const SimulatedReaderConfig::Config &form_conf);
 };

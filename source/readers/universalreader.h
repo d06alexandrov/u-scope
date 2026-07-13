@@ -150,6 +150,7 @@ protected:
      *
      * @param id ID of the variable.
      * @param data Data point to be stored.
+     * @return True if data was stored successfully, false otherwise.
      */
     bool store_data(const VariableId &id, UData::Point &&data);
 };

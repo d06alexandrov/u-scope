@@ -1,0 +1,34 @@
+name: Generate Documentation
+
+on:
+  push:
+    branches: [ develop ]
+  pull_request:
+    branches: [ develop ]
+
+jobs:
+  doxygen-generate:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/d06alexandrov/u-scope:0.5
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Generate Doxygen Documentation
+        run: |
+          cmake -B build
+          cmake --build build --target doxygen_docs
+
+      - name: Upload Doxygen artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: u-scope-doxygen
+          path: build/doxygen/html

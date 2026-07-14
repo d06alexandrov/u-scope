@@ -203,6 +203,8 @@ signals:
 
 private:
     static constexpr int64_t default_time_width = 1000000; /**< Default window width in us. */
+    static constexpr int64_t default_max_sample_points =
+            10000000; /**< Default amount of sample points. */
 
     /**
      * @brief Structure to store information regarding Senders (Readers)
@@ -220,7 +222,7 @@ private:
             nullptr; /**< Timer to execute processing function and send data to graph Widget. */
     QHash<ReaderId, DataSenderInfo>
             m_senders; /**< Initialized data senders. Sender is used as a key. */
-    QMap<ReaderId, QMap<VariableId, QList<UData::Point>>>
+    QMap<ReaderId, QMap<VariableId, std::deque<UData::Point>>>
             m_buffers; /**< Buffers to store raw data from senders. */
     QHash<QPair<ReaderId, VariableId>, ChannelId>
             m_var_to_channel; /**< Correspondence between variables and channels. */
@@ -228,6 +230,7 @@ private:
                                                                      channels and variables. */
 
     int64_t m_time_width; /**< Window width in us. */
+    size_t m_max_sample_points; /**< Maximum amount of sam,ple points per channel. */
     QPoint m_left_bottom_corner; /**< Coordinate of the graph's left bottom corner. */
     QPoint m_right_top_corner; /**< Coordinate of the graph's right top corner. */
 };

@@ -8,7 +8,11 @@
 #include <QMutexLocker>
 #include <QThread>
 #include <QVariant>
+#include <algorithm>
 #include <cmath>
+#include <functional>
+#include <iterator>
+#include <ranges>
 
 DataProcessor::DataProcessor(QPoint left_bottom_corner, QPoint right_top_corner, QObject *parent)
     : QObject{ parent }
@@ -213,7 +217,7 @@ void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap da
 {
     if (m_senders.contains(reader_id)) {
         for (auto &&[variable_id, new_data] : data.asKeyValueRange()) {
-            if (new_data->empty()
+            if (!new_data || new_data->empty()
                 || !m_var_to_channel.contains(qMakePair(reader_id, variable_id))) {
                 continue;
             }

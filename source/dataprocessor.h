@@ -14,6 +14,7 @@
 #include <QString>
 #include <QThread>
 #include <QTimer>
+#include <deque>
 
 /**
  * @brief Class to store data of one particular graph.
@@ -203,7 +204,7 @@ signals:
 
 private:
     static constexpr int64_t default_time_width = 1000000; /**< Default window width in us. */
-    static constexpr int64_t default_max_sample_points =
+    static constexpr size_t default_max_sample_points =
             10000000; /**< Default amount of sample points. */
 
     /**
@@ -230,7 +231,7 @@ private:
                                                                      channels and variables. */
 
     int64_t m_time_width; /**< Window width in us. */
-    size_t m_max_sample_points; /**< Maximum amount of sam,ple points per channel. */
+    size_t m_max_sample_points; /**< Maximum amount of sample points per channel. */
     QPoint m_left_bottom_corner; /**< Coordinate of the graph's left bottom corner. */
     QPoint m_right_top_corner; /**< Coordinate of the graph's right top corner. */
 };

@@ -8,11 +8,16 @@
 #include <QMutexLocker>
 #include <QThread>
 #include <QVariant>
+#include <algorithm>
 #include <cmath>
+#include <functional>
+#include <iterator>
+#include <ranges>
 
 DataProcessor::DataProcessor(QPoint left_bottom_corner, QPoint right_top_corner, QObject *parent)
     : QObject{ parent }
     , m_time_width(default_time_width)
+    , m_max_sample_points(default_max_sample_points)
     , m_left_bottom_corner(left_bottom_corner)
     , m_right_top_corner(right_top_corner)
 {
@@ -50,6 +55,10 @@ void DataProcessor::process(void)
 
     UData::Time current_time = UData::get_timestamp();
 
+    auto get_time_diff = [current_time](const UData::Point &point) {
+        return UData::get_timestamp_diff_us(point.first, current_time);
+    };
+
     for (auto &&[reader_id, reader_data] : m_buffers.asKeyValueRange()) {
         for (auto &&[variable_id, var_data] : reader_data.asKeyValueRange()) {
             auto it = m_var_to_channel.constFind(qMakePair(reader_id, variable_id));
@@ -57,22 +66,17 @@ void DataProcessor::process(void)
             if (it != m_var_to_channel.constEnd()) {
                 QList<QPointF> processed_values;
 
-                auto cut_it = std::lower_bound(
-                        var_data.begin(), var_data.end(), m_time_width,
-                        [current_time](const UData::Point &point, int64_t max_distance) {
-                            return UData::get_timestamp_diff_us(point.first, current_time)
-                                    > max_distance;
-                        });
+                auto window_boundary = std::ranges::lower_bound(var_data, m_time_width,
+                                                                std::greater<>{ }, get_time_diff);
 
-                var_data.erase(var_data.begin(), cut_it);
+                for (const auto &[timestamp, raw_val] :
+                     std::ranges::subrange(window_boundary, var_data.end())) {
 
-                for (auto &val_it : var_data) {
-                    const auto val = std::visit([](auto &&arg) { return static_cast<qreal>(arg); },
-                                                val_it.second);
+                    const auto val =
+                            std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val);
 
                     const qreal x_coord = static_cast<qreal>(m_left_bottom_corner.x())
-                            + (m_time_width
-                               - UData::get_timestamp_diff_us(val_it.first, current_time))
+                            + (m_time_width - UData::get_timestamp_diff_us(timestamp, current_time))
                                     / static_cast<qreal>(m_time_width)
                                     * static_cast<qreal>(m_right_top_corner.x()
                                                          - m_left_bottom_corner.x());
@@ -213,11 +217,32 @@ void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap da
 {
     if (m_senders.contains(reader_id)) {
         for (auto &&[variable_id, new_data] : data.asKeyValueRange()) {
-            if (m_var_to_channel.contains(qMakePair(reader_id, variable_id))) {
-                auto &destination_buffer = m_buffers[reader_id][variable_id];
-                destination_buffer.reserve(destination_buffer.size() + new_data->size());
-                std::copy(new_data->begin(), new_data->end(),
-                          std::back_inserter(destination_buffer));
+            if (!new_data || new_data->empty()
+                || !m_var_to_channel.contains(qMakePair(reader_id, variable_id))) {
+                continue;
+            }
+
+            auto &destination_buffer = m_buffers[reader_id][variable_id];
+            const size_t new_data_size = new_data->size();
+
+            if (new_data_size >= m_max_sample_points) {
+                auto start_it = new_data->end() - m_max_sample_points;
+
+                destination_buffer.assign(std::make_move_iterator(start_it),
+                                          std::make_move_iterator(new_data->end()));
+            } else {
+                const size_t combined_size = destination_buffer.size() + new_data_size;
+
+                if (combined_size > m_max_sample_points) {
+                    const size_t overflow_count = combined_size - m_max_sample_points;
+
+                    destination_buffer.erase(destination_buffer.begin(),
+                                             destination_buffer.begin() + overflow_count);
+                }
+
+                destination_buffer.insert(destination_buffer.end(),
+                                          std::make_move_iterator(new_data->begin()),
+                                          std::make_move_iterator(new_data->end()));
             }
         }
 

@@ -35,6 +35,25 @@ MainWindow::MainWindow()
     init_data_processor();
 
     init_source_list();
+
+    m_render_timer.setTimerType(Qt::PreciseTimer);
+
+    connect(&m_render_timer, &QTimer::timeout, this, [this]() {
+        if (m_current_mode == ScopeMode::Roll) {
+            UData::Time end_time = UData::get_timestamp();
+            UData::Time start_time = end_time - m_time_width_us;
+
+            m_requested_time_left = start_time;
+            m_requested_time_right = end_time;
+
+            int pixel_width = ui->dataPlot->viewport()->width();
+            emit request_stored_data(start_time, end_time, pixel_width);
+        }
+    });
+
+    connect(ui->pushButton_StartAll, &QPushButton::clicked, this,
+            &MainWindow::handle_start_clicked);
+    connect(ui->pushButton_StopAll, &QPushButton::clicked, this, &MainWindow::handle_stop_clicked);
 }
 
 MainWindow::~MainWindow()
@@ -52,27 +71,26 @@ MainWindow::~MainWindow()
 
 void MainWindow::init_data_processor()
 {
-    DataProcessor *data_processor =
-            new DataProcessor(GraphStyle::left_bottom_corner, GraphStyle::right_top_corner);
+    DataProcessor *data_processor = new DataProcessor;
 
     data_processor->moveToThread(&m_data_processor_thread);
 
     connect(&m_data_processor_thread, &QThread::started, data_processor, &DataProcessor::setup);
 
-    connect(data_processor, &DataProcessor::send_new_data, this, &MainWindow::receive_new_data);
+    connect(this, &MainWindow::request_stored_data, data_processor,
+            &DataProcessor::handle_data_request);
+    connect(data_processor, &DataProcessor::send_new_data, this, &MainWindow::receive_stored_data);
 
     connect(this, &MainWindow::configure_reader, data_processor, &DataProcessor::configure_reader);
     connect(this, &MainWindow::remove_reader, data_processor, &DataProcessor::remove_reader);
     connect(this, &MainWindow::assign_channel, data_processor, &DataProcessor::assign_channel);
-    connect(this, &MainWindow::set_window_time_width, data_processor,
-            &DataProcessor::set_time_width);
 
     connect(&m_data_processor_thread, &QThread::finished, data_processor,
             &DataProcessor::deleteLater);
 
-    connect(ui->pushButton_StartAll, &QPushButton::clicked, data_processor,
+    connect(this, &MainWindow::start_data_processing, data_processor,
             &DataProcessor::start_data_processing);
-    connect(ui->pushButton_StopAll, &QPushButton::clicked, data_processor,
+    connect(this, &MainWindow::stop_data_processing, data_processor,
             &DataProcessor::stop_data_processing);
 
     // Register Meta Type which will be used in a communication with Data Processor
@@ -85,20 +103,22 @@ void MainWindow::init_data_processor()
 void MainWindow::init_graph()
 {
     // Configure graph
-    auto axisX = new QValueAxis;
+    m_axis_x = new QValueAxis;
 
-    config_axis(axisX, GraphStyle::left_bottom_corner.x(), GraphStyle::right_top_corner.x(),
+    config_axis(m_axis_x, GraphStyle::left_bottom_corner.x(), GraphStyle::right_top_corner.x(),
                 GraphStyle::horizontal_grid, GraphStyle::grid_line_color);
 
-    auto axisY = new QValueAxis;
+    m_axis_y = new QValueAxis;
 
-    config_axis(axisY, GraphStyle::left_bottom_corner.y(), GraphStyle::right_top_corner.y(),
+    config_axis(m_axis_y, GraphStyle::left_bottom_corner.y(), GraphStyle::right_top_corner.y(),
                 GraphStyle::vertical_grid, GraphStyle::grid_line_color);
 
     auto main_chart = ui->dataPlot->chart();
 
-    main_chart->addAxis(axisX, Qt::AlignBottom);
-    main_chart->addAxis(axisY, Qt::AlignLeft);
+    ui->dataPlot->setRenderHint(QPainter::Antialiasing, true);
+
+    main_chart->addAxis(m_axis_x, Qt::AlignBottom);
+    main_chart->addAxis(m_axis_y, Qt::AlignLeft);
 
     main_chart->setBackgroundBrush(QBrush(GraphStyle::background_color));
 
@@ -110,8 +130,8 @@ void MainWindow::init_graph()
 
         main_chart->addSeries(m_series[i]);
 
-        m_series[i]->attachAxis(axisX);
-        m_series[i]->attachAxis(axisY);
+        m_series[i]->attachAxis(m_axis_x);
+        m_series[i]->attachAxis(m_axis_y);
         m_series[i]->setPointsVisible(true);
     }
 }
@@ -244,13 +264,33 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
     contextMenu.exec(ui->sourceList->viewport()->mapToGlobal(pos));
 }
 
-void MainWindow::receive_new_data(const QList<GraphData> &new_data)
+void MainWindow::receive_stored_data(const QList<GraphData> &new_data)
 {
+    m_axis_x->setRange(m_requested_time_left, m_requested_time_right);
+
     for (auto &channel_data : new_data) {
         if (channel_data.get_id() < this->channels_amount) {
             m_series[channel_data.get_id()]->replace(channel_data.get_values());
         }
     }
+}
+
+void MainWindow::handle_start_clicked()
+{
+    m_current_mode = ScopeMode::Roll;
+
+    m_render_timer.start(default_frame_period);
+
+    emit start_data_processing();
+}
+
+void MainWindow::handle_stop_clicked()
+{
+    m_render_timer.stop();
+
+    emit stop_data_processing();
+
+    m_current_mode = ScopeMode::Stopped;
 }
 
 namespace {

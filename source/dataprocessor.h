@@ -103,12 +103,9 @@ public:
     /**
      * @brief Data Processor constructor.
      *
-     * @param left_bottom_corner coordinate of the graph's left bottom corner
-     * @param right_top_corner coordinate of the graph's right top corner
      * @param parent QObject parent of the DataProcessor.
      */
-    explicit DataProcessor(QPoint left_bottom_corner, QPoint right_top_corner,
-                           QObject *parent = nullptr);
+    explicit DataProcessor(QObject *parent = nullptr);
     ~DataProcessor();
 
 public slots:
@@ -118,12 +115,6 @@ public slots:
     void setup(void);
 
     /**
-     * @brief Process incoming data and send clean data to the chart.
-     * Triggered by timer.
-     */
-    void process(void);
-
-    /**
      * @brief Handle reader status report.
      *
      * @param reader_id Unique ID of the reader.
@@ -131,9 +122,15 @@ public slots:
      */
     void reported_reader_status(ReaderId reader_id, UniversalReader::Status status);
 
-    /* TODO: remove connection to the button. */
-    void start_data_processing(); /**< Slot connected to the start button. */
-    void stop_data_processing(); /**< Slot connected to the stop button. */
+    /**
+     * @brief Start data processing in the Data Processor.
+     */
+    void start_data_processing();
+
+    /**
+     * @brief Stop data processing in the Data Processor.
+     */
+    void stop_data_processing();
 
     /**
      * @brief Configure reader
@@ -161,19 +158,21 @@ public slots:
     void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
 
     /**
-     * @brief Set width of the displayed window in microseconds
-     *
-     * @param us window width in microseconds
-     */
-    void set_time_width(int64_t us);
-
-    /**
      * @brief Receive data from the reader and store it in the buffer.
      *
      * @param reader_id ID of the reader.
      * @param data Data from the reader to be stored in the buffer.
      */
     void receive_data(ReaderId reader_id, UniversalReaderBufferMap data);
+
+    /**
+     * @brief Handle data request from MainWindow to display stored data.
+     *
+     * @param start_time Start time of the requested data.
+     * @param end_time End time of the requested data.
+     * @param points_limit Maximum number of points to return.
+     */
+    void handle_data_request(UData::Time start_time, UData::Time end_time, int points_limit);
 
 signals:
     /**
@@ -203,7 +202,6 @@ signals:
     void reader_stop(ReaderId reader_id);
 
 private:
-    static constexpr int64_t default_time_width = 1000000; /**< Default window width in us. */
     static constexpr size_t default_max_sample_points =
             10000000; /**< Default amount of sample points. */
 
@@ -230,8 +228,5 @@ private:
     QHash<ChannelId, QPair<ReaderId, VariableId>> m_channel_to_var; /**< Correspondence between
                                                                      channels and variables. */
 
-    int64_t m_time_width; /**< Window width in us. */
     size_t m_max_sample_points; /**< Maximum amount of sample points per channel. */
-    QPoint m_left_bottom_corner; /**< Coordinate of the graph's left bottom corner. */
-    QPoint m_right_top_corner; /**< Coordinate of the graph's right top corner. */
 };

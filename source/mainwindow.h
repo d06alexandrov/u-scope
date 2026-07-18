@@ -8,6 +8,7 @@
 #include <QLineSeries>
 #include <QMainWindow>
 #include <QStandardItemModel>
+#include <QValueAxis>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -29,6 +30,8 @@ public:
 private:
     static constexpr ReaderId readers_amount = 10; /**< Maximum amount of readers. */
     static constexpr size_t channels_amount = 12; /**< Amount of channels. */
+    static constexpr int64_t default_time_width = 1000000; /**< Default window width in us. */
+    static constexpr int default_frame_period = 33; /**< Default graph frame update period in ms. */
 
     /**
      * @brief Roles of the items in the source list.
@@ -36,6 +39,16 @@ private:
     enum ItemRoles {
         ReaderIdRole = Qt::UserRole + 1, /**< Role for the reader id. */
         VariableIdRole = Qt::UserRole + 2, /**< Role for the variable id. */
+    };
+
+    /**
+     * @brief Current state of the scope.
+     */
+    enum ScopeMode {
+        Stopped, /**< Data gathering is stopped. */
+        Roll, /**< Receive and display data in a continuous mode. */
+        Normal, /**< Receive and display data in an oscilloscope normal mode. */
+        OneShot, /**< One-shot trigger mode. */
     };
 
     /**
@@ -57,11 +70,20 @@ private:
 
     Ui::MainWindow *ui = nullptr; /**< Pointer to the Main Window user interface. */
     QLineSeries *m_series[channels_amount]; /**< Pointer to Chart's series'. */
+    QValueAxis *m_axis_x = nullptr;
+    QValueAxis *m_axis_y = nullptr;
+
     QThread m_data_processor_thread; /**< Thread with a running Data Processor. */
     QMap<ReaderId, std::shared_ptr<UniversalReaderDialogConfig>>
             m_readers_config; /**< Readers configuration. */
+    QTimer m_render_timer;
 
     QStandardItemModel *m_source_list_model = nullptr; /**< Source List model. */
+
+    ScopeMode m_current_mode = ScopeMode::Stopped; /**< Current display mode. */
+    int64_t m_time_width_us = default_time_width; /**< Window width in us. */
+    UData::Time m_requested_time_left = 0; /**< Left requested window boundary. */
+    UData::Time m_requested_time_right = 0; /**< Right requested window boundary. */
 
     /**
      * @brief Initialize and run Data Processor.
@@ -119,11 +141,23 @@ signals:
     void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
 
     /**
-     * @brief Set width of the displayed window in microseconds
+     * @brief Reuqest stored data from Data Processor to display.
      *
-     * @param us window width in microseconds
+     * @param start_time Start time of the requested data.
+     * @param end_time End time of the requested data.
+     * @param points_limit Maximum amount of points to be displayed on the graph.
      */
-    void set_window_time_width(int64_t us);
+    void request_stored_data(UData::Time start_time, UData::Time end_time, int points_limit);
+
+    /**
+     * @brief Start data processing in the Data Processor.
+     */
+    void start_data_processing();
+
+    /**
+     * @brief Stop data processing in the Data Processor.
+     */
+    void stop_data_processing();
 
 private slots:
     /**
@@ -135,9 +169,19 @@ private slots:
 
 public slots:
     /**
-     * @brief Receive new data from Data Processor and display it on the graph.
+     * @brief Receive requested data from Data Processor and display it on the graph.
      *
      * @param new_data List of new data to be displayed on the graph.
      */
-    void receive_new_data(const QList<GraphData> &new_data);
+    void receive_stored_data(const QList<GraphData> &new_data);
+
+    /**
+     * @brief Handle click on the start button.
+     */
+    void handle_start_clicked();
+
+    /**
+     * @brief Handle click on the stop button.
+     */
+    void handle_stop_clicked();
 };

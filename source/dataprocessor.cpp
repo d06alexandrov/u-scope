@@ -14,12 +14,10 @@
 #include <iterator>
 #include <ranges>
 
-DataProcessor::DataProcessor(QPoint left_bottom_corner, QPoint right_top_corner, QObject *parent)
+DataProcessor::DataProcessor(QObject *parent)
     : QObject{ parent }
-    , m_time_width(default_time_width)
     , m_max_sample_points(default_max_sample_points)
-    , m_left_bottom_corner(left_bottom_corner)
-    , m_right_top_corner(right_top_corner)
+
 {
     qRegisterMetaType<UniversalReaderBufferMap>("UniversalReaderBufferMap");
 }
@@ -42,56 +40,7 @@ DataProcessor::~DataProcessor()
     }
 }
 
-void DataProcessor::setup(void)
-{
-    m_timer = new QTimer(this);
-    connect(m_timer, &QTimer::timeout, this, &DataProcessor::process);
-    m_timer->start(30);
-}
-
-void DataProcessor::process(void)
-{
-    QList<GraphData> new_data;
-
-    UData::Time current_time = UData::get_timestamp();
-
-    auto get_time_diff = [current_time](const UData::Point &point) {
-        return UData::get_timestamp_diff_us(point.first, current_time);
-    };
-
-    for (auto &&[reader_id, reader_data] : m_buffers.asKeyValueRange()) {
-        for (auto &&[variable_id, var_data] : reader_data.asKeyValueRange()) {
-            auto it = m_var_to_channel.constFind(qMakePair(reader_id, variable_id));
-
-            if (it != m_var_to_channel.constEnd()) {
-                QList<QPointF> processed_values;
-
-                auto window_boundary = std::ranges::lower_bound(var_data, m_time_width,
-                                                                std::greater<>{ }, get_time_diff);
-
-                for (const auto &[timestamp, raw_val] :
-                     std::ranges::subrange(window_boundary, var_data.end())) {
-
-                    const auto val =
-                            std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val);
-
-                    const qreal x_coord = static_cast<qreal>(m_left_bottom_corner.x())
-                            + (m_time_width - UData::get_timestamp_diff_us(timestamp, current_time))
-                                    / static_cast<qreal>(m_time_width)
-                                    * static_cast<qreal>(m_right_top_corner.x()
-                                                         - m_left_bottom_corner.x());
-                    processed_values.emplace_back(x_coord, val);
-                }
-
-                new_data.emplace_back(it.value(), std::move(processed_values));
-            } else {
-                var_data.clear();
-            }
-        }
-    }
-
-    emit send_new_data(new_data);
-}
+void DataProcessor::setup(void) { }
 
 void DataProcessor::reported_reader_status(ReaderId reader_id, UniversalReader::Status status)
 {
@@ -206,13 +155,6 @@ void DataProcessor::assign_channel(QPair<ReaderId, VariableId> variable, Channel
     m_channel_to_var[channel_id] = variable;
 }
 
-void DataProcessor::set_time_width(int64_t us)
-{
-    if (us > 0) {
-        m_time_width = us;
-    }
-}
-
 void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap data)
 {
     if (m_senders.contains(reader_id)) {
@@ -249,4 +191,83 @@ void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap da
         QMetaObject::invokeMethod(m_senders[reader_id].sender, "release_buffer",
                                   Qt::QueuedConnection, Q_ARG(UniversalReaderBufferMap, data));
     }
+}
+
+void DataProcessor::handle_data_request(UData::Time start_time, UData::Time end_time,
+                                        int points_limit)
+{
+    if (points_limit < 1) {
+        return;
+    }
+
+    QList<GraphData> new_data;
+
+    auto get_time = [](const UData::Point &p) { return p.first; };
+
+    for (auto &&[reader_id, reader_data] : m_buffers.asKeyValueRange()) {
+        for (auto &&[variable_id, var_data] : reader_data.asKeyValueRange()) {
+            auto it = m_var_to_channel.constFind(qMakePair(reader_id, variable_id));
+
+            if (it != m_var_to_channel.constEnd()) {
+                QList<QPointF> processed_values;
+
+                auto left_it =
+                        std::ranges::lower_bound(var_data, start_time, std::less<>{ }, get_time);
+                auto right_it = std::ranges::upper_bound(left_it, var_data.end(), end_time,
+                                                         std::less<>{ }, get_time);
+
+                if (std::distance(left_it, right_it) <= points_limit) {
+                    processed_values.reserve(std::distance(left_it, right_it));
+
+                    for (const auto &[timestamp, raw_val] :
+                         std::ranges::subrange(left_it, right_it)) {
+                        const auto val = std::visit(
+                                [](auto &&arg) { return static_cast<qreal>(arg); }, raw_val);
+                        processed_values.emplace_back(timestamp, val);
+                    }
+                } else {
+                    processed_values.reserve(points_limit);
+
+                    // Divide the range into equal pieces and provide an average value
+                    const double time_per_point_us =
+                            static_cast<double>(UData::get_timestamp_diff_us(start_time, end_time))
+                            / points_limit;
+
+                    auto next_point = left_it;
+
+                    for (int i = 0; (i < points_limit) && (next_point != right_it); i++) {
+                        const UData::Time piece_end = UData::timestamp_add_us_roundup(
+                                start_time, static_cast<int64_t>(time_per_point_us * (i + 1)));
+
+                        UData::Time min_time = next_point->first;
+                        UData::Time max_time = min_time;
+                        int amount = 0;
+                        qreal sum = 0;
+
+                        while ((next_point->first < piece_end) && (next_point != right_it)) {
+                            const auto val =
+                                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); },
+                                               next_point->second);
+                            sum += val;
+                            max_time = next_point->first;
+                            amount++;
+
+                            next_point++;
+                        }
+
+                        if (amount > 0) {
+                            const UData::Time average_time = min_time + (max_time - min_time) / 2;
+                            const qreal average_value = sum / amount;
+
+                            processed_values.emplace_back(average_time, average_value);
+                        }
+                    }
+                }
+
+                new_data.emplace_back(it.value(), std::move(processed_values));
+            }
+        }
+    }
+
+    emit send_new_data(new_data, start_time, end_time);
 }

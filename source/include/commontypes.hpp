@@ -60,6 +60,18 @@ inline Time timestamp_add_us_roundup(Time timestamp, int64_t us)
     return timestamp + us;
 }
 
+/**
+ * @brief Decrease timestamp by provided time.
+ *
+ * @param timestamp Original timestamp.
+ * @param us Time in microseconds that should be subtracted from original timestamp.
+ * @return @p timestamp minus @p us round down to the nearest Data::Time.
+ */
+inline Time timestamp_sub_us_rounddown(Time timestamp, int64_t us)
+{
+    return timestamp - us;
+}
+
 } // namespace UData
 
 using ReaderId = uint64_t; /**< ID of the reader. */

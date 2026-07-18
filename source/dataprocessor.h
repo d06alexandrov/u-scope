@@ -179,8 +179,11 @@ signals:
      * @brief Send new data to show in a chart.
      *
      * @param new_data Data to show in a chart.
+     * @param requested_start_time Start time of the requested data.
+     * @param requested_end_time End time of the requested data.
      */
-    void send_new_data(const QList<GraphData> &new_data);
+    void send_new_data(const QList<GraphData> &new_data, UData::Time requested_start_time,
+                       UData::Time requested_end_time);
 
     /**
      * @brief Report finish of the Data Processor.

@@ -41,10 +41,7 @@ MainWindow::MainWindow()
     connect(&m_render_timer, &QTimer::timeout, this, [this]() {
         if (m_current_mode == ScopeMode::Roll) {
             UData::Time end_time = UData::get_timestamp();
-            UData::Time start_time = end_time - m_time_width_us;
-
-            m_requested_time_left = start_time;
-            m_requested_time_right = end_time;
+            UData::Time start_time = UData::timestamp_sub_us_rounddown(end_time, m_time_width_us);
 
             int pixel_width = ui->dataPlot->viewport()->width();
             emit request_stored_data(start_time, end_time, pixel_width);
@@ -264,9 +261,11 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
     contextMenu.exec(ui->sourceList->viewport()->mapToGlobal(pos));
 }
 
-void MainWindow::receive_stored_data(const QList<GraphData> &new_data)
+void MainWindow::receive_stored_data(const QList<GraphData> &new_data,
+                                     UData::Time requested_start_time,
+                                     UData::Time requested_end_time)
 {
-    m_axis_x->setRange(m_requested_time_left, m_requested_time_right);
+    m_axis_x->setRange(requested_start_time, requested_end_time);
 
     for (auto &channel_data : new_data) {
         if (channel_data.get_id() < this->channels_amount) {

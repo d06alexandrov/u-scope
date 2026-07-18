@@ -82,8 +82,6 @@ private:
 
     ScopeMode m_current_mode = ScopeMode::Stopped; /**< Current display mode. */
     int64_t m_time_width_us = default_time_width; /**< Window width in us. */
-    UData::Time m_requested_time_left = 0; /**< Left requested window boundary. */
-    UData::Time m_requested_time_right = 0; /**< Right requested window boundary. */
 
     /**
      * @brief Initialize and run Data Processor.
@@ -172,8 +170,11 @@ public slots:
      * @brief Receive requested data from Data Processor and display it on the graph.
      *
      * @param new_data List of new data to be displayed on the graph.
+     * @param requested_start_time Start time of the requested data.
+     * @param requested_end_time End time of the requested data.
      */
-    void receive_stored_data(const QList<GraphData> &new_data);
+    void receive_stored_data(const QList<GraphData> &new_data, UData::Time requested_start_time,
+                             UData::Time requested_end_time);
 
     /**
      * @brief Handle click on the start button.

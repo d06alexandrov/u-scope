@@ -226,5 +226,5 @@ void DataProcessor::handle_data_request(UData::Time start_time, UData::Time end_
         }
     }
 
-    emit send_new_data(new_data);
+    emit send_new_data(new_data, start_time, end_time);
 }

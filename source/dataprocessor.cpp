@@ -196,6 +196,10 @@ void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap da
 void DataProcessor::handle_data_request(UData::Time start_time, UData::Time end_time,
                                         int points_limit)
 {
+    if (points_limit < 1) {
+        return;
+    }
+
     QList<GraphData> new_data;
 
     auto get_time = [](const UData::Point &p) { return p.first; };
@@ -225,8 +229,9 @@ void DataProcessor::handle_data_request(UData::Time start_time, UData::Time end_
                     processed_values.reserve(points_limit);
 
                     // Divide the range into equal pieces and provide an average value
-                    const double time_per_point_us = static_cast<double>(
-                            UData::get_timestamp_diff_us(start_time, end_time) / points_limit);
+                    const double time_per_point_us =
+                            static_cast<double>(UData::get_timestamp_diff_us(start_time, end_time))
+                            / points_limit;
 
                     auto next_point = left_it;
 
@@ -251,7 +256,7 @@ void DataProcessor::handle_data_request(UData::Time start_time, UData::Time end_
                         }
 
                         if (amount > 0) {
-                            const UData::Time average_time = (min_time + max_time) / 2;
+                            const UData::Time average_time = min_time + (max_time - min_time) / 2;
                             const qreal average_value = sum / amount;
 
                             processed_values.emplace_back(average_time, average_value);

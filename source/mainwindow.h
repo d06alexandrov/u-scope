@@ -16,6 +16,8 @@ class MainWindow;
 }
 QT_END_NAMESPACE
 
+class SlidingWindow;
+
 /**
  * @brief Class that implements main window of the application
  */
@@ -32,6 +34,8 @@ private:
     static constexpr size_t channels_amount = 12; /**< Amount of channels. */
     static constexpr int64_t default_time_width = 1000000; /**< Default window width in us. */
     static constexpr int default_frame_period = 33; /**< Default graph frame update period in ms. */
+    static constexpr int maximum_overview_points =
+            2000; /**< Maximum amount of points of the overview chart. */
 
     /**
      * @brief Roles of the items in the source list.
@@ -73,6 +77,12 @@ private:
     QValueAxis *m_axis_x = nullptr;
     QValueAxis *m_axis_y = nullptr;
 
+    QLineSeries
+            *m_series_overview[channels_amount]; /**< Pointer to Chart's series' for overview. */
+    QValueAxis *m_overview_axis_x = nullptr; /**< Overview's x axis. */
+    QValueAxis *m_overview_axis_y = nullptr; /**< Overview's y axis. */
+    SlidingWindow *m_sliding_window = nullptr; /**< Sliding window on the overview graph. */
+
     QThread m_data_processor_thread; /**< Thread with a running Data Processor. */
     QMap<ReaderId, std::shared_ptr<UniversalReaderDialogConfig>>
             m_readers_config; /**< Readers configuration. */
@@ -82,6 +92,9 @@ private:
 
     ScopeMode m_current_mode = ScopeMode::Stopped; /**< Current display mode. */
     int64_t m_time_width_us = default_time_width; /**< Window width in us. */
+
+    UData::Time m_overview_min_time{ }; /**< Min overview graph time. */
+    UData::Time m_overview_max_time{ }; /**< Max overview graph time. */
 
     /**
      * @brief Initialize and run Data Processor.
@@ -139,13 +152,20 @@ signals:
     void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
 
     /**
-     * @brief Reuqest stored data from Data Processor to display.
+     * @brief Request stored data from Data Processor to display.
      *
      * @param start_time Start time of the requested data.
      * @param end_time End time of the requested data.
      * @param points_limit Maximum amount of points to be displayed on the graph.
      */
     void request_stored_data(UData::Time start_time, UData::Time end_time, int points_limit);
+
+    /**
+     * @brief Request full history data from Data Processor to display.
+     *
+     * @param points_limit Maximum amount of points to be returned.
+     */
+    void request_full_history(int points_limit);
 
     /**
      * @brief Start data processing in the Data Processor.
@@ -156,6 +176,18 @@ signals:
      * @brief Stop data processing in the Data Processor.
      */
     void stop_data_processing();
+
+    /**
+     * @brief Update sliding window width on the overview chart.
+     *
+     * @param window_width_us New width of the sliding window in microseconds.
+     */
+    void window_width_updated(int64_t window_width_us);
+
+    /**
+     * @brief Reset the sliding window on the overview chart.
+     */
+    void sliding_window_reset(UData::Time min_time, UData::Time max_time, int64_t window_width_us);
 
 private slots:
     /**
@@ -175,6 +207,16 @@ public slots:
      */
     void receive_stored_data(const QList<GraphData> &new_data, UData::Time requested_start_time,
                              UData::Time requested_end_time);
+
+    /**
+     * @brief Receive full data history from Data Processor.
+     *
+     * @param new_data List of data history values.
+     * @param min_time Minimum timestamp of the data history.
+     * @param max_time Maximum timestamp of the data history.
+     */
+    void receive_full_history(const QList<GraphData> &new_data, UData::Time min_time,
+                              UData::Time max_time);
 
     /**
      * @brief Handle click on the start button.

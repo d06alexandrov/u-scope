@@ -36,8 +36,8 @@
        <property name="title">
         <string>Sources</string>
        </property>
-       <layout class="QGridLayout" name="gridLayout_3">
-        <item row="0" column="0">
+       <layout class="QVBoxLayout" name="verticalLayout_7">
+        <item>
          <widget class="QTreeView" name="sourceList">
           <property name="contextMenuPolicy">
            <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
@@ -54,6 +54,15 @@
       </widget>
       <widget class="QWidget" name="mainScreen" native="true">
        <layout class="QVBoxLayout" name="verticalLayout">
+        <property name="topMargin">
+         <number>0</number>
+        </property>
+        <property name="rightMargin">
+         <number>0</number>
+        </property>
+        <property name="bottomMargin">
+         <number>0</number>
+        </property>
         <item>
          <widget class="QGroupBox" name="outputScreen">
           <property name="title">
@@ -61,19 +70,56 @@
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QChartView" name="dataPlot">
-             <property name="enabled">
-              <bool>true</bool>
-             </property>
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="renderHints">
-              <set>QPainter::RenderHint::Antialiasing|QPainter::RenderHint::TextAntialiasing</set>
-             </property>
+            <widget class="QWidget" name="" native="true">
+             <layout class="QVBoxLayout" name="verticalLayout_6">
+              <property name="spacing">
+               <number>0</number>
+              </property>
+              <property name="leftMargin">
+               <number>0</number>
+              </property>
+              <property name="topMargin">
+               <number>0</number>
+              </property>
+              <property name="rightMargin">
+               <number>0</number>
+              </property>
+              <property name="bottomMargin">
+               <number>0</number>
+              </property>
+              <item>
+               <widget class="QChartView" name="dataOverview">
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="maximumSize">
+                 <size>
+                  <width>16777215</width>
+                  <height>40</height>
+                 </size>
+                </property>
+               </widget>
+              </item>
+              <item>
+               <widget class="QChartView" name="dataPlot">
+                <property name="enabled">
+                 <bool>true</bool>
+                </property>
+                <property name="sizePolicy">
+                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
+                  <horstretch>0</horstretch>
+                  <verstretch>0</verstretch>
+                 </sizepolicy>
+                </property>
+                <property name="renderHints">
+                 <set>QPainter::RenderHint::Antialiasing|QPainter::RenderHint::TextAntialiasing</set>
+                </property>
+               </widget>
+              </item>
+             </layout>
             </widget>
            </item>
            <item>

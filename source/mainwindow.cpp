@@ -345,6 +345,10 @@ void MainWindow::receive_full_history(const QList<GraphData> &new_data, UData::T
     m_overview_min_time = min_time;
     m_overview_max_time = max_time;
 
+    for (int i = 0; i < this->channels_amount; ++i) {
+        m_series_overview[i]->clear();
+    }
+
     for (auto &channel_data : new_data) {
         if (channel_data.get_id() < this->channels_amount) {
             m_series_overview[channel_data.get_id()]->replace(channel_data.get_values());

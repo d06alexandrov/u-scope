@@ -242,48 +242,46 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
         start_time_actual = start_time.value();
     } else {
         // Find minimal time from all channels
-        std::vector<UData::Time> first_elements;
+        std::optional<UData::Time> min_time = std::nullopt;
 
-        first_elements.reserve(m_channel_to_var.size());
-
-        for (auto channel_input : m_channel_to_var) {
+        for (const auto &channel_input : m_channel_to_var) {
             const auto channel_buffer =
                     m_buffers.value(channel_input.first).value(channel_input.second);
 
-            if (!channel_buffer.empty()) {
-                first_elements.emplace_back(channel_buffer.front().first);
+            if (!channel_buffer.empty()
+                && (!min_time.has_value() || min_time.value() > channel_buffer.front().first)) {
+                min_time = channel_buffer.front().first;
             }
         }
 
-        if (first_elements.empty()) {
+        if (!min_time.has_value()) {
             return std::nullopt;
         }
 
-        start_time_actual = std::ranges::min(first_elements);
+        start_time_actual = min_time.value();
     }
 
     if (end_time.has_value()) {
         end_time_actual = end_time.value();
     } else {
         // Find maximum time from all channels
-        std::vector<UData::Time> last_elements;
+        std::optional<UData::Time> max_time = std::nullopt;
 
-        last_elements.reserve(m_channel_to_var.size());
-
-        for (auto channel_input : m_channel_to_var) {
+        for (const auto &channel_input : m_channel_to_var) {
             const auto channel_buffer =
                     m_buffers.value(channel_input.first).value(channel_input.second);
 
-            if (!channel_buffer.empty()) {
-                last_elements.emplace_back(channel_buffer.back().first);
+            if (!channel_buffer.empty()
+                && (!max_time.has_value() || max_time.value() < channel_buffer.back().first)) {
+                max_time = channel_buffer.back().first;
             }
         }
 
-        if (last_elements.empty()) {
+        if (!max_time.has_value()) {
             return std::nullopt;
         }
 
-        end_time_actual = std::ranges::max(last_elements);
+        end_time_actual = max_time.value();
     }
 
     if (end_time_actual <= start_time_actual) {

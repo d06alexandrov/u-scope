@@ -75,8 +75,9 @@ private:
     std::tuple<UData::Time, UData::Time> get_window_boundaries()
     {
         UData::Time left_boundary = m_window_start;
-        UData::Time right_boundary = std::clamp(m_window_start + m_window_width_us,
-                                                m_overview_min_time, m_overview_max_time);
+        UData::Time right_boundary =
+                std::clamp(UData::timestamp_add_us_roundup(m_window_start, m_window_width_us),
+                           m_overview_min_time, m_overview_max_time);
 
         return std::tuple{ left_boundary, right_boundary };
     }
@@ -154,37 +155,11 @@ public slots:
     }
 
     /**
-     * @brief Sets the time boundaries of the overview graph.
-     *
-     * @param min_time The minimum time of the overview graph.
-     * @param max_time The maximum time of the overview graph.
-     */
-    void set_graph_boundaries(UData::Time min_time, UData::Time max_time)
-    {
-        m_overview_min_time = min_time;
-        m_overview_max_time = max_time;
-    }
-
-    /**
      * @brief Sets the width of the sliding window in microseconds.
      *
      * @param window_width_us The width of the sliding window in microseconds.
      */
     void set_window_width(int64_t window_width_us) { m_window_width_us = window_width_us; }
-
-    /**
-     * @brief Move sliding window to the right border.
-     */
-    void set_window_to_right()
-    {
-        if (UData::get_timestamp_diff_us(m_overview_min_time, m_overview_max_time)
-            <= m_window_width_us) {
-            m_window_start = m_overview_min_time;
-        } else {
-            m_window_start =
-                    UData::timestamp_sub_us_rounddown(m_overview_max_time, m_window_width_us);
-        }
-    }
 
     /**
      * @brief Slot to handle dimension changes of the overview graph's plot area.

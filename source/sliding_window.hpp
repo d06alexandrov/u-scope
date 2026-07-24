@@ -182,15 +182,16 @@ protected:
     QVariant itemChange(GraphicsItemChange change, const QVariant &value) override
     {
         if (change == ItemPositionChange && scene()) {
+            qreal overview_graph_width = get_overview_graph_width();
             QPointF newPos = value.toPointF();
 
             newPos.setY(0);
 
-            if (get_overview_graph_width() < std::numeric_limits<qreal>::epsilon()) {
+            if (overview_graph_width < std::numeric_limits<qreal>::epsilon()) {
                 newPos.setX(0);
                 m_window_start = m_overview_min_time;
             } else {
-                qreal max_x = std::max(0.0, get_overview_graph_width() - rect().width());
+                qreal max_x = std::max(0.0, overview_graph_width - rect().width());
 
                 if (newPos.x() < 0) {
                     newPos.setX(0);
@@ -200,7 +201,7 @@ protected:
 
                 int64_t new_window_offset = static_cast<int64_t>(
                         UData::get_timestamp_diff_us(m_overview_min_time, m_overview_max_time)
-                        * newPos.x() / get_overview_graph_width());
+                        * newPos.x() / overview_graph_width);
 
                 m_window_start =
                         UData::timestamp_add_us_roundup(m_overview_min_time, new_window_offset);

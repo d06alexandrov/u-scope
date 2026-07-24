@@ -215,7 +215,7 @@ protected:
                 newPos.setX(0);
                 m_window_start = m_overview_min_time;
             } else {
-                qreal max_x = get_overview_graph_width() - rect().width();
+                qreal max_x = std::max(0.0, get_overview_graph_width() - rect().width());
 
                 if (newPos.x() < 0) {
                     newPos.setX(0);

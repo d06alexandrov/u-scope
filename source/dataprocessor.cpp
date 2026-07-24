@@ -283,7 +283,7 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
             return std::nullopt;
         }
 
-        end_time_actual = std::ranges::min(last_elements);
+        end_time_actual = std::ranges::max(last_elements);
     }
 
     if (end_time_actual <= start_time_actual) {

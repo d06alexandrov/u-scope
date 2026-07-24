@@ -3,9 +3,11 @@
 #include "dataprocessor.h"
 #include "serialreader_dialog.h"
 #include "simulatedreader_dialog.h"
+#include "sliding_window.hpp"
 #include "ui_mainwindow.h"
 
 #include <QChart>
+#include <QGraphicsLayout>
 #include <QLineSeries>
 #include <QThread>
 #include <QValueAxis>
@@ -76,7 +78,11 @@ void MainWindow::init_data_processor()
 
     connect(this, &MainWindow::request_stored_data, data_processor,
             &DataProcessor::handle_data_request);
+    connect(this, &MainWindow::request_full_history, data_processor,
+            &DataProcessor::handle_full_history_request);
     connect(data_processor, &DataProcessor::send_new_data, this, &MainWindow::receive_stored_data);
+    connect(data_processor, &DataProcessor::send_full_history, this,
+            &MainWindow::receive_full_history);
 
     connect(this, &MainWindow::configure_reader, data_processor, &DataProcessor::configure_reader);
     connect(this, &MainWindow::remove_reader, data_processor, &DataProcessor::remove_reader);
@@ -121,6 +127,9 @@ void MainWindow::init_graph()
 
     main_chart->legend()->hide();
 
+    main_chart->setMargins(QMargins(0, 0, 0, 0));
+    main_chart->layout()->setContentsMargins(0, 0, 0, 0);
+
     for (int i = 0; i < this->channels_amount; ++i) {
         m_series[i] = new QLineSeries(this);
         // TODO: check if series was created
@@ -131,6 +140,56 @@ void MainWindow::init_graph()
         m_series[i]->attachAxis(m_axis_y);
         m_series[i]->setPointsVisible(true);
     }
+
+    // Configure overview graph
+    auto overview_chart = ui->dataOverview->chart();
+
+    overview_chart->legend()->hide();
+
+    overview_chart->setMargins(QMargins(0, 0, 0, 0));
+    overview_chart->layout()->setContentsMargins(0, 0, 0, 0);
+
+    m_overview_axis_x = new QValueAxis;
+    m_overview_axis_y = new QValueAxis;
+
+    m_overview_axis_x->setRange(0, 1);
+    m_overview_axis_y->setRange(-100, 100);
+
+    overview_chart->addAxis(m_overview_axis_x, Qt::AlignBottom);
+    overview_chart->addAxis(m_overview_axis_y, Qt::AlignLeft);
+
+    m_overview_axis_x->setVisible(false);
+    m_overview_axis_y->setVisible(false);
+
+    for (int i = 0; i < this->channels_amount; ++i) {
+        m_series_overview[i] = new QLineSeries(this);
+
+        overview_chart->addSeries(m_series_overview[i]);
+
+        m_series_overview[i]->attachAxis(m_overview_axis_x);
+        m_series_overview[i]->attachAxis(m_overview_axis_y);
+    }
+
+    // Add sliding window to the overview graph
+    m_sliding_window = new SlidingWindow();
+
+    overview_chart->scene()->addItem(m_sliding_window);
+    m_sliding_window->setRect(0, 0, overview_chart->plotArea().width(),
+                              overview_chart->plotArea().height());
+
+    connect(this, &MainWindow::window_width_updated, m_sliding_window,
+            &SlidingWindow::set_window_width);
+    connect(this, &MainWindow::sliding_window_reset, m_sliding_window,
+            &SlidingWindow::reset_window_to_right);
+
+    connect(m_sliding_window, &SlidingWindow::position_changed, this,
+            [this](UData::Time window_min_time, UData::Time window_max_time) {
+                int pixel_width = ui->dataPlot->viewport()->width();
+                emit request_stored_data(window_min_time, window_max_time, pixel_width);
+            });
+
+    connect(overview_chart, &QChart::plotAreaChanged, m_sliding_window,
+            &SlidingWindow::plot_area_changed);
 }
 
 void MainWindow::init_source_list()
@@ -274,6 +333,27 @@ void MainWindow::receive_stored_data(const QList<GraphData> &new_data,
     }
 }
 
+void MainWindow::receive_full_history(const QList<GraphData> &new_data, UData::Time min_time,
+                                      UData::Time max_time)
+{
+    if (new_data.empty() || (max_time <= min_time)) {
+        return;
+    }
+
+    m_overview_axis_x->setRange(min_time, max_time);
+
+    m_overview_min_time = min_time;
+    m_overview_max_time = max_time;
+
+    for (auto &channel_data : new_data) {
+        if (channel_data.get_id() < this->channels_amount) {
+            m_series_overview[channel_data.get_id()]->replace(channel_data.get_values());
+        }
+    }
+
+    emit sliding_window_reset(m_overview_min_time, m_overview_max_time, m_time_width_us);
+}
+
 void MainWindow::handle_start_clicked()
 {
     m_current_mode = ScopeMode::Roll;
@@ -288,6 +368,8 @@ void MainWindow::handle_stop_clicked()
     m_render_timer.stop();
 
     emit stop_data_processing();
+
+    emit request_full_history(maximum_overview_points);
 
     m_current_mode = ScopeMode::Stopped;
 }

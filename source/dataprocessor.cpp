@@ -13,6 +13,7 @@
 #include <functional>
 #include <iterator>
 #include <ranges>
+#include <vector>
 
 DataProcessor::DataProcessor(QObject *parent)
     : QObject{ parent }
@@ -200,7 +201,94 @@ void DataProcessor::handle_data_request(UData::Time start_time, UData::Time end_
         return;
     }
 
+    auto prepared_data = prepare_graph_data(points_limit, start_time, end_time);
+
+    if (prepared_data.has_value()) {
+        auto &&new_data = std::get<0>(std::move(prepared_data.value()));
+
+        emit send_new_data(std::move(new_data), start_time, end_time);
+    } else {
+        emit send_new_data(QList<GraphData>(), start_time, end_time);
+    }
+}
+
+void DataProcessor::handle_full_history_request(int points_limit)
+{
+    if (points_limit < 1) {
+        return;
+    }
+
+    auto prepared_data = prepare_graph_data(points_limit);
+
+    if (prepared_data.has_value()) {
+        auto &&[new_data, start_time, end_time] = std::move(prepared_data.value());
+
+        emit send_full_history(std::move(new_data), start_time, end_time);
+    } else {
+        emit send_full_history(QList<GraphData>(), -1, -1);
+    }
+}
+
+std::optional<std::tuple<QList<GraphData>, UData::Time, UData::Time>>
+DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> start_time,
+                                  std::optional<UData::Time> end_time)
+{
     QList<GraphData> new_data;
+
+    UData::Time start_time_actual;
+    UData::Time end_time_actual;
+
+    if (start_time.has_value()) {
+        start_time_actual = start_time.value();
+    } else {
+        // Find minimal time from all channels
+        std::vector<UData::Time> first_elements;
+
+        first_elements.reserve(m_channel_to_var.size());
+
+        for (auto channel_input : m_channel_to_var) {
+            const auto channel_buffer =
+                    m_buffers.value(channel_input.first).value(channel_input.second);
+
+            if (!channel_buffer.empty()) {
+                first_elements.emplace_back(channel_buffer.front().first);
+            }
+        }
+
+        if (first_elements.empty()) {
+            return std::nullopt;
+        }
+
+        start_time_actual = std::ranges::min(first_elements);
+    }
+
+    if (end_time.has_value()) {
+        end_time_actual = end_time.value();
+    } else {
+        // Find maximum time from all channels
+        std::vector<UData::Time> last_elements;
+
+        last_elements.reserve(m_channel_to_var.size());
+
+        for (auto channel_input : m_channel_to_var) {
+            const auto channel_buffer =
+                    m_buffers.value(channel_input.first).value(channel_input.second);
+
+            if (!channel_buffer.empty()) {
+                last_elements.emplace_back(channel_buffer.back().first);
+            }
+        }
+
+        if (last_elements.empty()) {
+            return std::nullopt;
+        }
+
+        end_time_actual = std::ranges::min(last_elements);
+    }
+
+    if (end_time_actual <= start_time_actual) {
+        return std::nullopt;
+    }
 
     auto get_time = [](const UData::Point &p) { return p.first; };
 
@@ -211,9 +299,9 @@ void DataProcessor::handle_data_request(UData::Time start_time, UData::Time end_
             if (it != m_var_to_channel.constEnd()) {
                 QList<QPointF> processed_values;
 
-                auto left_it =
-                        std::ranges::lower_bound(var_data, start_time, std::less<>{ }, get_time);
-                auto right_it = std::ranges::upper_bound(left_it, var_data.end(), end_time,
+                auto left_it = std::ranges::lower_bound(var_data, start_time_actual, std::less<>{ },
+                                                        get_time);
+                auto right_it = std::ranges::upper_bound(left_it, var_data.end(), end_time_actual,
                                                          std::less<>{ }, get_time);
 
                 if (std::distance(left_it, right_it) <= points_limit) {
@@ -230,14 +318,16 @@ void DataProcessor::handle_data_request(UData::Time start_time, UData::Time end_
 
                     // Divide the range into equal pieces and provide an average value
                     const double time_per_point_us =
-                            static_cast<double>(UData::get_timestamp_diff_us(start_time, end_time))
+                            static_cast<double>(UData::get_timestamp_diff_us(start_time_actual,
+                                                                             end_time_actual))
                             / points_limit;
 
                     auto next_point = left_it;
 
                     for (int i = 0; (i < points_limit) && (next_point != right_it); i++) {
                         const UData::Time piece_end = UData::timestamp_add_us_roundup(
-                                start_time, static_cast<int64_t>(time_per_point_us * (i + 1)));
+                                start_time_actual,
+                                static_cast<int64_t>(time_per_point_us * (i + 1)));
 
                         UData::Time min_time = next_point->first;
                         UData::Time max_time = min_time;
@@ -269,5 +359,5 @@ void DataProcessor::handle_data_request(UData::Time start_time, UData::Time end_
         }
     }
 
-    emit send_new_data(new_data, start_time, end_time);
+    return std::tuple{ new_data, start_time_actual, end_time_actual };
 }

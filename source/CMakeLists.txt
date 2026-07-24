@@ -20,8 +20,10 @@ add_subdirectory(readers)
 qt_add_executable(u-scope)
 
 target_sources(
-    u-scope PRIVATE # cmake-format: sortable
-                    dataprocessor.cpp main.cpp mainwindow.cpp mainwindow.ui
+    u-scope
+    PRIVATE # cmake-format: sortable
+            dataprocessor.cpp main.cpp mainwindow.cpp mainwindow.ui
+            sliding_window.hpp
 )
 
 target_link_libraries(

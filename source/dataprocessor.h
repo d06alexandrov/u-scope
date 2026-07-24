@@ -15,6 +15,7 @@
 #include <QThread>
 #include <QTimer>
 #include <deque>
+#include <optional>
 
 /**
  * @brief Class to store data of one particular graph.
@@ -174,6 +175,13 @@ public slots:
      */
     void handle_data_request(UData::Time start_time, UData::Time end_time, int points_limit);
 
+    /**
+     * @brief Handle request for full history of data from MainWindow.
+     *
+     * @param points_limit Maximum number of points to return for the full history.
+     */
+    void handle_full_history_request(int points_limit);
+
 signals:
     /**
      * @brief Send new data to show in a chart.
@@ -184,6 +192,16 @@ signals:
      */
     void send_new_data(const QList<GraphData> &new_data, UData::Time requested_start_time,
                        UData::Time requested_end_time);
+
+    /**
+     * @brief Send full history data to show in a chart.
+     *
+     * @param new_data Data to show in a chart.
+     * @param start_time Start time of the data.
+     * @param end_time End time of the data.
+     */
+    void send_full_history(const QList<GraphData> &new_data, UData::Time start_time,
+                           UData::Time end_time);
 
     /**
      * @brief Report finish of the Data Processor.
@@ -232,4 +250,16 @@ private:
                                                                      channels and variables. */
 
     size_t m_max_sample_points; /**< Maximum amount of sample points per channel. */
+
+    /**
+     * @brief Prepare graph data from the stored buffers.
+     *
+     * @param points_limit Maximum number of points to return.
+     * @param start_time Optional start time of the requested data.
+     * @param end_time Optional end time of the requested data.
+     * @return Optional tuple containing a list of GraphData, start time, and end time.
+     */
+    std::optional<std::tuple<QList<GraphData>, UData::Time, UData::Time>>
+    prepare_graph_data(int points_limit, std::optional<UData::Time> start_time = std::nullopt,
+                       std::optional<UData::Time> end_time = std::nullopt);
 };

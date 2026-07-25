@@ -32,27 +32,11 @@ MainWindow::MainWindow()
 {
     ui->setupUi(this);
 
-    init_graph();
-
     init_data_processor();
 
-    init_source_list();
+    init_ui_elements();
 
-    m_render_timer.setTimerType(Qt::PreciseTimer);
-
-    connect(&m_render_timer, &QTimer::timeout, this, [this]() {
-        if (m_current_mode == ScopeMode::Roll) {
-            UData::Time end_time = UData::get_timestamp();
-            UData::Time start_time = UData::timestamp_sub_us_rounddown(end_time, m_time_width_us);
-
-            int pixel_width = ui->dataPlot->viewport()->width();
-            emit request_stored_data(start_time, end_time, pixel_width);
-        }
-    });
-
-    connect(ui->pushButton_StartAll, &QPushButton::clicked, this,
-            &MainWindow::handle_start_clicked);
-    connect(ui->pushButton_StopAll, &QPushButton::clicked, this, &MainWindow::handle_stop_clicked);
+    init_graph_rendering();
 }
 
 MainWindow::~MainWindow()
@@ -103,6 +87,17 @@ void MainWindow::init_data_processor()
     m_data_processor_thread.start();
 }
 
+void MainWindow::init_ui_elements()
+{
+    init_graph();
+
+    init_source_list();
+
+    connect(ui->pushButton_StartAll, &QPushButton::clicked, this,
+            &MainWindow::handle_start_clicked);
+    connect(ui->pushButton_StopAll, &QPushButton::clicked, this, &MainWindow::handle_stop_clicked);
+}
+
 void MainWindow::init_graph()
 {
     // Configure graph
@@ -144,6 +139,8 @@ void MainWindow::init_graph()
     // Configure overview graph
     auto overview_chart = ui->dataOverview->chart();
 
+    overview_chart->setBackgroundBrush(QBrush(GraphStyle::background_color));
+
     overview_chart->legend()->hide();
 
     overview_chart->setMargins(QMargins(0, 0, 0, 0));
@@ -184,7 +181,8 @@ void MainWindow::init_graph()
 
     connect(m_sliding_window, &SlidingWindow::position_changed, this,
             [this](UData::Time window_min_time, UData::Time window_max_time) {
-                int pixel_width = ui->dataPlot->viewport()->width();
+                int pixel_width =
+                        std::max(minimum_graph_render_width, ui->dataPlot->viewport()->width());
                 emit request_stored_data(window_min_time, window_max_time, pixel_width);
             });
 
@@ -200,7 +198,23 @@ void MainWindow::init_source_list()
             &MainWindow::source_list_context_menu);
 }
 
-ReaderId MainWindow::get_available_reader_idx()
+void MainWindow::init_graph_rendering()
+{
+    m_render_timer.setTimerType(Qt::PreciseTimer);
+
+    connect(&m_render_timer, &QTimer::timeout, this, [this]() {
+        if (m_current_mode == ScopeMode::Roll) {
+            UData::Time end_time = UData::get_timestamp();
+            UData::Time start_time = UData::timestamp_sub_us_rounddown(end_time, m_time_width_us);
+
+            int pixel_width =
+                    std::max(minimum_graph_render_width, ui->dataPlot->viewport()->width());
+            emit request_stored_data(start_time, end_time, pixel_width);
+        }
+    });
+}
+
+ReaderId MainWindow::get_available_reader_idx() const
 {
     ReaderId reader_id = 0;
 

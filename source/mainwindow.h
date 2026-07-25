@@ -36,6 +36,8 @@ private:
     static constexpr int default_frame_period = 33; /**< Default graph frame update period in ms. */
     static constexpr int maximum_overview_points =
             2000; /**< Maximum amount of points of the overview chart. */
+    static constexpr int minimum_graph_render_width =
+            100; /**< Minimum expected pixel width of the graph. */
 
     /**
      * @brief Roles of the items in the source list.
@@ -102,6 +104,11 @@ private:
     void init_data_processor();
 
     /**
+     * @brief Initialize graph and other ui elements.
+     */
+    void init_ui_elements();
+
+    /**
      * @brief Initialize graph.
      */
     void init_graph();
@@ -112,11 +119,16 @@ private:
     void init_source_list();
 
     /**
+     * @brief Configure and start rendering timer.
+     */
+    void init_graph_rendering();
+
+    /**
      * @brief Get available reader index.
      *
      * @return Available reader index.
      */
-    ReaderId get_available_reader_idx();
+    ReaderId get_available_reader_idx() const;
 
     /**
      * @brief Add reader to the source list and data processor.

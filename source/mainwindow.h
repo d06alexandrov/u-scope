@@ -102,6 +102,11 @@ private:
     void init_data_processor();
 
     /**
+     * @brief Initialize graph and other ui elements.
+     */
+    void init_ui_elements();
+
+    /**
      * @brief Initialize graph.
      */
     void init_graph();
@@ -110,6 +115,11 @@ private:
      * @brief Initialize source list.
      */
     void init_source_list();
+
+    /**
+     * @brief Configure and start rendering timer.
+     */
+    void init_graph_rendering();
 
     /**
      * @brief Get available reader index.

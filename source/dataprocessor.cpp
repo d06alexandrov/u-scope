@@ -58,6 +58,8 @@ void DataProcessor::reported_reader_status(ReaderId reader_id, UniversalReader::
 
 void DataProcessor::start_data_processing()
 {
+    m_buffers.clear();
+
     for (const auto [id, reader] : m_senders.asKeyValueRange()) {
         if ((reader.latest_status == UniversalReader::Initialized)
             || (reader.latest_status == UniversalReader::Stopped)

@@ -34,4 +34,3 @@ jobs:
 
           pr_description.publish_description_as_comment: "true"
           pr_code_suggestions.commitable_code_suggestions: "true"
-          pr_reviewer.enable_review_labels_effort: "false"

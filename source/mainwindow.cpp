@@ -181,7 +181,8 @@ void MainWindow::init_graph()
 
     connect(m_sliding_window, &SlidingWindow::position_changed, this,
             [this](UData::Time window_min_time, UData::Time window_max_time) {
-                int pixel_width = ui->dataPlot->viewport()->width();
+                int pixel_width =
+                        std::max(minimum_graph_render_width, ui->dataPlot->viewport()->width());
                 emit request_stored_data(window_min_time, window_max_time, pixel_width);
             });
 
@@ -212,7 +213,7 @@ void MainWindow::init_graph_rendering()
     });
 }
 
-ReaderId MainWindow::get_available_reader_idx()
+ReaderId MainWindow::get_available_reader_idx() const
 {
     ReaderId reader_id = 0;
 

@@ -1,3 +1,14 @@
 [pr_reviewer]
 
+# prevent tagging with the effort labels
 enable_review_labels_effort = false
+
+[pr_description]
+
+# Do not alter original PR description
+publish_description_as_comment = true
+
+[pr_code_suggestions]
+
+# Provide inline code suggestions
+commitable_code_suggestions = true

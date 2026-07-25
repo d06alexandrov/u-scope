@@ -207,7 +207,8 @@ void MainWindow::init_graph_rendering()
             UData::Time end_time = UData::get_timestamp();
             UData::Time start_time = UData::timestamp_sub_us_rounddown(end_time, m_time_width_us);
 
-            int pixel_width = ui->dataPlot->viewport()->width();
+            int pixel_width =
+                    std::max(minimum_graph_render_width, ui->dataPlot->viewport()->width());
             emit request_stored_data(start_time, end_time, pixel_width);
         }
     });

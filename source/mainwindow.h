@@ -32,6 +32,8 @@ public:
 private:
     static constexpr ReaderId readers_amount = 10; /**< Maximum amount of readers. */
     static constexpr size_t channels_amount = 12; /**< Amount of channels. */
+    static constexpr int64_t default_div_horizontal_us =
+            10000; /**< Default Size of one horizontal division in us. */
     static constexpr int64_t default_time_width = 1000000; /**< Default window width in us. */
     static constexpr int default_frame_period = 33; /**< Default graph frame update period in ms. */
     static constexpr int maximum_overview_points =
@@ -93,7 +95,8 @@ private:
     QStandardItemModel *m_source_list_model = nullptr; /**< Source List model. */
 
     ScopeMode m_current_mode = ScopeMode::Stopped; /**< Current display mode. */
-    int64_t m_time_width_us = default_time_width; /**< Window width in us. */
+    int64_t m_div_horizontal_us =
+            default_div_horizontal_us; /**< Size of one horizontal division in us. */
 
     UData::Time m_overview_min_time{ }; /**< Min overview graph time. */
     UData::Time m_overview_max_time{ }; /**< Max overview graph time. */

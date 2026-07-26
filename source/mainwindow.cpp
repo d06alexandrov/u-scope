@@ -11,18 +11,42 @@
 #include <QLineSeries>
 #include <QThread>
 #include <QValueAxis>
+#include <algorithm>
 
 namespace {
 /**
+ * @brief Powers of 10.
+ */
+constexpr std::array<int64_t, 7> powers_of_10 = {
+    1LL, 10LL, 100LL, 1000LL, 10000LL, 100000LL, 1000000LL,
+};
+
+/**
  * @brief Config an axis
  *
- * @param axis pointer to the axis
- * @param min minimum axis value
- * @param max maximum axis value
- * @param grid_cells amount of the grid cells
- * @param grid_color color of the grid
+ * @param axis Pointer to the axis.
+ * @param min Minimum axis value.
+ * @param max Maximum axis value.
+ * @param grid_cells Amount of the grid cells.
+ * @param grid_color Color of the grid.
  */
 void config_axis(QValueAxis *axis, int min, int max, int grid_cells, const QColor grid_color);
+
+/**
+ * @brief Convert horizontal division in us to QDial value.
+ *
+ * @param division_us Horizontal division in us.
+ * @return QDial value.
+ */
+int horizontal_div_us_to_qdial_value(int64_t division_us);
+
+/**
+ * @brief Convert QDial value to horizontal division in us.
+ *
+ * @param value QDial value.
+ * @return Horizontal division in us.
+ */
+int64_t horizontal_qdial_value_to_div_us(int value);
 } // namespace
 
 MainWindow::MainWindow()
@@ -96,6 +120,13 @@ void MainWindow::init_ui_elements()
     connect(ui->pushButton_StartAll, &QPushButton::clicked, this,
             &MainWindow::handle_start_clicked);
     connect(ui->pushButton_StopAll, &QPushButton::clicked, this, &MainWindow::handle_stop_clicked);
+
+    // Initialize horizontal scaler
+    connect(ui->horizontalScale, &QDial::valueChanged, this, [this](int new_value) {
+        m_div_horizontal_us = horizontal_qdial_value_to_div_us(new_value);
+        emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
+    });
+    ui->horizontalScale->setValue(horizontal_div_us_to_qdial_value(default_div_horizontal_us));
 }
 
 void MainWindow::init_graph()
@@ -204,8 +235,9 @@ void MainWindow::init_graph_rendering()
 
     connect(&m_render_timer, &QTimer::timeout, this, [this]() {
         if (m_current_mode == ScopeMode::Roll) {
+            int64_t time_width_us = m_div_horizontal_us * GraphStyle::horizontal_grid;
             UData::Time end_time = UData::get_timestamp();
-            UData::Time start_time = UData::timestamp_sub_us_rounddown(end_time, m_time_width_us);
+            UData::Time start_time = UData::timestamp_sub_us_rounddown(end_time, time_width_us);
 
             int pixel_width =
                     std::max(minimum_graph_render_width, ui->dataPlot->viewport()->width());
@@ -369,7 +401,9 @@ void MainWindow::receive_full_history(const QList<GraphData> &new_data, UData::T
         }
     }
 
-    emit sliding_window_reset(m_overview_min_time, m_overview_max_time, m_time_width_us);
+    int64_t time_width_us = m_div_horizontal_us * GraphStyle::horizontal_grid;
+
+    emit sliding_window_reset(m_overview_min_time, m_overview_max_time, time_width_us);
 }
 
 void MainWindow::handle_start_clicked()
@@ -410,4 +444,22 @@ void config_axis(QValueAxis *axis, int min, int max, int grid_cells, const QColo
 
     axis->setTickCount(grid_cells + 1);
 }
+
+int horizontal_div_us_to_qdial_value(int64_t division_us)
+{
+    int log10 = 0;
+
+    // Take log10 and round up
+    for (int64_t value_left = division_us - 1; value_left > 0; value_left /= 10) {
+        log10++;
+    }
+
+    return log10;
+}
+
+int64_t horizontal_qdial_value_to_div_us(int value)
+{
+    return powers_of_10.at(std::clamp(value, 0, static_cast<int>(powers_of_10.size() - 1)));
+}
+
 } // namespace

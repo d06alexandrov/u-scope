@@ -70,7 +70,7 @@
           </property>
           <layout class="QHBoxLayout" name="horizontalLayout_3">
            <item>
-            <widget class="QWidget" name="" native="true">
+            <widget class="QWidget" name="widget" native="true">
              <layout class="QVBoxLayout" name="verticalLayout_6">
               <property name="spacing">
                <number>0</number>
@@ -347,7 +347,7 @@
            <item>
             <widget class="QGroupBox" name="horizontalConfig">
              <property name="enabled">
-              <bool>false</bool>
+              <bool>true</bool>
              </property>
              <property name="title">
               <string>Horizontal</string>
@@ -366,8 +366,23 @@
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDial" name="dial">
+                 <widget class="QDial" name="horizontalScale">
+                  <property name="minimum">
+                   <number>2</number>
+                  </property>
+                  <property name="maximum">
+                   <number>6</number>
+                  </property>
+                  <property name="value">
+                   <number>4</number>
+                  </property>
                   <property name="wrapping">
+                   <bool>false</bool>
+                  </property>
+                  <property name="notchTarget">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="notchesVisible">
                    <bool>true</bool>
                   </property>
                  </widget>
@@ -388,6 +403,9 @@
                 </item>
                 <item>
                  <widget class="QDial" name="dial_2">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="wrapping">
                    <bool>true</bool>
                   </property>

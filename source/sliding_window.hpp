@@ -159,7 +159,51 @@ public slots:
      *
      * @param window_width_us The width of the sliding window in microseconds.
      */
-    void set_window_width(int64_t window_width_us) { m_window_width_us = window_width_us; }
+    void set_window_width(int64_t window_width_us)
+    {
+        if (m_window_width_us == window_width_us) {
+            return;
+        } else if (m_window_width_us > window_width_us) {
+            // Keep the center of the window in a fixed position
+            m_window_start = UData::timestamp_add_us_roundup(
+                    m_window_start, (m_window_width_us - window_width_us) / 2);
+            m_window_width_us = window_width_us;
+        } else {
+            // Keep the center of the window in a fixed position if possible
+            if (window_width_us
+                >= UData::get_timestamp_diff_us(m_overview_min_time, m_overview_max_time)) {
+                m_window_start = m_overview_min_time;
+                m_window_width_us =
+                        UData::get_timestamp_diff_us(m_overview_min_time, m_overview_max_time);
+            } else {
+                if (UData::get_timestamp_diff_us(m_overview_min_time, m_window_start)
+                    <= ((window_width_us - m_window_width_us) / 2)) {
+                    // Left border does not fit if the center is fixed
+                    m_window_start = m_overview_min_time;
+                } else if (UData::get_timestamp_diff_us(m_window_start, m_overview_max_time)
+                           <= ((window_width_us + m_window_width_us) / 2)) {
+                    // Right border does not fit if the center is fixed
+                    m_window_start =
+                            UData::timestamp_sub_us_rounddown(m_overview_max_time, window_width_us);
+                } else {
+                    // It is safe to move the window with a fixed center
+                    m_window_start = UData::timestamp_sub_us_rounddown(
+                            m_window_start, (window_width_us - m_window_width_us) / 2);
+                }
+
+                m_window_width_us = window_width_us;
+            }
+        }
+
+        // Update rectangle position on the overview graph
+        update_rectangle_position(get_overview_graph_width());
+
+        // Update the main graph
+        auto [window_min_time, window_max_time] = get_window_boundaries();
+        if (window_min_time != window_max_time) {
+            emit position_changed(window_min_time, window_max_time);
+        }
+    }
 
     /**
      * @brief Slot to handle dimension changes of the overview graph's plot area.

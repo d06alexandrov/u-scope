@@ -181,7 +181,7 @@ public slots:
                     // Left border does not fit if the center is fixed
                     m_window_start = m_overview_min_time;
                 } else if (UData::get_timestamp_diff_us(m_window_start, m_overview_max_time)
-                           <= ((window_width_us - m_window_width_us) / 2)) {
+                           <= ((window_width_us + m_window_width_us) / 2)) {
                     // Right border does not fit if the center is fixed
                     m_window_start =
                             UData::timestamp_sub_us_rounddown(m_overview_max_time, window_width_us);

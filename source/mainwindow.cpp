@@ -447,6 +447,11 @@ void config_axis(QValueAxis *axis, int min, int max, int grid_cells, const QColo
 
 int horizontal_div_us_to_qdial_value(int64_t division_us)
 {
+    if (division_us <= 0) {
+        // It should never happen
+        return 0;
+    }
+
     int log10 = 0;
 
     // Take log10 and round up

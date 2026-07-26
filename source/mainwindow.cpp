@@ -127,6 +127,8 @@ void MainWindow::init_ui_elements()
         emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
     });
     ui->horizontalScale->setValue(horizontal_div_us_to_qdial_value(default_div_horizontal_us));
+    // Explicitly emit the signal, if horizontalScale value was not changed
+    emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
 }
 
 void MainWindow::init_graph()

@@ -161,6 +161,7 @@ void DataProcessor::assign_channel(QPair<ReaderId, VariableId> variable, Channel
 
         m_var_to_channel.remove(it->second);
         m_channel_to_var.erase(it);
+        m_buffers.erase(channel_id);
     }
 
     m_var_to_channel[variable] = channel_id;
@@ -378,7 +379,7 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
                 int amount = 0;
                 qreal sum = 0;
 
-                while ((next_point->first < piece_end) && (next_point != right_it)) {
+                while ((next_point != right_it) && (next_point->first < piece_end)) {
                     const auto val = std::visit([](auto &&arg) { return static_cast<qreal>(arg); },
                                                 next_point->second);
                     sum += val;

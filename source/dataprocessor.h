@@ -176,6 +176,17 @@ public slots:
     void handle_data_request(UData::Time start_time, UData::Time end_time, int points_limit);
 
     /**
+     * @brief Handle request for recent data from MainWindow.
+     *
+     * @param end_time Expected end time of the requested data.
+     * @param data_window_us Time window in microseconds for the requested data.
+     * @param max_drift_us Maximum allowed drift in microseconds for the requested data.
+     * @param points_limit Maximum number of points to return for the recent data.
+     */
+    void handle_recent_data_request(UData::Time end_time, int64_t data_window_us,
+                                    int64_t max_drift_us, int points_limit);
+
+    /**
      * @brief Handle request for full history of data from MainWindow.
      *
      * @param points_limit Maximum number of points to return for the full history.
@@ -250,6 +261,20 @@ private:
                                                                      channels and variables. */
 
     size_t m_max_sample_points; /**< Maximum amount of sample points per channel. */
+
+    /**
+     * @brief Calculate the earilest time in the stored buffers.
+     *
+     * @return Optional earliest time if buffers are not empty, otherwise std::nullopt.
+     */
+    std::optional<UData::Time> get_earliest_stored_time() const;
+
+    /**
+     * @brief Calculate the latest time in the stored buffers.
+     *
+     * @return Optional latest time if buffers are not empty, otherwise std::nullopt.
+     */
+    std::optional<UData::Time> get_latest_stored_time() const;
 
     /**
      * @brief Prepare graph data from the stored buffers.

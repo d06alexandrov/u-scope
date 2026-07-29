@@ -86,6 +86,8 @@ void MainWindow::init_data_processor()
 
     connect(this, &MainWindow::request_stored_data, data_processor,
             &DataProcessor::handle_data_request);
+    connect(this, &MainWindow::request_recent_stored_data, data_processor,
+            &DataProcessor::handle_recent_data_request);
     connect(this, &MainWindow::request_full_history, data_processor,
             &DataProcessor::handle_full_history_request);
     connect(data_processor, &DataProcessor::send_new_data, this, &MainWindow::receive_stored_data);
@@ -239,11 +241,12 @@ void MainWindow::init_graph_rendering()
         if (m_current_mode == ScopeMode::Roll) {
             int64_t time_width_us = m_div_horizontal_us * GraphStyle::horizontal_grid;
             UData::Time end_time = UData::get_timestamp();
-            UData::Time start_time = UData::timestamp_sub_us_rounddown(end_time, time_width_us);
 
             int pixel_width =
                     std::max(minimum_graph_render_width, ui->dataPlot->viewport()->width());
-            emit request_stored_data(start_time, end_time, pixel_width);
+
+            emit request_recent_stored_data(end_time, time_width_us, default_frame_period_ms * 1000,
+                                            pixel_width);
         }
     });
 }
@@ -412,7 +415,7 @@ void MainWindow::handle_start_clicked()
 {
     m_current_mode = ScopeMode::Roll;
 
-    m_render_timer.start(default_frame_period);
+    m_render_timer.start(default_frame_period_ms);
 
     emit start_data_processing();
 }

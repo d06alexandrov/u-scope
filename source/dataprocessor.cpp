@@ -132,11 +132,18 @@ void DataProcessor::remove_reader(ReaderId id)
         sender_info.thread->quit();
 
         m_senders.remove(id);
-        m_buffers.remove(id);
 
         for (auto it = m_var_to_channel.begin(); it != m_var_to_channel.end();) {
             if (it.key().first == id) {
-                m_channel_to_var.remove(it.value());
+                const ChannelId channel_id = it.value();
+
+                const auto buff_it = m_buffers.find(channel_id);
+
+                if (buff_it != m_buffers.end()) {
+                    m_buffers.erase(buff_it);
+                }
+
+                m_channel_to_var.erase(it.value());
                 it = m_var_to_channel.erase(it);
             } else {
                 ++it;
@@ -147,11 +154,14 @@ void DataProcessor::remove_reader(ReaderId id)
 
 void DataProcessor::assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id)
 {
-    if (auto it = m_channel_to_var.constFind(channel_id); it != m_channel_to_var.constEnd()) {
+    auto it = m_channel_to_var.find(channel_id);
+
+    if (it != m_channel_to_var.end()) {
         // TODO: send a command to the reader to stop the data transfer
 
-        m_var_to_channel.remove(it.value());
-        m_channel_to_var.remove(channel_id);
+        m_var_to_channel.remove(it->second);
+        m_channel_to_var.erase(it);
+        m_buffers.erase(channel_id);
     }
 
     m_var_to_channel[variable] = channel_id;
@@ -167,7 +177,8 @@ void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap da
                 continue;
             }
 
-            auto &destination_buffer = m_buffers[reader_id][variable_id];
+            auto &destination_buffer =
+                    m_buffers[m_var_to_channel.value(qMakePair(reader_id, variable_id))];
             const size_t new_data_size = new_data->size();
 
             if (new_data_size >= m_max_sample_points) {
@@ -266,13 +277,12 @@ std::optional<UData::Time> DataProcessor::get_earliest_stored_time() const
 {
     std::optional<UData::Time> min_time = std::nullopt;
 
-    for (const auto &channel_input : m_channel_to_var) {
-        const auto channel_buffer =
-                m_buffers.value(channel_input.first).value(channel_input.second);
+    for (const auto &channel_id : std::views::keys(m_channel_to_var)) {
+        auto it = m_buffers.find(channel_id);
 
-        if (!channel_buffer.empty()
-            && (!min_time.has_value() || min_time.value() > channel_buffer.front().first)) {
-            min_time = channel_buffer.front().first;
+        if (it != m_buffers.end() && !it->second.empty()
+            && (!min_time.has_value() || min_time.value() > it->second.front().first)) {
+            min_time = it->second.front().first;
         }
     }
 
@@ -283,13 +293,12 @@ std::optional<UData::Time> DataProcessor::get_latest_stored_time() const
 {
     std::optional<UData::Time> max_time = std::nullopt;
 
-    for (const auto &channel_input : m_channel_to_var) {
-        const auto channel_buffer =
-                m_buffers.value(channel_input.first).value(channel_input.second);
+    for (const auto &channel_id : std::views::keys(m_channel_to_var)) {
+        auto it = m_buffers.find(channel_id);
 
-        if (!channel_buffer.empty()
-            && (!max_time.has_value() || max_time.value() < channel_buffer.back().first)) {
-            max_time = channel_buffer.back().first;
+        if (it != m_buffers.end() && !it->second.empty()
+            && (!max_time.has_value() || max_time.value() < it->second.back().first)) {
+            max_time = it->second.back().first;
         }
     }
 
@@ -335,71 +344,61 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
 
     auto get_time = [](const UData::Point &p) { return p.first; };
 
-    for (auto &&[reader_id, reader_data] : m_buffers.asKeyValueRange()) {
-        for (auto &&[variable_id, var_data] : reader_data.asKeyValueRange()) {
-            auto it = m_var_to_channel.constFind(qMakePair(reader_id, variable_id));
+    for (const auto &[channel_id, channel_data] : m_buffers) {
+        QList<QPointF> processed_values;
 
-            if (it != m_var_to_channel.constEnd()) {
-                QList<QPointF> processed_values;
+        auto left_it =
+                std::ranges::lower_bound(channel_data, start_time_actual, std::less<>{ }, get_time);
+        auto right_it = std::ranges::upper_bound(left_it, channel_data.end(), end_time_actual,
+                                                 std::less<>{ }, get_time);
 
-                auto left_it = std::ranges::lower_bound(var_data, start_time_actual, std::less<>{ },
-                                                        get_time);
-                auto right_it = std::ranges::upper_bound(left_it, var_data.end(), end_time_actual,
-                                                         std::less<>{ }, get_time);
+        if (std::distance(left_it, right_it) <= points_limit) {
+            processed_values.reserve(std::distance(left_it, right_it));
 
-                if (std::distance(left_it, right_it) <= points_limit) {
-                    processed_values.reserve(std::distance(left_it, right_it));
+            for (const auto &[timestamp, raw_val] : std::ranges::subrange(left_it, right_it)) {
+                const auto val =
+                        std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val);
+                processed_values.emplace_back(timestamp, val);
+            }
+        } else {
+            processed_values.reserve(points_limit);
 
-                    for (const auto &[timestamp, raw_val] :
-                         std::ranges::subrange(left_it, right_it)) {
-                        const auto val = std::visit(
-                                [](auto &&arg) { return static_cast<qreal>(arg); }, raw_val);
-                        processed_values.emplace_back(timestamp, val);
-                    }
-                } else {
-                    processed_values.reserve(points_limit);
+            // Divide the range into equal pieces and provide an average value
+            const double time_per_point_us = static_cast<double>(UData::get_timestamp_diff_us(
+                                                     start_time_actual, end_time_actual))
+                    / points_limit;
 
-                    // Divide the range into equal pieces and provide an average value
-                    const double time_per_point_us =
-                            static_cast<double>(UData::get_timestamp_diff_us(start_time_actual,
-                                                                             end_time_actual))
-                            / points_limit;
+            auto next_point = left_it;
 
-                    auto next_point = left_it;
+            for (int i = 0; (i < points_limit) && (next_point != right_it); i++) {
+                const UData::Time piece_end = UData::timestamp_add_us_roundup(
+                        start_time_actual, static_cast<int64_t>(time_per_point_us * (i + 1)));
 
-                    for (int i = 0; (i < points_limit) && (next_point != right_it); i++) {
-                        const UData::Time piece_end = UData::timestamp_add_us_roundup(
-                                start_time_actual,
-                                static_cast<int64_t>(time_per_point_us * (i + 1)));
+                UData::Time min_time = next_point->first;
+                UData::Time max_time = min_time;
+                int amount = 0;
+                qreal sum = 0;
 
-                        UData::Time min_time = next_point->first;
-                        UData::Time max_time = min_time;
-                        int amount = 0;
-                        qreal sum = 0;
+                while ((next_point != right_it) && (next_point->first < piece_end)) {
+                    const auto val = std::visit([](auto &&arg) { return static_cast<qreal>(arg); },
+                                                next_point->second);
+                    sum += val;
+                    max_time = next_point->first;
+                    amount++;
 
-                        while ((next_point->first < piece_end) && (next_point != right_it)) {
-                            const auto val =
-                                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); },
-                                               next_point->second);
-                            sum += val;
-                            max_time = next_point->first;
-                            amount++;
-
-                            next_point++;
-                        }
-
-                        if (amount > 0) {
-                            const UData::Time average_time = min_time + (max_time - min_time) / 2;
-                            const qreal average_value = sum / amount;
-
-                            processed_values.emplace_back(average_time, average_value);
-                        }
-                    }
+                    next_point++;
                 }
 
-                new_data.emplace_back(it.value(), std::move(processed_values));
+                if (amount > 0) {
+                    const UData::Time average_time = min_time + (max_time - min_time) / 2;
+                    const qreal average_value = sum / amount;
+
+                    processed_values.emplace_back(average_time, average_value);
+                }
             }
         }
+
+        new_data.emplace_back(channel_id, std::move(processed_values));
     }
 
     return std::tuple{ new_data, start_time_actual, end_time_actual };

@@ -15,7 +15,9 @@
 #include <QThread>
 #include <QTimer>
 #include <deque>
+#include <map>
 #include <optional>
+#include <unordered_map>
 
 /**
  * @brief Class to store data of one particular graph.
@@ -253,12 +255,13 @@ private:
             nullptr; /**< Timer to execute processing function and send data to graph Widget. */
     QHash<ReaderId, DataSenderInfo>
             m_senders; /**< Initialized data senders. Sender is used as a key. */
-    QMap<ReaderId, QMap<VariableId, std::deque<UData::Point>>>
+    std::map<ChannelId, std::deque<UData::Point>>
             m_buffers; /**< Buffers to store raw data from senders. */
     QHash<QPair<ReaderId, VariableId>, ChannelId>
             m_var_to_channel; /**< Correspondence between variables and channels. */
-    QHash<ChannelId, QPair<ReaderId, VariableId>> m_channel_to_var; /**< Correspondence between
-                                                                     channels and variables. */
+    std::unordered_map<ChannelId, QPair<ReaderId, VariableId>>
+            m_channel_to_var; /**< Correspondence between
+                  channels and variables. */
 
     size_t m_max_sample_points; /**< Maximum amount of sample points per channel. */
 

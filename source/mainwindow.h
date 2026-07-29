@@ -35,7 +35,8 @@ private:
     static constexpr int64_t default_div_horizontal_us =
             10000; /**< Default Size of one horizontal division in us. */
     static constexpr int64_t default_time_width = 1000000; /**< Default window width in us. */
-    static constexpr int default_frame_period = 33; /**< Default graph frame update period in ms. */
+    static constexpr int default_frame_period_ms =
+            33; /**< Default graph frame update period in ms. */
     static constexpr int maximum_overview_points =
             2000; /**< Maximum amount of points of the overview chart. */
     static constexpr int minimum_graph_render_width =
@@ -174,6 +175,20 @@ signals:
      * @param points_limit Maximum amount of points to be displayed on the graph.
      */
     void request_stored_data(UData::Time start_time, UData::Time end_time, int points_limit);
+
+    /**
+     * @brief Request most recent stored data from Data Processor to display.
+     *
+     * Request data, where the latest data is not less than end_time - max_drift_us. The returned
+     * range is [newest data - data_windows_us, newest data].
+     *
+     * @param end_time Maximum time of the requested data.
+     * @param data_window_us Time window of the requested data in microseconds.
+     * @param max_drift_us Maximum difference between requested and returned end time.
+     * @param points_limit Maximum amount of points to be displayed on the graph.
+     */
+    void request_recent_stored_data(UData::Time end_time, int64_t data_window_us,
+                                    int64_t max_drift_us, int points_limit);
 
     /**
      * @brief Request full history data from Data Processor to display.

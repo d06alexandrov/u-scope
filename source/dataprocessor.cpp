@@ -214,6 +214,37 @@ void DataProcessor::handle_data_request(UData::Time start_time, UData::Time end_
     }
 }
 
+void DataProcessor::handle_recent_data_request(UData::Time end_time, int64_t data_window_us,
+                                               int64_t max_drift_us, int points_limit)
+{
+    if (points_limit < 1) {
+        return;
+    }
+
+    UData::Time end_time_actual = get_latest_stored_time().value_or(end_time);
+
+    if (UData::get_timestamp_diff_us(end_time_actual, end_time) > max_drift_us) {
+        // Latest received value can not be on the right border
+        end_time_actual = UData::timestamp_sub_us_rounddown(end_time, max_drift_us);
+    } else if (UData::get_timestamp_diff_us(end_time_actual, end_time) < 0) {
+        // Latest received value was received after end_time
+        end_time_actual = end_time;
+    }
+
+    UData::Time start_time_actual =
+            UData::timestamp_sub_us_rounddown(end_time_actual, data_window_us);
+
+    auto prepared_data = prepare_graph_data(points_limit, start_time_actual, end_time_actual);
+
+    if (prepared_data.has_value()) {
+        auto &&new_data = std::get<0>(std::move(prepared_data.value()));
+
+        emit send_new_data(std::move(new_data), start_time_actual, end_time_actual);
+    } else {
+        emit send_new_data(QList<GraphData>(), start_time_actual, end_time_actual);
+    }
+}
+
 void DataProcessor::handle_full_history_request(int points_limit)
 {
     if (points_limit < 1) {
@@ -231,6 +262,40 @@ void DataProcessor::handle_full_history_request(int points_limit)
     }
 }
 
+std::optional<UData::Time> DataProcessor::get_earliest_stored_time() const
+{
+    std::optional<UData::Time> min_time = std::nullopt;
+
+    for (const auto &channel_input : m_channel_to_var) {
+        const auto channel_buffer =
+                m_buffers.value(channel_input.first).value(channel_input.second);
+
+        if (!channel_buffer.empty()
+            && (!min_time.has_value() || min_time.value() > channel_buffer.front().first)) {
+            min_time = channel_buffer.front().first;
+        }
+    }
+
+    return min_time;
+}
+
+std::optional<UData::Time> DataProcessor::get_latest_stored_time() const
+{
+    std::optional<UData::Time> max_time = std::nullopt;
+
+    for (const auto &channel_input : m_channel_to_var) {
+        const auto channel_buffer =
+                m_buffers.value(channel_input.first).value(channel_input.second);
+
+        if (!channel_buffer.empty()
+            && (!max_time.has_value() || max_time.value() < channel_buffer.back().first)) {
+            max_time = channel_buffer.back().first;
+        }
+    }
+
+    return max_time;
+}
+
 std::optional<std::tuple<QList<GraphData>, UData::Time, UData::Time>>
 DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> start_time,
                                   std::optional<UData::Time> end_time)
@@ -243,47 +308,25 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
     if (start_time.has_value()) {
         start_time_actual = start_time.value();
     } else {
-        // Find minimal time from all channels
-        std::optional<UData::Time> min_time = std::nullopt;
+        std::optional<UData::Time> min_time = get_earliest_stored_time();
 
-        for (const auto &channel_input : m_channel_to_var) {
-            const auto channel_buffer =
-                    m_buffers.value(channel_input.first).value(channel_input.second);
-
-            if (!channel_buffer.empty()
-                && (!min_time.has_value() || min_time.value() > channel_buffer.front().first)) {
-                min_time = channel_buffer.front().first;
-            }
-        }
-
-        if (!min_time.has_value()) {
+        if (min_time.has_value()) {
+            start_time_actual = min_time.value();
+        } else {
             return std::nullopt;
         }
-
-        start_time_actual = min_time.value();
     }
 
     if (end_time.has_value()) {
         end_time_actual = end_time.value();
     } else {
-        // Find maximum time from all channels
-        std::optional<UData::Time> max_time = std::nullopt;
+        std::optional<UData::Time> max_time = get_latest_stored_time();
 
-        for (const auto &channel_input : m_channel_to_var) {
-            const auto channel_buffer =
-                    m_buffers.value(channel_input.first).value(channel_input.second);
-
-            if (!channel_buffer.empty()
-                && (!max_time.has_value() || max_time.value() < channel_buffer.back().first)) {
-                max_time = channel_buffer.back().first;
-            }
-        }
-
-        if (!max_time.has_value()) {
+        if (max_time.has_value()) {
+            end_time_actual = max_time.value();
+        } else {
             return std::nullopt;
         }
-
-        end_time_actual = max_time.value();
     }
 
     if (end_time_actual <= start_time_actual) {

@@ -9,6 +9,7 @@
 #include <QChart>
 #include <QGraphicsLayout>
 #include <QLineSeries>
+#include <QObject>
 #include <QThread>
 #include <QValueAxis>
 #include <algorithm>
@@ -47,6 +48,14 @@ int horizontal_div_us_to_qdial_value(int64_t division_us);
  * @return Horizontal division in us.
  */
 int64_t horizontal_qdial_value_to_div_us(int value);
+
+/**
+ * @brief Convert horizontal division in us to a string representation.
+ *
+ * @param us Horizontal division in us.
+ * @return String representation of the horizontal division.
+ */
+QString scale_to_string(int64_t us);
 } // namespace
 
 MainWindow::MainWindow()
@@ -126,9 +135,11 @@ void MainWindow::init_ui_elements()
     // Initialize horizontal scaler
     connect(ui->horizontalScale, &QDial::valueChanged, this, [this](int new_value) {
         m_div_horizontal_us = horizontal_qdial_value_to_div_us(new_value);
+        ui->hScaleValue->setText(scale_to_string(m_div_horizontal_us));
         emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
     });
     ui->horizontalScale->setValue(horizontal_div_us_to_qdial_value(default_div_horizontal_us));
+    ui->hScaleValue->setText(scale_to_string(default_div_horizontal_us));
     // Explicitly emit the signal, if horizontalScale value was not changed
     emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
 }
@@ -470,6 +481,17 @@ int horizontal_div_us_to_qdial_value(int64_t division_us)
 int64_t horizontal_qdial_value_to_div_us(int value)
 {
     return powers_of_10.at(std::clamp(value, 0, static_cast<int>(powers_of_10.size() - 1)));
+}
+
+QString scale_to_string(int64_t us)
+{
+    if (us < 1000LL) {
+        return QObject::tr("%1 us").arg(us);
+    } else if (us < 1000000LL) {
+        return QObject::tr("%1 ms").arg((us + 999) / 1000);
+    } else {
+        return QObject::tr("%1 s").arg((us + 999999) / 1000000);
+    }
 }
 
 } // namespace

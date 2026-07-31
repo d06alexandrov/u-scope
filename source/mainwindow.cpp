@@ -488,9 +488,9 @@ QString scale_to_string(int64_t us)
     if (us < 1000LL) {
         return QObject::tr("%1 us").arg(us);
     } else if (us < 1000000LL) {
-        return QObject::tr("%1 ms").arg((us + 999) / 1000);
+        return QObject::tr("%1 ms").arg(static_cast<double>(us) / 1000.0);
     } else {
-        return QObject::tr("%1 s").arg((us + 999999) / 1000000);
+        return QObject::tr("%1 s").arg(static_cast<double>(us) / 1000000.0);
     }
 }
 

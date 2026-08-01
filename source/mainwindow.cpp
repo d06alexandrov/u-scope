@@ -6,9 +6,11 @@
 #include "sliding_window.hpp"
 #include "ui_mainwindow.h"
 
+#include <QAction>
 #include <QChart>
 #include <QGraphicsLayout>
 #include <QLineSeries>
+#include <QMessageBox>
 #include <QObject>
 #include <QThread>
 #include <QValueAxis>
@@ -142,6 +144,15 @@ void MainWindow::init_ui_elements()
     ui->hScaleValue->setText(scale_to_string(default_div_horizontal_us));
     // Explicitly emit the signal, if horizontalScale value was not changed
     emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
+
+    // Initialize elements of the menu
+    connect(ui->actionAbout, &QAction::triggered, this, [this](bool checked) {
+        QMessageBox::about(this, "About " + QCoreApplication::applicationName(),
+                           tr("%1\nVersion %2\n\nBuilt with Qt %3")
+                                   .arg(QCoreApplication::applicationName())
+                                   .arg(QCoreApplication::applicationVersion())
+                                   .arg(QT_VERSION_STR));
+    });
 }
 
 void MainWindow::init_graph()

@@ -5,10 +5,21 @@ find_package(Qt6 REQUIRED COMPONENTS Widgets Charts SerialPort)
 # Add interface library to propagate common header
 add_library(common_headers INTERFACE)
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/version.hpp.in
+    ${CMAKE_CURRENT_BINARY_DIR}/include/version.hpp @ONLY
+)
+
 target_sources(
     common_headers
-    PUBLIC FILE_SET HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include FILES
+    PUBLIC FILE_SET
+           HEADERS
+           BASE_DIRS
+           ${CMAKE_CURRENT_SOURCE_DIR}/include
+           ${CMAKE_CURRENT_BINARY_DIR}/include
+           FILES
            ${CMAKE_CURRENT_SOURCE_DIR}/include/commontypes.hpp
+           ${CMAKE_CURRENT_BINARY_DIR}/include/version.hpp
 )
 
 target_link_libraries(common_headers INTERFACE Qt${QT_VERSION_MAJOR}::Core)

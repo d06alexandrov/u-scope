@@ -13,6 +13,11 @@ target_sources(
 
 target_link_libraries(
     user_interface
-    PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Charts
-           common_headers universal_reader serial_reader simulated_reader
+    PUBLIC Qt${QT_VERSION_MAJOR}::Core
+           Qt${QT_VERSION_MAJOR}::Charts
+           Qt${QT_VERSION_MAJOR}::Widgets
+           common_headers
+           universal_reader
+           serial_reader
+           simulated_reader
 )

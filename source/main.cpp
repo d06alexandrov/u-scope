@@ -1,4 +1,5 @@
 #include "mainwindow.h"
+#include "version.hpp"
 
 #include <QApplication>
 #include <QLocale>
@@ -7,6 +8,9 @@
 int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
+
+    QCoreApplication::setApplicationName(app_info::app_name);
+    QCoreApplication::setApplicationVersion(app_info::version);
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();

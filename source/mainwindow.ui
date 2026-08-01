@@ -528,11 +528,18 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
      <string>File</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
   </widget>
-  <action name="actionConfig_UART">
+  <action name="actionAbout">
    <property name="text">
-    <string>Config UART</string>
+    <string>About</string>
    </property>
   </action>
  </widget>

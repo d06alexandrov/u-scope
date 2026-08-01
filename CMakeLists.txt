@@ -1,8 +1,15 @@
 cmake_minimum_required(VERSION 3.16)
 
+if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/version.txt")
+    file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" APP_VERSION)
+    string(STRIP "${APP_VERSION}" APP_VERSION)
+else()
+    set(APP_VERSION "0.0.0")
+endif()
+
 project(
     u-scope
-    VERSION 0.1
+    VERSION ${APP_VERSION}
     LANGUAGES CXX
 )
 

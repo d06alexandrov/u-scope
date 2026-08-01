@@ -147,7 +147,7 @@ void MainWindow::init_ui_elements()
 
     // Initialize elements of the menu
     connect(ui->actionAbout, &QAction::triggered, this, [this](bool checked) {
-        QMessageBox::about(this, "About " + QCoreApplication::applicationName(),
+        QMessageBox::about(this, tr("About %1").arg(QCoreApplication::applicationName()),
                            tr("%1\nVersion %2\n\nBuilt with Qt %3")
                                    .arg(QCoreApplication::applicationName())
                                    .arg(QCoreApplication::applicationVersion())

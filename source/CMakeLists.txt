@@ -27,20 +27,20 @@ target_link_libraries(common_headers INTERFACE Qt${QT_VERSION_MAJOR}::Core)
 # Add directory with readers library
 add_subdirectory(readers)
 
+# Add directory with user interface
+add_subdirectory(ui)
+
 # Main application
 qt_add_executable(u-scope)
 
 target_sources(
-    u-scope
-    PRIVATE # cmake-format: sortable
-            dataprocessor.cpp main.cpp mainwindow.cpp mainwindow.ui
-            sliding_window.hpp
+    u-scope PRIVATE # cmake-format: sortable
+                    dataprocessor.cpp main.cpp
 )
 
 target_link_libraries(
-    u-scope
-    PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Charts
-            common_headers universal_reader serial_reader simulated_reader
+    u-scope PRIVATE Qt${QT_VERSION_MAJOR}::Core common_headers universal_reader
+                    serial_reader simulated_reader user_interface
 )
 
 set_target_properties(

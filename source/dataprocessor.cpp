@@ -411,7 +411,7 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
         }
 
         if (!strict && (right_it != channel_data.end())) {
-            const auto &[timestamp, raw_val] = *(right_it + 1);
+            const auto &[timestamp, raw_val] = *right_it;
             const auto val =
                     std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val);
             processed_values.emplace_back(timestamp, val);

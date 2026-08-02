@@ -12,6 +12,7 @@
 #include <QLineSeries>
 #include <QMessageBox>
 #include <QObject>
+#include <QQmlContext>
 #include <QThread>
 #include <QValueAxis>
 #include <algorithm>
@@ -64,6 +65,7 @@ MainWindow::MainWindow()
     : QMainWindow(nullptr)
     , ui(new Ui::MainWindow)
     , m_source_list_model(new QStandardItemModel(this))
+    , m_channelbar_model(channel_colors)
 {
     ui->setupUi(this);
 
@@ -130,6 +132,12 @@ void MainWindow::init_ui_elements()
 
     init_source_list();
 
+    // Initialize channel bar with channel badges
+    ui->qmlChannelBar->setClearColor(Qt::transparent);
+    ui->qmlChannelBar->setInitialProperties(
+            { { QStringLiteral("channelBarModel"), QVariant::fromValue(&m_channelbar_model) } });
+    ui->qmlChannelBar->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/ChannelBar.qml")));
+
     connect(ui->pushButton_StartAll, &QPushButton::clicked, this,
             &MainWindow::handle_start_clicked);
     connect(ui->pushButton_StopAll, &QPushButton::clicked, this, &MainWindow::handle_stop_clicked);
@@ -191,6 +199,7 @@ void MainWindow::init_graph()
         m_series[i]->attachAxis(m_axis_x);
         m_series[i]->attachAxis(m_axis_y);
         m_series[i]->setPointsVisible(true);
+        m_series[i]->setPen(QPen(channel_colors[i]));
     }
 
     // Configure overview graph
@@ -222,6 +231,7 @@ void MainWindow::init_graph()
 
         m_series_overview[i]->attachAxis(m_overview_axis_x);
         m_series_overview[i]->attachAxis(m_overview_axis_y);
+        m_series_overview[i]->setPen(QPen(channel_colors[i]));
     }
 
     // Add sliding window to the overview graph
@@ -342,6 +352,7 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
                 connect(channel_assign_action, &QAction::triggered, this,
                         [this, reader_id, variable_id, ch_num]() {
                             emit assign_channel(qMakePair(reader_id, variable_id), ch_num);
+                            m_channelbar_model.setChannelEnabled(ch_num, true);
                         });
             }
         } else {

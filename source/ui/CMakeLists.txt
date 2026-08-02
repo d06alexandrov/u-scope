@@ -8,7 +8,16 @@ target_include_directories(
 
 target_sources(
     user_interface PRIVATE # cmake-format: sortable
-                           mainwindow.cpp mainwindow.ui sliding_window.hpp
+                           mainwindow.cpp mainwindow.ui sliding_window.hpp channelbar_model.cpp
+)
+
+qt_add_qml_module(user_interface
+    URI UI
+    NO_PLUGIN
+    RESOURCE_PREFIX "/qt/qml"
+    OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/UI"
+    QML_FILES
+        ChannelBar.qml
 )
 
 target_link_libraries(
@@ -16,6 +25,9 @@ target_link_libraries(
     PUBLIC Qt${QT_VERSION_MAJOR}::Core
            Qt${QT_VERSION_MAJOR}::Charts
            Qt${QT_VERSION_MAJOR}::Widgets
+           Qt${QT_VERSION_MAJOR}::Qml
+           Qt${QT_VERSION_MAJOR}::Quick
+           Qt${QT_VERSION_MAJOR}::QuickWidgets
            common_headers
            universal_reader
            serial_reader

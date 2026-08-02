@@ -1,5 +1,6 @@
 #pragma once
 
+#include "channelbar_model.h"
 #include "dataprocessor.h"
 #include "universalreader.h"
 #include "universalreader_dialog.h"
@@ -77,6 +78,12 @@ private:
         static constexpr QColor background_color = QColorConstants::Black; /**< Background color. */
     };
 
+    const std::vector<QColor> channel_colors = {
+        QColor("#FFFF00"), QColor("#00FFFF"), QColor("#FF00FF"), QColor("#00FF00"),
+        QColor("#FF8000"), QColor("#0080FF"), QColor("#FF0080"), QColor("#80FF00"),
+        QColor("#A060FF"), QColor("#FFD700"), QColor("#00F5FF"), QColor("#FF4500"),
+    };
+
     Ui::MainWindow *ui = nullptr; /**< Pointer to the Main Window user interface. */
     QLineSeries *m_series[channels_amount]; /**< Pointer to Chart's series'. */
     QValueAxis *m_axis_x = nullptr;
@@ -91,7 +98,7 @@ private:
     QThread m_data_processor_thread; /**< Thread with a running Data Processor. */
     QMap<ReaderId, std::shared_ptr<UniversalReaderDialogConfig>>
             m_readers_config; /**< Readers configuration. */
-    QTimer m_render_timer;
+    QTimer m_render_timer; /**< Timer to trigger an update of the graph data. */
 
     QStandardItemModel *m_source_list_model = nullptr; /**< Source List model. */
 
@@ -101,6 +108,8 @@ private:
 
     UData::Time m_overview_min_time{ }; /**< Min overview graph time. */
     UData::Time m_overview_max_time{ }; /**< Max overview graph time. */
+
+    ChannelBarModel m_channelbar_model; /**< Model for the channel bar. */
 
     /**
      * @brief Initialize and run Data Processor.

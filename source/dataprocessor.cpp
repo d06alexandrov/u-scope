@@ -362,7 +362,7 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
         processed_values.reserve(points_to_return);
 
         if (!strict && (left_it != channel_data.begin())) {
-            const auto &[timestamp, raw_val] = *(left_it - 1);
+            const auto &[timestamp, raw_val] = *std::prev(left_it);
             const auto val =
                     std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val);
             processed_values.emplace_back(timestamp, val);

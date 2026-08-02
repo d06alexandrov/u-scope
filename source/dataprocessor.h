@@ -282,12 +282,17 @@ private:
     /**
      * @brief Prepare graph data from the stored buffers.
      *
+     * Prepare graph data for the range between start and end time, if specified. Otherwise the
+     * whole history will be returned. Parameter @par strict controls if only elements from the
+     * provided range are returned, or additional elements outside the range could be provided.
+     *
      * @param points_limit Maximum number of points to return.
      * @param start_time Optional start time of the requested data.
      * @param end_time Optional end time of the requested data.
+     * @param strict Flag indicating whether to strictly enforce the time range.
      * @return Optional tuple containing a list of GraphData, start time, and end time.
      */
     std::optional<std::tuple<QList<GraphData>, UData::Time, UData::Time>>
     prepare_graph_data(int points_limit, std::optional<UData::Time> start_time = std::nullopt,
-                       std::optional<UData::Time> end_time = std::nullopt);
+                       std::optional<UData::Time> end_time = std::nullopt, bool strict = true);
 };

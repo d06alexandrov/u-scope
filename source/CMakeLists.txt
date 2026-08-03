@@ -62,7 +62,7 @@ qt_add_translations(
 
 if(WIN32)
     install(TARGETS u-scope)
-    qt_generate_deploy_app_script(
+    qt_generate_deploy_qml_app_script(
         TARGET u-scope
         OUTPUT_SCRIPT deploy_script
         NO_UNSUPPORTED_PLATFORM_ERROR NO_TRANSLATIONS

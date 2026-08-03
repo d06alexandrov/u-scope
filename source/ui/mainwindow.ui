@@ -169,23 +169,17 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
                </layout>
               </item>
               <item>
-               <widget class="QChartView" name="dataPlot">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
+               <widget class="QQuickWidget" name="qmlScreenView">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <property name="renderHints">
-                 <set>QPainter::RenderHint::Antialiasing|QPainter::RenderHint::TextAntialiasing</set>
+                <property name="resizeMode">
+                 <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
                 </property>
                </widget>
-              </item>
-              <item>
-               <widget class="QQuickWidget" name="qmlChannelBar"/>
               </item>
              </layout>
             </widget>

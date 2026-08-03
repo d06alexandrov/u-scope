@@ -18,6 +18,8 @@ qt_add_qml_module(user_interface
     OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/UI"
     QML_FILES
         ChannelBar.qml
+        ScreenRoot.qml
+        MainChart.qml
 )
 
 target_link_libraries(

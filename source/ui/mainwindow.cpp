@@ -13,8 +13,12 @@
 #include <QMessageBox>
 #include <QObject>
 #include <QQmlContext>
+#include <QQuickItem>
 #include <QThread>
 #include <QValueAxis>
+#include <QtCharts/QAbstractAxis>
+#include <QtCharts/QValueAxis>
+#include <QtCharts/QXYSeries>
 #include <algorithm>
 
 namespace {
@@ -133,11 +137,45 @@ void MainWindow::init_ui_elements()
     init_source_list();
 
     // Initialize channel bar with channel badges
-    ui->qmlChannelBar->setClearColor(Qt::transparent);
-    ui->qmlChannelBar->setInitialProperties(
-            { { QStringLiteral("channelBarModel"), QVariant::fromValue(&m_channelbar_model) } });
-    ui->qmlChannelBar->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/ChannelBar.qml")));
+    QVariantList color_list;
+    for (const QColor &color : channel_colors) {
+        color_list.append(color);
+    }
 
+    ui->qmlScreenView->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    ui->qmlScreenView->rootContext()->setContextProperty("channelModel", &m_channelbar_model);
+    ui->qmlScreenView->rootContext()->setContextProperty("cppChannelColors", color_list);
+    ui->qmlScreenView->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/ScreenRoot.qml")));
+
+    QQuickItem *root = ui->qmlScreenView->rootObject();
+
+    if (root != nullptr) {
+        m_main_chart_item = root->findChild<QQuickItem *>("mainChart");
+
+        if (m_main_chart_item != nullptr) {
+            QMetaObject::invokeMethod(m_main_chart_item, "getAxisX", Qt::DirectConnection,
+                                      Q_RETURN_ARG(QValueAxis *, m_axis_x));
+
+            for (int i = 0; i < channels_amount; ++i) {
+                QAbstractSeries *absSeries = nullptr;
+                QMetaObject::invokeMethod(m_main_chart_item, "getSeries", Qt::DirectConnection,
+                                          Q_RETURN_ARG(QAbstractSeries *, absSeries),
+                                          Q_ARG(int, i));
+
+                m_series[i] = qobject_cast<QXYSeries *>(absSeries);
+
+                if (m_series[i] == nullptr) {
+                    qFatal() << tr("Failed to find a main chart series # %1.").arg(i);
+                }
+            }
+        } else {
+            qFatal() << tr("Failed to get an access to Main Chart qml.");
+        }
+    } else {
+        qFatal() << tr("Failed to get an access to Screen Root qml.");
+    }
+
+    // Connect start and stop buttons
     connect(ui->pushButton_StartAll, &QPushButton::clicked, this,
             &MainWindow::handle_start_clicked);
     connect(ui->pushButton_StopAll, &QPushButton::clicked, this, &MainWindow::handle_stop_clicked);
@@ -165,43 +203,6 @@ void MainWindow::init_ui_elements()
 
 void MainWindow::init_graph()
 {
-    // Configure graph
-    m_axis_x = new QValueAxis;
-
-    config_axis(m_axis_x, GraphStyle::left_bottom_corner.x(), GraphStyle::right_top_corner.x(),
-                GraphStyle::horizontal_grid, GraphStyle::grid_line_color);
-
-    m_axis_y = new QValueAxis;
-
-    config_axis(m_axis_y, GraphStyle::left_bottom_corner.y(), GraphStyle::right_top_corner.y(),
-                GraphStyle::vertical_grid, GraphStyle::grid_line_color);
-
-    auto main_chart = ui->dataPlot->chart();
-
-    ui->dataPlot->setRenderHint(QPainter::Antialiasing, true);
-
-    main_chart->addAxis(m_axis_x, Qt::AlignBottom);
-    main_chart->addAxis(m_axis_y, Qt::AlignLeft);
-
-    main_chart->setBackgroundBrush(QBrush(GraphStyle::background_color));
-
-    main_chart->legend()->hide();
-
-    main_chart->setMargins(QMargins(0, 0, 0, 0));
-    main_chart->layout()->setContentsMargins(0, 0, 0, 0);
-
-    for (int i = 0; i < this->channels_amount; ++i) {
-        m_series[i] = new QLineSeries(this);
-        // TODO: check if series was created
-
-        main_chart->addSeries(m_series[i]);
-
-        m_series[i]->attachAxis(m_axis_x);
-        m_series[i]->attachAxis(m_axis_y);
-        m_series[i]->setPointsVisible(true);
-        m_series[i]->setPen(QPen(channel_colors[i]));
-    }
-
     // Configure overview graph
     auto overview_chart = ui->dataOverview->chart();
 
@@ -249,7 +250,8 @@ void MainWindow::init_graph()
     connect(m_sliding_window, &SlidingWindow::position_changed, this,
             [this](UData::Time window_min_time, UData::Time window_max_time) {
                 int pixel_width =
-                        std::max(minimum_graph_render_width, ui->dataPlot->viewport()->width());
+                        std::max(minimum_graph_render_width,
+                                 static_cast<int>(m_main_chart_item->viewportItem()->width()));
                 emit request_stored_data(window_min_time, window_max_time, pixel_width);
             });
 
@@ -275,7 +277,8 @@ void MainWindow::init_graph_rendering()
             UData::Time end_time = UData::get_timestamp();
 
             int pixel_width =
-                    std::max(minimum_graph_render_width, ui->dataPlot->viewport()->width());
+                    std::max(minimum_graph_render_width,
+                             static_cast<int>(m_main_chart_item->viewportItem()->width()));
 
             emit request_recent_stored_data(end_time, time_width_us, default_frame_period_ms * 1000,
                                             pixel_width);

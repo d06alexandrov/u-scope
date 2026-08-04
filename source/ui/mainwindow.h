@@ -18,6 +18,7 @@ class MainWindow;
 QT_END_NAMESPACE
 
 class SlidingWindow;
+class QQuickItem;
 
 /**
  * @brief Class that implements main window of the application
@@ -85,9 +86,9 @@ private:
     };
 
     Ui::MainWindow *ui = nullptr; /**< Pointer to the Main Window user interface. */
-    QLineSeries *m_series[channels_amount]; /**< Pointer to Chart's series'. */
-    QValueAxis *m_axis_x = nullptr;
-    QValueAxis *m_axis_y = nullptr;
+    QQuickItem *m_main_chart_item = nullptr; /**< Pointer to the main chart quick item. */
+    QXYSeries *m_series[channels_amount]; /**< Pointer to Chart's series'. */
+    QValueAxis *m_axis_x = nullptr; /**< Pointer to Chart's x axis. */
 
     QLineSeries
             *m_series_overview[channels_amount]; /**< Pointer to Chart's series' for overview. */

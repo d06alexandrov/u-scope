@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.23)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Quick QuickWidgets Qml Charts SerialPort)
+find_package(
+    Qt6 REQUIRED COMPONENTS Widgets Quick QuickWidgets Qml Charts SerialPort
+)
 
 # Add interface library to propagate common header
 add_library(common_headers INTERFACE)
@@ -63,8 +65,7 @@ qt_add_translations(
 if(WIN32)
     install(TARGETS u-scope)
     qt_generate_deploy_qml_app_script(
-        TARGET u-scope
-        OUTPUT_SCRIPT deploy_script
+        TARGET u-scope OUTPUT_SCRIPT deploy_script
         NO_UNSUPPORTED_PLATFORM_ERROR NO_TRANSLATIONS
     )
     install(SCRIPT ${deploy_script})

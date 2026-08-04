@@ -72,8 +72,6 @@ MainWindow::MainWindow()
     , m_source_list_model(new QStandardItemModel(this))
     , m_channelbar_model(channel_colors)
 {
-    Q_INIT_RESOURCE(ui_resources);
-
     ui->setupUi(this);
 
     init_data_processor();

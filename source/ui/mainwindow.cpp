@@ -145,21 +145,17 @@ void MainWindow::init_ui_elements()
     ui->qmlScreenView->setResizeMode(QQuickWidget::SizeRootObjectToView);
     ui->qmlScreenView->rootContext()->setContextProperty("channelModel", &m_channelbar_model);
     ui->qmlScreenView->rootContext()->setContextProperty("cppChannelColors", color_list);
-    //    ui->qmlScreenView->rootContext()->setContextProperty("hScaleValueText",
-    //    scale_to_string(default_div_horizontal_us));
     ui->qmlScreenView->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/ScreenRoot.qml")));
 
     QQuickItem *root = ui->qmlScreenView->rootObject();
 
-    if (root) {
+    if (root != nullptr) {
         m_main_chart_item = root->findChild<QQuickItem *>("mainChart");
 
-        if (m_main_chart_item) {
-            // 1. Get the X-Axis pointer safely
+        if (m_main_chart_item != nullptr) {
             QMetaObject::invokeMethod(m_main_chart_item, "getAxisX", Qt::DirectConnection,
                                       Q_RETURN_ARG(QValueAxis *, m_axis_x));
 
-            // 2. Get the Series pointers safely
             for (int i = 0; i < channels_amount; ++i) {
                 QAbstractSeries *absSeries = nullptr;
                 QMetaObject::invokeMethod(m_main_chart_item, "getSeries", Qt::DirectConnection,
@@ -167,17 +163,19 @@ void MainWindow::init_ui_elements()
                                           Q_ARG(int, i));
 
                 m_series[i] = qobject_cast<QXYSeries *>(absSeries);
-            }
-        }
 
-        // Connect the QML drag signal to C++ math processor
-        //        if (m_qml_overview_chart) {
-        //            connect(m_qml_overview_chart, SIGNAL(windowDragged(qreal, qreal, qreal)),
-        //            this,
-        //                    SLOT(on_qml_window_dragged(qreal, qreal, qreal)));
-        //        }
+                if (m_series[i] == nullptr) {
+                    qFatal() << tr("Failed to find a main chart series # %1.").arg(i);
+                }
+            }
+        } else {
+            qFatal() << tr("Failed to get an access to Main Chart qml.");
+        }
+    } else {
+        qFatal() << tr("Failed to get an access to Screen Root qml.");
     }
 
+    // Connect start and stop buttons
     connect(ui->pushButton_StartAll, &QPushButton::clicked, this,
             &MainWindow::handle_start_clicked);
     connect(ui->pushButton_StopAll, &QPushButton::clicked, this, &MainWindow::handle_stop_clicked);
@@ -205,13 +203,6 @@ void MainWindow::init_ui_elements()
 
 void MainWindow::init_graph()
 {
-    // Configure graph
-    //    m_axis_x = new QValueAxis;
-
-    //    config_axis(m_axis_x, GraphStyle::left_bottom_corner.x(),
-    //    GraphStyle::right_top_corner.x(),
-    //                GraphStyle::horizontal_grid, GraphStyle::grid_line_color);
-
     // Configure overview graph
     auto overview_chart = ui->dataOverview->chart();
 

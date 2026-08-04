@@ -8,6 +8,7 @@
 
 #include <QAction>
 #include <QChart>
+#include <QFile>
 #include <QGraphicsLayout>
 #include <QLineSeries>
 #include <QMessageBox>
@@ -193,11 +194,23 @@ void MainWindow::init_ui_elements()
 
     // Initialize elements of the menu
     connect(ui->actionAbout, &QAction::triggered, this, [this](bool checked) {
-        QMessageBox::about(this, tr("About %1").arg(QCoreApplication::applicationName()),
-                           tr("%1\nVersion %2\n\nBuilt with Qt %3")
-                                   .arg(QCoreApplication::applicationName())
-                                   .arg(QCoreApplication::applicationVersion())
-                                   .arg(QT_VERSION_STR));
+        QMessageBox about_box(this);
+        about_box.setWindowTitle(tr("About %1").arg(QCoreApplication::applicationName()));
+        about_box.setText(
+                tr("<h3>%1</h3>"
+                   "<p>Version %2</p>"
+                   "<p>Built with Qt %3</p>"
+                   "This program is free software released under the GNU General Public License.")
+                        .arg(QCoreApplication::applicationName())
+                        .arg(QCoreApplication::applicationVersion())
+                        .arg(QT_VERSION_STR));
+
+        QFile license_file(QStringLiteral(":/ui/LICENSE"));
+        if (license_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            about_box.setDetailedText(QString::fromUtf8(license_file.readAll()));
+        }
+
+        about_box.exec();
     });
 }
 

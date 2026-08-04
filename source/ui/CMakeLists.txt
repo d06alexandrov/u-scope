@@ -7,19 +7,31 @@ target_include_directories(
 )
 
 target_sources(
-    user_interface PRIVATE # cmake-format: sortable
-                           mainwindow.cpp mainwindow.ui sliding_window.hpp channelbar_model.cpp
+    user_interface
+    PRIVATE # cmake-format: sortable
+            channelbar_model.cpp mainwindow.cpp mainwindow.ui
+            sliding_window.hpp
 )
 
-qt_add_qml_module(user_interface
+qt_add_qml_module(
+    user_interface
     URI UI
     NO_PLUGIN
     RESOURCE_PREFIX "/qt/qml"
     OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/UI"
-    QML_FILES
-        ChannelBar.qml
-        ScreenRoot.qml
-        MainChart.qml
+    QML_FILES # cmake-format: sortable
+              ChannelBar.qml ScreenRoot.qml MainChart.qml
+)
+
+set_source_files_properties(
+    ${CMAKE_SOURCE_DIR}/LICENSE PROPERTIES QT_RESOURCE_ALIAS LICENSE
+)
+
+qt_add_resources(
+    user_interface "ui_resources"
+    PREFIX "/ui"
+    FILES # cmake-format: sortable
+          ${CMAKE_SOURCE_DIR}/LICENSE
 )
 
 target_link_libraries(

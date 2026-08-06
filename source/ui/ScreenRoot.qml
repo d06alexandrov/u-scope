@@ -16,9 +16,13 @@ Rectangle {
         }
 
         ChannelBar {
+            objectName: "channelBar"
             Layout.fillWidth: true
             Layout.margins: 5
             channelBarModel: channelModel
+
+            onChannelSelected: (channelId) => mainWindow.channel_selected(channelId)
+            onChannelToggled: (channelId) => mainWindow.channel_toggled(channelId)
         }
     }
 }

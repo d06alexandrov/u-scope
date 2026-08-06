@@ -144,6 +144,7 @@ void MainWindow::init_ui_elements()
     }
 
     ui->qmlScreenView->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    ui->qmlScreenView->rootContext()->setContextProperty("mainWindow", this);
     ui->qmlScreenView->rootContext()->setContextProperty("channelModel", &m_channelbar_model);
     ui->qmlScreenView->rootContext()->setContextProperty("cppChannelColors", color_list);
     ui->qmlScreenView->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/ScreenRoot.qml")));
@@ -478,6 +479,16 @@ void MainWindow::handle_stop_clicked()
     emit request_full_history(maximum_overview_points);
 
     m_current_mode = ScopeMode::Stopped;
+}
+
+void MainWindow::channel_selected(int channel_id)
+{
+    qDebug() << "Selected" << channel_id;
+}
+
+void MainWindow::channel_toggled(int channel_id)
+{
+    qDebug() << "Toggled" << channel_id;
 }
 
 namespace {

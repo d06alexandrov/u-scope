@@ -7,17 +7,30 @@ Flow {
 
     required property var channelBarModel
 
+    signal channelSelected(int channelNumber)
+    signal channelToggled(int channelNumber)
+
     width: parent ? parent.width : 0
     spacing: 5
 
     Repeater {
         model: flowRoot.channelBarModel
 
-        ChannelBadge {}
+        ChannelBadge {
+            onBadgeClicked: channelNumber => {
+                flowRoot.channelSelected(channelNumber);
+            }
+            onBadgeDoubleClicked: channelNumber => {
+                flowRoot.channelToggled(channelNumber);
+            }
+        }
     }
 
     component ChannelBadge: Item {
         id: badgeRoot
+
+        signal badgeClicked(int channelNumber)
+        signal badgeDoubleClicked(int channelNumber)
 
         required property int channelNumber
         required property string valueText
@@ -28,6 +41,29 @@ Flow {
         implicitHeight: 22
 
         antialiasing: true
+
+        Timer {
+            id: clickTimer
+            interval: Qt.styleHints.mouseDoubleClickInterval
+            repeat: false
+            onTriggered: {
+                badgeRoot.badgeClicked(badgeRoot.channelNumber);
+            }
+        }
+
+        MouseArea {
+            anchors.fill: parent
+            cursorShape: Qt.PointingHandCursor
+
+            onClicked: {
+                clickTimer.start();
+            }
+
+            onDoubleClicked: {
+                clickTimer.stop();
+                badgeRoot.badgeDoubleClicked(badgeRoot.channelNumber);
+            }
+        }
 
         Shape {
             anchors.fill: parent

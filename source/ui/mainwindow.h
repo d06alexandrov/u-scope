@@ -178,6 +178,20 @@ signals:
     void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
 
     /**
+     * @brief Enable channel in the Data Processor
+     *
+     * @param channel_id ID of the channel to be enabled.
+     */
+    void enable_channel(ChannelId channel_id);
+
+    /**
+     * @brief Disable channel in the Data Processor
+     *
+     * @param channel_id ID of the channel to be disable.
+     */
+    void disable_channel(ChannelId channel_id);
+
+    /**
      * @brief Request stored data from Data Processor to display.
      *
      * @param start_time Start time of the requested data.

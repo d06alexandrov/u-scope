@@ -115,6 +115,8 @@ void MainWindow::init_data_processor()
     connect(this, &MainWindow::configure_reader, data_processor, &DataProcessor::configure_reader);
     connect(this, &MainWindow::remove_reader, data_processor, &DataProcessor::remove_reader);
     connect(this, &MainWindow::assign_channel, data_processor, &DataProcessor::assign_channel);
+    connect(this, &MainWindow::enable_channel, data_processor, &DataProcessor::enable_channel);
+    connect(this, &MainWindow::disable_channel, data_processor, &DataProcessor::disable_channel);
 
     connect(&m_data_processor_thread, &QThread::finished, data_processor,
             &DataProcessor::deleteLater);
@@ -368,8 +370,10 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
 
                 connect(channel_assign_action, &QAction::triggered, this,
                         [this, reader_id, variable_id, ch_num]() {
-                            emit assign_channel(qMakePair(reader_id, variable_id), ch_num);
                             m_channelbar_model.connect_channel(ch_num);
+                            emit assign_channel(qMakePair(reader_id, variable_id), ch_num);
+                            m_channelbar_model.enable_channel(ch_num);
+                            emit enable_channel(ch_num);
                         });
             }
         } else {
@@ -428,8 +432,11 @@ void MainWindow::receive_stored_data(const QList<GraphData> &new_data,
     m_axis_x->setRange(requested_start_time, requested_end_time);
 
     for (auto &channel_data : new_data) {
-        if (channel_data.get_id() >= 1 && channel_data.get_id() <= this->channels_amount) {
-            m_series[channel_data.get_id() - 1]->replace(channel_data.get_values());
+        ChannelId channel_id = channel_data.get_id();
+
+        if (channel_id >= 1 && channel_id <= this->channels_amount
+            && m_channelbar_model.is_enabled(channel_id)) {
+            m_series[channel_id - 1]->replace(channel_data.get_values());
         }
     }
 }
@@ -451,7 +458,10 @@ void MainWindow::receive_full_history(const QList<GraphData> &new_data, UData::T
     }
 
     for (auto &channel_data : new_data) {
-        if (channel_data.get_id() >= 1 && channel_data.get_id() <= this->channels_amount) {
+        ChannelId channel_id = channel_data.get_id();
+
+        if (channel_id >= 1 && channel_id <= this->channels_amount
+            && m_channelbar_model.is_enabled(channel_id)) {
             m_series_overview[channel_data.get_id() - 1]->replace(channel_data.get_values());
         }
     }
@@ -491,8 +501,14 @@ void MainWindow::channel_toggled(int channel_id)
     // TODO: enable or disable channel readings
     if (m_channelbar_model.is_enabled(channel_id)) {
         m_channelbar_model.disable_channel(channel_id);
+        m_series[channel_id - 1]->clear();
+        m_series_overview[channel_id - 1]->clear();
+
+        emit disable_channel(channel_id);
     } else {
         m_channelbar_model.enable_channel(channel_id);
+
+        emit enable_channel(channel_id);
     }
 }
 

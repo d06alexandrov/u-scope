@@ -25,18 +25,18 @@ DataProcessor::DataProcessor(QObject *parent)
 
 DataProcessor::~DataProcessor()
 {
-    for (auto &x : m_senders) {
-        if (x.thread != nullptr) {
-            if (x.thread->isRunning()) {
-                x.thread->quit();
+    for (auto &[id, info] : m_senders) {
+        if (info.thread != nullptr) {
+            if (info.thread->isRunning()) {
+                info.thread->quit();
 
-                if (!x.thread->wait(1000)) {
-                    x.thread->terminate();
-                    x.thread->wait();
+                if (!info.thread->wait(1000)) {
+                    info.thread->terminate();
+                    info.thread->wait();
                 }
             }
 
-            delete x.thread;
+            delete info.thread;
         }
     }
 }
@@ -48,7 +48,7 @@ void DataProcessor::reported_reader_status(ReaderId reader_id, UniversalReader::
     auto reader_iter = m_senders.find(reader_id);
 
     if (reader_iter != m_senders.end()) {
-        reader_iter->latest_status = status;
+        reader_iter->second.latest_status = status;
 
         qDebug() << tr("Reader [#%1] state has been updated to %2")
                             .arg(reader_id)
@@ -60,7 +60,7 @@ void DataProcessor::start_data_processing()
 {
     m_buffers.clear();
 
-    for (const auto [id, reader] : m_senders.asKeyValueRange()) {
+    for (const auto &[id, reader] : m_senders) {
         if ((reader.latest_status == UniversalReader::Initialized)
             || (reader.latest_status == UniversalReader::Stopped)
             || (reader.latest_status == UniversalReader::Error)) {
@@ -70,7 +70,7 @@ void DataProcessor::start_data_processing()
 }
 void DataProcessor::stop_data_processing()
 {
-    for (const auto [id, reader] : m_senders.asKeyValueRange()) {
+    for (const auto &[id, reader] : m_senders) {
         if ((reader.latest_status == UniversalReader::Running)
             || (reader.latest_status == UniversalReader::Error)) {
             emit reader_stop(id);
@@ -116,7 +116,7 @@ void DataProcessor::configure_reader(ReaderId id,
             connect(this, &DataProcessor::reader_stop, new_sender.sender,
                     &UniversalReader::reader_stop);
 
-            m_senders.insert(id, std::move(new_sender));
+            m_senders.emplace(id, std::move(new_sender));
 
             new_sender.thread->start();
         }
@@ -128,14 +128,14 @@ void DataProcessor::remove_reader(ReaderId id)
     if (m_senders.contains(id)) {
         emit reader_stop(id);
 
-        auto sender_info = m_senders.take(id);
+        auto sender_info = m_senders.at(id);
         sender_info.thread->quit();
 
-        m_senders.remove(id);
+        m_senders.erase(id);
 
         for (auto it = m_var_to_channel.begin(); it != m_var_to_channel.end();) {
-            if (it.key().first == id) {
-                const ChannelId channel_id = it.value();
+            if (it->first.first == id) {
+                const ChannelId channel_id = it->second;
 
                 const auto buff_it = m_buffers.find(channel_id);
 
@@ -143,7 +143,7 @@ void DataProcessor::remove_reader(ReaderId id)
                     m_buffers.erase(buff_it);
                 }
 
-                m_channel_to_var.erase(it.value());
+                m_channel_to_var.erase(it->second);
                 it = m_var_to_channel.erase(it);
             } else {
                 ++it;
@@ -159,7 +159,7 @@ void DataProcessor::assign_channel(QPair<ReaderId, VariableId> variable, Channel
     if (it != m_channel_to_var.end()) {
         // TODO: send a command to the reader to stop the data transfer
 
-        m_var_to_channel.remove(it->second);
+        m_var_to_channel.erase(it->second);
         m_channel_to_var.erase(it);
         m_buffers.erase(channel_id);
     }
@@ -168,17 +168,44 @@ void DataProcessor::assign_channel(QPair<ReaderId, VariableId> variable, Channel
     m_channel_to_var[channel_id] = variable;
 }
 
+void DataProcessor::enable_channel(ChannelId channel_id)
+{
+    auto it = m_channel_to_var.find(channel_id);
+
+    if (it != m_channel_to_var.end()) {
+        // TODO: send a command to the reader to start sending data
+
+        m_channel_enabled[channel_id] = true;
+    }
+}
+
+void DataProcessor::disable_channel(ChannelId channel_id)
+{
+    auto it = m_channel_to_var.find(channel_id);
+
+    if (it != m_channel_to_var.end()) {
+        // TODO: send a command to the reader to stop sending data
+
+        m_channel_enabled[channel_id] = true;
+    }
+}
+
 void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap data)
 {
     if (m_senders.contains(reader_id)) {
         for (auto &&[variable_id, new_data] : data.asKeyValueRange()) {
             if (!new_data || new_data->empty()
-                || !m_var_to_channel.contains(qMakePair(reader_id, variable_id))) {
+                || !m_var_to_channel.contains({ reader_id, variable_id })) {
                 continue;
             }
 
-            auto &destination_buffer =
-                    m_buffers[m_var_to_channel.value(qMakePair(reader_id, variable_id))];
+            ChannelId channel_id = m_var_to_channel.at({ reader_id, variable_id });
+
+            if (!m_channel_enabled.contains(channel_id) || !m_channel_enabled.at(channel_id)) {
+                continue;
+            }
+
+            auto &destination_buffer = m_buffers[channel_id];
             const size_t new_data_size = new_data->size();
 
             if (new_data_size >= m_max_sample_points) {

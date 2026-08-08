@@ -144,6 +144,7 @@ void MainWindow::init_ui_elements()
     }
 
     ui->qmlScreenView->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    ui->qmlScreenView->rootContext()->setContextProperty("mainWindow", this);
     ui->qmlScreenView->rootContext()->setContextProperty("channelModel", &m_channelbar_model);
     ui->qmlScreenView->rootContext()->setContextProperty("cppChannelColors", color_list);
     ui->qmlScreenView->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/ScreenRoot.qml")));
@@ -361,14 +362,14 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
                     existing_item->data(ItemRoles::VariableIdRole).value<VariableId>();
             QMenu *assign_channel_submenu = contextMenu.addMenu("Assign to channel");
 
-            for (size_t ch_num = 0; ch_num < this->channels_amount; ch_num++) {
+            for (ChannelId ch_num = 1; ch_num <= this->channels_amount; ch_num++) {
                 QAction *channel_assign_action =
-                        assign_channel_submenu->addAction(tr("Channel %1").arg(ch_num + 1));
+                        assign_channel_submenu->addAction(tr("Channel %1").arg(ch_num));
 
                 connect(channel_assign_action, &QAction::triggered, this,
                         [this, reader_id, variable_id, ch_num]() {
                             emit assign_channel(qMakePair(reader_id, variable_id), ch_num);
-                            m_channelbar_model.setChannelEnabled(ch_num, true);
+                            m_channelbar_model.connect_channel(ch_num);
                         });
             }
         } else {
@@ -427,8 +428,8 @@ void MainWindow::receive_stored_data(const QList<GraphData> &new_data,
     m_axis_x->setRange(requested_start_time, requested_end_time);
 
     for (auto &channel_data : new_data) {
-        if (channel_data.get_id() < this->channels_amount) {
-            m_series[channel_data.get_id()]->replace(channel_data.get_values());
+        if (channel_data.get_id() >= 1 && channel_data.get_id() <= this->channels_amount) {
+            m_series[channel_data.get_id() - 1]->replace(channel_data.get_values());
         }
     }
 }
@@ -450,8 +451,8 @@ void MainWindow::receive_full_history(const QList<GraphData> &new_data, UData::T
     }
 
     for (auto &channel_data : new_data) {
-        if (channel_data.get_id() < this->channels_amount) {
-            m_series_overview[channel_data.get_id()]->replace(channel_data.get_values());
+        if (channel_data.get_id() >= 1 && channel_data.get_id() <= this->channels_amount) {
+            m_series_overview[channel_data.get_id() - 1]->replace(channel_data.get_values());
         }
     }
 
@@ -478,6 +479,21 @@ void MainWindow::handle_stop_clicked()
     emit request_full_history(maximum_overview_points);
 
     m_current_mode = ScopeMode::Stopped;
+}
+
+void MainWindow::channel_selected(int channel_id)
+{
+    m_channelbar_model.select_channel(channel_id);
+}
+
+void MainWindow::channel_toggled(int channel_id)
+{
+    // TODO: enable or disable channel readings
+    if (m_channelbar_model.is_enabled(channel_id)) {
+        m_channelbar_model.disable_channel(channel_id);
+    } else {
+        m_channelbar_model.enable_channel(channel_id);
+    }
 }
 
 namespace {

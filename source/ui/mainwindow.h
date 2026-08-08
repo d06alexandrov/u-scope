@@ -267,4 +267,18 @@ public slots:
      * @brief Handle click on the stop button.
      */
     void handle_stop_clicked();
+
+    /**
+     * @brief Handle selection of the channel in the channel bar.
+     *
+     * @param channel_id ID of the selected channel.
+     */
+    void channel_selected(int channel_id);
+
+    /**
+     * @brief Handle toggling of the channel in the channel bar.
+     *
+     * @param channel_id ID of the toggled channel.
+     */
+    void channel_toggled(int channel_id);
 };

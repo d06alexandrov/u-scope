@@ -1,7 +1,10 @@
 #pragma once
 
+#include "commontypes.hpp"
+
 #include <QAbstractListModel>
 #include <QColor>
+#include <optional>
 #include <vector>
 
 /**
@@ -17,9 +20,11 @@ public:
      */
     enum Roles {
         ChannelNumberRole = Qt::UserRole + 1, /**< Index of the channel. */
-        ValueTextRole, /**< Text for the badge. */
         BadgeColorRole, /**< Color of the badge. */
-        ChannelEnabledRole /**< If channel is enabled. */
+        ValueTextRole, /**< Text for the badge. */
+        ChannelConnected, /**< If channel is connected to the source. */
+        ChannelEnabledRole, /**< If channel is enabled. */
+        ChannelSelectedRole, /**< If channel is selected. */
     };
 
     /**
@@ -28,9 +33,11 @@ public:
     struct ChannelState
     {
         int number; /**< Index of the channel. */
-        QString value_text; /**< Text for the badge. */
         QColor color; /**< Color of the badge. */
-        bool enabled; /**< Channel status. */
+        QString value_text; /**< Text for the badge. */
+        bool connected; /**< Channel is connected. */
+        bool enabled; /**< Channel is enabled. */
+        bool selected; /**< Channel is selected. */
     };
 
     /**
@@ -66,14 +73,51 @@ public:
     QHash<int, QByteArray> roleNames() const override;
 
     /**
-     * @brief Sets the enabled state of a channel and updates its badge text.
+     * @brief Connects a channel to the source.
      *
-     * @param channel_idx Index of the channel.
-     * @param enabled Whether the channel is enabled.
+     * @param id Index of the channel to connect.
+     */
+    void connect_channel(ChannelId id);
+
+    /**
+     * @brief Disconnects a channel from the source.
+     *
+     * @param id Index of the channel to disconnect.
+     */
+    void disconnect_channel(ChannelId id);
+
+    /**
+     * @brief Selects a channel in the channel bar.
+     *
+     * @param id Index of the channel to select.
+     */
+    void select_channel(ChannelId id);
+
+    /**
+     * @brief Enables a channel and updates its badge text.
+     *
+     * @param id Index of the channel to enable.
      * @param value_text Text for the badge (default is empty).
      */
-    void setChannelEnabled(int channel_idx, bool enabled, const QString &value_text = "");
+    void enable_channel(ChannelId id, const QString &value_text = "");
+
+    /**
+     * @brief Disables a channel.
+     *
+     * @param id Index of the channel to disable.
+     */
+    void disable_channel(ChannelId id);
+
+    /**
+     * @brief Checks if a channel is enabled.
+     *
+     * @param id Index of the channel to check.
+     * @return True if the channel is enabled, false otherwise.
+     */
+    bool is_enabled(ChannelId id);
 
 private:
-    std::vector<ChannelState> m_channels;
+    std::vector<ChannelState> m_channels; /**< List of channels. */
+
+    std::optional<ChannelId> m_selected_channel = std::nullopt; /**< Currently selected channel. */
 };

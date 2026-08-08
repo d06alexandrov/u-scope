@@ -13,7 +13,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        platforms: [ {os: 'linux', tag: '0.5'}, {os: 'windows', tag: '0.4-win'}]
+        platforms: [ {os: 'linux', tag: '0.6'}, {os: 'windows', tag: '0.4-win'}]
     container:
       image: ghcr.io/d06alexandrov/u-scope:${{ matrix.platforms.tag }}
       credentials:

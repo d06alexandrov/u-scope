@@ -8,33 +8,54 @@ on:
   workflow_call:
 
 jobs:
-  app-build:
+  app-build-linux:
     runs-on: ubuntu-latest
-    strategy:
-      fail-fast: false
-      matrix:
-        platforms: [ {os: 'linux', tag: '0.6'}, {os: 'windows', tag: '0.4-win'}]
     container:
-      image: ghcr.io/d06alexandrov/u-scope:${{ matrix.platforms.tag }}
+      image: ghcr.io/d06alexandrov/u-scope:0.6
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
     permissions:
       contents: read
-      packages: write
+      packages: read
 
     steps:
       - name: Checkout repository
         uses: actions/checkout@v7
 
       - name: Build Linux Application
-        if: matrix.platforms.os == 'linux'
         run: |
           cmake -B build
           cmake --build build --config Release --target u-scope
 
+      - name: Upload Linux artifacts
+        uses: actions/upload-artifact@v7
+        with:
+          name: u-scope-linux
+          path: build/source/u-scope
+
+      - name: Upload Compile Commands
+        uses: actions/upload-artifact@v7
+        with:
+          name: compile-commands
+          path: build/compile_commands.json
+
+  app-build-windows:
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/d06alexandrov/u-scope:0.4-win
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
       - name: Build Windows Application
-        if: matrix.platforms.os == 'windows'
         run: |
           # Create a directory Wine can own
           mkdir -p /tmp/wineprefix
@@ -44,16 +65,49 @@ jobs:
           cmake --build build --config Release --target u-scope
           cmake --install build --config Release --prefix $GITHUB_WORKSPACE/u-scope-win64
 
-      - name: Upload Linux artifacts
-        if: matrix.platforms.os == 'linux'
-        uses: actions/upload-artifact@v7
-        with:
-          name: u-scope-linux
-          path: build/source/u-scope
-
       - name: Upload Windows artifacts
-        if: matrix.platforms.os == 'windows'
         uses: actions/upload-artifact@v7
         with:
           name: u-scope-win64
           path: u-scope-win64
+
+  cpp-linter:
+    needs: app-build-linux
+    if: github.event_name != 'workflow_call'
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/d06alexandrov/u-scope:0.6
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
+      packages: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Download Compile Commands
+        uses: actions/download-artifact@v7
+        with:
+          name: compile-commands
+          path: build
+
+      - name: Install required packages
+        run: |
+          apt-get update
+          apt-get install -y --no-install-recommends wget
+          TIDY_BIN=$(which clang-tidy)
+          echo "clang-tidy found at: $TIDY_BIN"
+          $TIDY_BIN --version
+
+      - name: Run cpp-linter
+        uses: cpp-linter/cpp-linter-action@v2
+        with:
+          version: ''
+          style: ''
+          thread-comments: true
+          step-summary: true
+          lines-changed-only: ${{ github.event_name == 'pull_request' }}

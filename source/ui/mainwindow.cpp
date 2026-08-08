@@ -428,7 +428,7 @@ void MainWindow::receive_stored_data(const QList<GraphData> &new_data,
     m_axis_x->setRange(requested_start_time, requested_end_time);
 
     for (auto &channel_data : new_data) {
-        if (channel_data.get_id() < this->channels_amount) {
+        if (channel_data.get_id() >= 1 && channel_data.get_id() <= this->channels_amount) {
             m_series[channel_data.get_id() - 1]->replace(channel_data.get_values());
         }
     }
@@ -451,7 +451,7 @@ void MainWindow::receive_full_history(const QList<GraphData> &new_data, UData::T
     }
 
     for (auto &channel_data : new_data) {
-        if (channel_data.get_id() < this->channels_amount) {
+        if (channel_data.get_id() >= 1 && channel_data.get_id() <= this->channels_amount) {
             m_series_overview[channel_data.get_id() - 1]->replace(channel_data.get_values());
         }
     }

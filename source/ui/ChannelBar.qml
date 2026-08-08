@@ -35,7 +35,19 @@ Flow {
         required property int channelNumber
         required property string valueText
         required property color badgeColor
+        required property bool channelConnected
         required property bool channelEnabled
+        required property bool channelSelected
+
+        readonly property color currentAccentColor: {
+            if (!badgeRoot.channelConnected) {
+                return "#646464";
+            }
+            if (!badgeRoot.channelSelected) {
+                return Qt.darker(badgeRoot.badgeColor, 2.5);
+            }
+            return badgeRoot.badgeColor;
+        }
 
         implicitWidth: Math.max(100, 28 + valueTextItem.implicitWidth + 16)
         implicitHeight: 22
@@ -72,7 +84,7 @@ Flow {
 
             ShapePath {
                 fillColor: "#1A1A1A"
-                strokeColor: badgeRoot.channelEnabled ? badgeRoot.badgeColor : "#646464"
+                strokeColor: badgeRoot.currentAccentColor
                 strokeWidth: 2
 
                 PathMove {
@@ -98,7 +110,7 @@ Flow {
             }
 
             ShapePath {
-                fillColor: badgeRoot.channelEnabled ? badgeRoot.badgeColor : "#646464"
+                fillColor: badgeRoot.currentAccentColor
                 strokeColor: "transparent"
 
                 PathMove {
@@ -154,8 +166,16 @@ Flow {
                         // Place in the middle of the right trapezoid
                         anchors.horizontalCenterOffset: -2
 
-                        text: badgeRoot.channelEnabled ? badgeRoot.valueText : "OFF"
-                        color: badgeRoot.channelEnabled ? badgeRoot.badgeColor : "#969696"
+                        text: {
+                            if (!badgeRoot.channelConnected) {
+                                return "DISCONNECTED";
+                            }
+                            if (!badgeRoot.channelEnabled) {
+                                return "OFF";
+                            }
+                            return badgeRoot.valueText;
+                        }
+                        color: badgeRoot.currentAccentColor
                         font.pixelSize: 11
                         font.bold: true
                         font.family: "Monospace"

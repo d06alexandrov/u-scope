@@ -79,4 +79,4 @@ Q_DECLARE_METATYPE(ReaderId)
 
 using VariableId = uint64_t; /**< ID of the variable. */
 
-using ChannelId = uint8_t; /**< Id of the channel. */
+using ChannelId = uint8_t; /**< Id of the channel starting with 1. */

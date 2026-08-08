@@ -186,7 +186,7 @@ void DataProcessor::disable_channel(ChannelId channel_id)
     if (it != m_channel_to_var.end()) {
         // TODO: send a command to the reader to stop sending data
 
-        m_channel_enabled[channel_id] = true;
+        m_channel_enabled[channel_id] = false;
     }
 }
 

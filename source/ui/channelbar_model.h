@@ -99,7 +99,7 @@ public:
      * @param id Index of the channel to enable.
      * @param value_text Text for the badge (default is empty).
      */
-    void enable_channel(ChannelId id, const QString &value_text = "");
+    void enable_channel(ChannelId id, const QString &value_text = tr("ON"));
 
     /**
      * @brief Disables a channel.

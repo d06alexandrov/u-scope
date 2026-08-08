@@ -140,25 +140,39 @@ public slots:
      *
      * If the reader exists, it changes the config of it.
      *
-     * @param id reader id
-     * @param config configuration of the reader
+     * @param id ID of the reader.
+     * @param config New configuration of the reader.
      */
     void configure_reader(ReaderId id, std::shared_ptr<UniversalReaderDialogConfig> config);
 
     /**
-     * @brief Remove reader
+     * @brief Remove reader.
      *
-     * @param id reader id
+     * @param id ID of the reader to be removed.
      */
     void remove_reader(ReaderId id);
 
     /**
-     * @brief Bind particular variable to the channel
+     * @brief Bind particular variable to the channel.
      *
-     * @param variable uniq identificator of a variable
-     * @param channel_id id of the channel
+     * @param variable Pair of ReaderId and VariableId to be assigned to the channel.
+     * @param channel_id ID of the channel to be assigned to the variable.
      */
     void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
+
+    /**
+     * @brief Enable specific channel to receive data from the reader.
+     *
+     * @param channel_id ID of the channel to be enabled.
+     */
+    void enable_channel(ChannelId channel_id);
+
+    /**
+     * @brief Disable specific channel to stop receiving data from the reader.
+     *
+     * @param channel_id ID of the channel to be disabled.
+     */
+    void disable_channel(ChannelId channel_id);
 
     /**
      * @brief Receive data from the reader and store it in the buffer.
@@ -251,17 +265,38 @@ private:
                 UniversalReader::Uninitialized; /**< Latest known status of the sender. */
     };
 
+    /**
+     * @brief Hasher for std::pair<ReaderId, VariableId> to be used in unordered_map.
+     */
+    struct ReaderVariableHash
+    {
+        /**
+         * @brief Calculate the hash value for a pair of ReaderId and VariableId.
+         *
+         * @param p The pair of ReaderId and VariableId to hash.
+         * @return The calculated hash value.
+         */
+        size_t operator()(const std::pair<ReaderId, VariableId> &p) const noexcept
+        {
+            uint64_t combined =
+                    (static_cast<uint64_t>(p.first) << 32) ^ static_cast<uint64_t>(p.second);
+
+            return static_cast<size_t>(combined);
+        }
+    };
+
     QTimer *m_timer =
             nullptr; /**< Timer to execute processing function and send data to graph Widget. */
-    QHash<ReaderId, DataSenderInfo>
-            m_senders; /**< Initialized data senders. Sender is used as a key. */
+    std::unordered_map<ReaderId, DataSenderInfo>
+            m_senders{ }; /**< Initialized data senders. Sender is used as a key. */
     std::map<ChannelId, std::deque<UData::Point>>
-            m_buffers; /**< Buffers to store raw data from senders. */
-    QHash<QPair<ReaderId, VariableId>, ChannelId>
-            m_var_to_channel; /**< Correspondence between variables and channels. */
-    std::unordered_map<ChannelId, QPair<ReaderId, VariableId>>
-            m_channel_to_var; /**< Correspondence between
-                  channels and variables. */
+            m_buffers{ }; /**< Buffers to store raw data from senders. */
+    std::unordered_map<std::pair<ReaderId, VariableId>, ChannelId, ReaderVariableHash>
+            m_var_to_channel{ }; /**< Correspondence between variables and channels. */
+    std::unordered_map<ChannelId, std::pair<ReaderId, VariableId>>
+            m_channel_to_var{ }; /**< Correspondence between
+                   channels and variables. */
+    std::unordered_map<ChannelId, bool> m_channel_enabled{ }; /**< If channels are enabled. */
 
     size_t m_max_sample_points; /**< Maximum amount of sample points per channel. */
 

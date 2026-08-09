@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.1](https://github.com/d06alexandrov/u-scope/compare/v0.2.0...v0.2.1) (2026-08-09)
+
+
+### Bug Fixes
+
+* Estimate timestamps of a serial data. ([cf2dfe4](https://github.com/d06alexandrov/u-scope/commit/cf2dfe4dc9e29adf3d4ad9727a69092c8d9f2d01))
+* Set a proper title of main window. ([e8d0568](https://github.com/d06alexandrov/u-scope/commit/e8d0568d2fa4af658ba94d1e052511cd47d5fa11))
+
 ## [0.2.0](https://github.com/d06alexandrov/u-scope/compare/v0.1.1...v0.2.0) (2026-08-09)
 
 

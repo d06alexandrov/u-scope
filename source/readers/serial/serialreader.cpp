@@ -43,6 +43,10 @@ SerialReaderConfig *SerialReader::get_config()
 
 void SerialReader::setup()
 {
+    if (get_config()->baud_rate <= 0) {
+        throw std::range_error("Baud rate must be positive");
+    }
+
     m_serial->setPortName(get_config()->port_name);
     m_serial->setBaudRate(get_config()->baud_rate);
     m_serial->setDataBits(get_config()->data_bits);

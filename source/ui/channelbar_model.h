@@ -109,12 +109,36 @@ public:
     void disable_channel(ChannelId id);
 
     /**
+     * @brief Sets the text for a channel's badge.
+     *
+     * @param id Index of the channel.
+     * @param value_text Text for the badge.
+     */
+    void set_channel_text(ChannelId id, const QString &value_text);
+
+    /**
      * @brief Checks if a channel is enabled.
      *
      * @param id Index of the channel to check.
      * @return True if the channel is enabled, false otherwise.
      */
-    bool is_enabled(ChannelId id);
+    bool is_enabled(ChannelId id) const;
+
+    /**
+     * @brief Checks if a channel is selected.
+     *
+     * @param id Index of the channel to check.
+     * @return True if the channel is selected, false otherwise.
+     */
+    bool is_selected(ChannelId id) const;
+
+    /**
+     * @brief Gets the currently selected channel.
+     *
+     * @return Optional containing the selected channel ID if one is selected, std::nullopt
+     * otherwise.
+     */
+    std::optional<ChannelId> get_selected() const;
 
 private:
     std::vector<ChannelState> m_channels; /**< List of channels. */

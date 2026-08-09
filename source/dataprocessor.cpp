@@ -191,6 +191,13 @@ void DataProcessor::disable_channel(ChannelId channel_id)
     }
 }
 
+void DataProcessor::update_channel_vertical_scale(ChannelId channel_id, double scale)
+{
+    if (scale > 0) {
+        m_channel_vscale[channel_id] = scale;
+    }
+}
+
 void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap data)
 {
     if (m_senders.contains(reader_id)) {
@@ -376,6 +383,9 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
     for (const auto &[channel_id, channel_data] : m_buffers) {
         QList<QPointF> processed_values;
 
+        auto scale_it = m_channel_vscale.find(channel_id);
+        qreal scale = (scale_it != m_channel_vscale.end()) ? scale_it->second : 1.0;
+
         auto left_it =
                 std::ranges::lower_bound(channel_data, start_time_actual, std::less<>{ }, get_time);
         auto right_it = std::ranges::upper_bound(left_it, channel_data.end(), end_time_actual,
@@ -392,14 +402,16 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
         if (!strict && (left_it != channel_data.begin())) {
             const auto &[timestamp, raw_val] = *std::prev(left_it);
             const auto val =
-                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val);
+                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale;
             processed_values.emplace_back(timestamp, val);
         }
 
         if (std::distance(left_it, right_it) <= points_limit) {
             for (const auto &[timestamp, raw_val] : std::ranges::subrange(left_it, right_it)) {
                 const auto val =
-                        std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val);
+                        std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val)
+                        * scale;
+
                 processed_values.emplace_back(timestamp, val);
             }
         } else {
@@ -431,7 +443,7 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
 
                 if (amount > 0) {
                     const UData::Time average_time = min_time + (max_time - min_time) / 2;
-                    const qreal average_value = sum / amount;
+                    const qreal average_value = sum / amount * scale;
 
                     processed_values.emplace_back(average_time, average_value);
                 }
@@ -441,7 +453,7 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
         if (!strict && (right_it != channel_data.end())) {
             const auto &[timestamp, raw_val] = *right_it;
             const auto val =
-                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val);
+                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale;
             processed_values.emplace_back(timestamp, val);
         }
 

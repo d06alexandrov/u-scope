@@ -26,8 +26,8 @@ namespace {
 /**
  * @brief Powers of 10.
  */
-constexpr std::array<int64_t, 7> powers_of_10 = {
-    1LL, 10LL, 100LL, 1000LL, 10000LL, 100000LL, 1000000LL,
+constexpr std::array<int64_t, 9> powers_of_10 = {
+    1LL, 10LL, 100LL, 1000LL, 10000LL, 100000LL, 1000000LL, 10000000LL, 100000000LL,
 };
 
 /**
@@ -63,7 +63,31 @@ int64_t horizontal_qdial_value_to_div_us(int value);
  * @param us Horizontal division in us.
  * @return String representation of the horizontal division.
  */
-QString scale_to_string(int64_t us);
+QString horizontal_scale_to_string(int64_t us);
+
+/**
+ * @brief Convert vertical division to QDial value.
+ *
+ * @param division Vertical division in 10^-6.
+ * @return QDial value.
+ */
+int vertical_div_uval_to_qdial_value(int64_t division);
+
+/**
+ * @brief Convert QDial value to vertical division in micro values.
+ *
+ * @param value QDial value.
+ * @return Vertical division in 10^-6.
+ */
+int64_t vertical_qdial_value_to_div_uval(int value);
+
+/**
+ * @brief Convert vertical division to a string representation.
+ *
+ * @param division Horizontal division in 10^-6.
+ * @return String representation of the vertical division.
+ */
+QString vertical_scale_to_string(int64_t division);
 } // namespace
 
 MainWindow::MainWindow()
@@ -117,6 +141,8 @@ void MainWindow::init_data_processor()
     connect(this, &MainWindow::assign_channel, data_processor, &DataProcessor::assign_channel);
     connect(this, &MainWindow::enable_channel, data_processor, &DataProcessor::enable_channel);
     connect(this, &MainWindow::disable_channel, data_processor, &DataProcessor::disable_channel);
+    connect(this, &MainWindow::update_channel_vertical_scale, data_processor,
+            &DataProcessor::update_channel_vertical_scale);
 
     connect(&m_data_processor_thread, &QThread::finished, data_processor,
             &DataProcessor::deleteLater);
@@ -187,13 +213,40 @@ void MainWindow::init_ui_elements()
     // Initialize horizontal scaler
     connect(ui->horizontalScale, &QDial::valueChanged, this, [this](int new_value) {
         m_div_horizontal_us = horizontal_qdial_value_to_div_us(new_value);
-        ui->hScaleValue->setText(scale_to_string(m_div_horizontal_us));
+        ui->hScaleValue->setText(horizontal_scale_to_string(m_div_horizontal_us));
         emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
     });
     ui->horizontalScale->setValue(horizontal_div_us_to_qdial_value(default_div_horizontal_us));
-    ui->hScaleValue->setText(scale_to_string(default_div_horizontal_us));
+    ui->hScaleValue->setText(horizontal_scale_to_string(default_div_horizontal_us));
     // Explicitly emit the signal, if horizontalScale value was not changed
     emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
+
+    // Initialize vertical scaler
+    connect(ui->verticalScale, &QDial::valueChanged, this, [this](int new_value) {
+        const auto selected_channel = m_channelbar_model.get_selected();
+
+        if (selected_channel.has_value()) {
+            int64_t vertical_uval = vertical_qdial_value_to_div_uval(new_value);
+
+            m_channelbar_model.set_channel_text(selected_channel.value(),
+                                                vertical_scale_to_string(vertical_uval));
+            m_div_vertical_uval[selected_channel.value() - 1] = vertical_uval;
+
+            emit update_channel_vertical_scale(
+                    selected_channel.value(),
+                    ((GraphStyle::right_top_corner.y() - GraphStyle::left_bottom_corner.y())
+                     / GraphStyle::vertical_grid)
+                            / (static_cast<double>(vertical_uval) / 1000000));
+
+            if (m_current_mode == ScopeMode::Stopped) {
+                // trigger graph update
+                int pixel_width =
+                        std::max(minimum_graph_render_width,
+                                 static_cast<int>(m_main_chart_item->viewportItem()->width()));
+                emit request_stored_data(m_graph_min_time, m_graph_max_time, pixel_width);
+            }
+        }
+    });
 
     // Initialize elements of the menu
     connect(ui->actionAbout, &QAction::triggered, this, [this](bool checked) {
@@ -370,9 +423,19 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
 
                 connect(channel_assign_action, &QAction::triggered, this,
                         [this, reader_id, variable_id, ch_num]() {
+                            int64_t vertical_uval = default_div_vertical_uval;
+                            m_div_vertical_uval[ch_num - 1] = vertical_uval;
+
                             m_channelbar_model.connect_channel(ch_num);
                             emit assign_channel(qMakePair(reader_id, variable_id), ch_num);
-                            m_channelbar_model.enable_channel(ch_num);
+                            emit update_channel_vertical_scale(
+                                    ch_num,
+                                    ((GraphStyle::right_top_corner.y()
+                                      - GraphStyle::left_bottom_corner.y())
+                                     / GraphStyle::vertical_grid)
+                                            / (static_cast<double>(vertical_uval) / 1000000));
+                            m_channelbar_model.enable_channel(
+                                    ch_num, vertical_scale_to_string(vertical_uval));
                             emit enable_channel(ch_num);
                         });
             }
@@ -430,6 +493,9 @@ void MainWindow::receive_stored_data(const QList<GraphData> &new_data,
                                      UData::Time requested_end_time)
 {
     m_axis_x->setRange(requested_start_time, requested_end_time);
+
+    m_graph_min_time = requested_start_time;
+    m_graph_max_time = requested_end_time;
 
     for (auto &channel_data : new_data) {
         ChannelId channel_id = channel_data.get_id();
@@ -494,6 +560,12 @@ void MainWindow::handle_stop_clicked()
 void MainWindow::channel_selected(int channel_id)
 {
     m_channelbar_model.select_channel(channel_id);
+
+    if (m_channelbar_model.is_selected(channel_id)) {
+        const int64_t vertical_div = m_div_vertical_uval[channel_id - 1];
+        ui->verticalScale->setEnabled(true);
+        ui->verticalScale->setValue(vertical_div_uval_to_qdial_value(vertical_div));
+    }
 }
 
 void MainWindow::channel_toggled(int channel_id)
@@ -553,7 +625,7 @@ int64_t horizontal_qdial_value_to_div_us(int value)
     return powers_of_10.at(std::clamp(value, 0, static_cast<int>(powers_of_10.size() - 1)));
 }
 
-QString scale_to_string(int64_t us)
+QString horizontal_scale_to_string(int64_t us)
 {
     if (us < 1000LL) {
         return QObject::tr("%1 us").arg(us);
@@ -561,6 +633,39 @@ QString scale_to_string(int64_t us)
         return QObject::tr("%1 ms").arg(static_cast<double>(us) / 1000.0);
     } else {
         return QObject::tr("%1 s").arg(static_cast<double>(us) / 1000000.0);
+    }
+}
+
+int vertical_div_uval_to_qdial_value(int64_t division)
+{
+    if (division <= 0) {
+        // It should never happen
+        return 0;
+    }
+
+    int log10 = 0;
+
+    // Take log10 and round up
+    for (int64_t value_left = division - 1; value_left > 0; value_left /= 10) {
+        log10++;
+    }
+
+    return log10;
+}
+
+int64_t vertical_qdial_value_to_div_uval(int value)
+{
+    return powers_of_10.at(std::clamp(value, 0, static_cast<int>(powers_of_10.size() - 1)));
+}
+
+QString vertical_scale_to_string(int64_t division)
+{
+    if (division < 1000LL) {
+        return QObject::tr("%1 u").arg(division);
+    } else if (division < 1000000LL) {
+        return QObject::tr("%1 m").arg(static_cast<double>(division) / 1000.0);
+    } else {
+        return QObject::tr("%1 ").arg(static_cast<double>(division) / 1000000.0);
     }
 }
 

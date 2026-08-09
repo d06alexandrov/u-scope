@@ -302,9 +302,6 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
            </item>
            <item>
             <widget class="QGroupBox" name="verticalConfig">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
              <property name="title">
               <string>Vertical</string>
              </property>
@@ -322,8 +319,26 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
                  </widget>
                 </item>
                 <item>
-                 <widget class="QDial" name="dial_3">
+                 <widget class="QDial" name="verticalScale">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="minimum">
+                   <number>2</number>
+                  </property>
+                  <property name="maximum">
+                   <number>8</number>
+                  </property>
+                  <property name="value">
+                   <number>6</number>
+                  </property>
                   <property name="wrapping">
+                   <bool>false</bool>
+                  </property>
+                  <property name="notchTarget">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="notchesVisible">
                    <bool>true</bool>
                   </property>
                  </widget>
@@ -344,6 +359,9 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
                 </item>
                 <item>
                  <widget class="QDial" name="dial_4">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
                   <property name="wrapping">
                    <bool>true</bool>
                   </property>

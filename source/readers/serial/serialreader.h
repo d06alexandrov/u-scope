@@ -4,6 +4,7 @@
 
 #include <QObject>
 #include <QSerialPort>
+#include <chrono>
 
 class DataProcessor;
 
@@ -49,6 +50,9 @@ public slots:
 
 private:
     QSerialPort *m_serial = nullptr;
+    std::chrono::nanoseconds m_wire_byte_duration{
+        0
+    }; /**< Transmission duration for a single byte over the wire. */
 
     SerialReaderConfig *get_config();
 

@@ -42,22 +42,6 @@ constexpr std::array<int64_t, 9> powers_of_10 = {
 void config_axis(QValueAxis *axis, int min, int max, int grid_cells, const QColor grid_color);
 
 /**
- * @brief Convert horizontal division in us to QDial value.
- *
- * @param division_us Horizontal division in us.
- * @return QDial value.
- */
-int horizontal_div_us_to_qdial_value(int64_t division_us);
-
-/**
- * @brief Convert QDial value to horizontal division in us.
- *
- * @param value QDial value.
- * @return Horizontal division in us.
- */
-int64_t horizontal_qdial_value_to_div_us(int value);
-
-/**
  * @brief Convert horizontal division in us to a string representation.
  *
  * @param us Horizontal division in us.
@@ -66,20 +50,24 @@ int64_t horizontal_qdial_value_to_div_us(int value);
 QString horizontal_scale_to_string(int64_t us);
 
 /**
- * @brief Convert vertical division to QDial value.
+ * @brief Convert division to QDial value.
  *
- * @param division Vertical division in 10^-6.
+ * 10^-x division is converted into x.
+ *
+ * @param division_u Vertical division in 10^-6.
  * @return QDial value.
  */
-int vertical_div_uval_to_qdial_value(int64_t division);
+int div_uval_to_qdial_value(int64_t division_u);
 
 /**
  * @brief Convert QDial value to vertical division in micro values.
  *
+ * X is converted into 10^-x seconds.
+ *
  * @param value QDial value.
  * @return Vertical division in 10^-6.
  */
-int64_t vertical_qdial_value_to_div_uval(int value);
+int64_t qdial_value_to_div_uval(int value);
 
 /**
  * @brief Convert vertical division to a string representation.
@@ -87,7 +75,7 @@ int64_t vertical_qdial_value_to_div_uval(int value);
  * @param division Horizontal division in 10^-6.
  * @return String representation of the vertical division.
  */
-QString vertical_scale_to_string(int64_t division);
+QString unit_scale_to_string(int64_t division, QStringView unit = u"");
 } // namespace
 
 MainWindow::MainWindow()
@@ -212,12 +200,12 @@ void MainWindow::init_ui_elements()
 
     // Initialize horizontal scaler
     connect(ui->horizontalScale, &QDial::valueChanged, this, [this](int new_value) {
-        m_div_horizontal_us = horizontal_qdial_value_to_div_us(new_value);
-        ui->hScaleValue->setText(horizontal_scale_to_string(m_div_horizontal_us));
+        m_div_horizontal_us = qdial_value_to_div_uval(new_value);
+        ui->hScaleValue->setText(unit_scale_to_string(m_div_horizontal_us, tr("s")));
         emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
     });
-    ui->horizontalScale->setValue(horizontal_div_us_to_qdial_value(default_div_horizontal_us));
-    ui->hScaleValue->setText(horizontal_scale_to_string(default_div_horizontal_us));
+    ui->horizontalScale->setValue(div_uval_to_qdial_value(default_div_horizontal_us));
+    ui->hScaleValue->setText(unit_scale_to_string(default_div_horizontal_us, tr("s")));
     // Explicitly emit the signal, if horizontalScale value was not changed
     emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
 
@@ -226,10 +214,10 @@ void MainWindow::init_ui_elements()
         const auto selected_channel = m_channelbar_model.get_selected();
 
         if (selected_channel.has_value()) {
-            int64_t vertical_uval = vertical_qdial_value_to_div_uval(new_value);
+            int64_t vertical_uval = qdial_value_to_div_uval(new_value);
 
             m_channelbar_model.set_channel_text(selected_channel.value(),
-                                                vertical_scale_to_string(vertical_uval));
+                                                unit_scale_to_string(vertical_uval));
             m_div_vertical_uval[selected_channel.value() - 1] = vertical_uval;
 
             emit update_channel_vertical_scale(
@@ -434,8 +422,8 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
                                       - GraphStyle::left_bottom_corner.y())
                                      / GraphStyle::vertical_grid)
                                             / (static_cast<double>(vertical_uval) / 1000000));
-                            m_channelbar_model.enable_channel(
-                                    ch_num, vertical_scale_to_string(vertical_uval));
+                            m_channelbar_model.enable_channel(ch_num,
+                                                              unit_scale_to_string(vertical_uval));
                             emit enable_channel(ch_num);
                         });
             }
@@ -564,7 +552,7 @@ void MainWindow::channel_selected(int channel_id)
     if (m_channelbar_model.is_selected(channel_id)) {
         const int64_t vertical_div = m_div_vertical_uval[channel_id - 1];
         ui->verticalScale->setEnabled(true);
-        ui->verticalScale->setValue(vertical_div_uval_to_qdial_value(vertical_div));
+        ui->verticalScale->setValue(div_uval_to_qdial_value(vertical_div));
     }
 }
 
@@ -603,9 +591,9 @@ void config_axis(QValueAxis *axis, int min, int max, int grid_cells, const QColo
     axis->setTickCount(grid_cells + 1);
 }
 
-int horizontal_div_us_to_qdial_value(int64_t division_us)
+int div_uval_to_qdial_value(int64_t division_u)
 {
-    if (division_us <= 0) {
+    if (division_u <= 0) {
         // It should never happen
         return 0;
     }
@@ -613,59 +601,26 @@ int horizontal_div_us_to_qdial_value(int64_t division_us)
     int log10 = 0;
 
     // Take log10 and round up
-    for (int64_t value_left = division_us - 1; value_left > 0; value_left /= 10) {
+    for (int64_t value_left = division_u - 1; value_left > 0; value_left /= 10) {
         log10++;
     }
 
-    return log10;
+    return 6 - log10;
 }
 
-int64_t horizontal_qdial_value_to_div_us(int value)
+int64_t qdial_value_to_div_uval(int value)
 {
-    return powers_of_10.at(std::clamp(value, 0, static_cast<int>(powers_of_10.size() - 1)));
+    return powers_of_10.at(std::clamp(6 - value, 0, static_cast<int>(powers_of_10.size() - 1)));
 }
 
-QString horizontal_scale_to_string(int64_t us)
-{
-    if (us < 1000LL) {
-        return QObject::tr("%1 us").arg(us);
-    } else if (us < 1000000LL) {
-        return QObject::tr("%1 ms").arg(static_cast<double>(us) / 1000.0);
-    } else {
-        return QObject::tr("%1 s").arg(static_cast<double>(us) / 1000000.0);
-    }
-}
-
-int vertical_div_uval_to_qdial_value(int64_t division)
-{
-    if (division <= 0) {
-        // It should never happen
-        return 0;
-    }
-
-    int log10 = 0;
-
-    // Take log10 and round up
-    for (int64_t value_left = division - 1; value_left > 0; value_left /= 10) {
-        log10++;
-    }
-
-    return log10;
-}
-
-int64_t vertical_qdial_value_to_div_uval(int value)
-{
-    return powers_of_10.at(std::clamp(value, 0, static_cast<int>(powers_of_10.size() - 1)));
-}
-
-QString vertical_scale_to_string(int64_t division)
+QString unit_scale_to_string(int64_t division, QStringView unit)
 {
     if (division < 1000LL) {
-        return QObject::tr("%1 u").arg(division);
+        return QObject::tr("%1 u%2").arg(division).arg(unit);
     } else if (division < 1000000LL) {
-        return QObject::tr("%1 m").arg(static_cast<double>(division) / 1000.0);
+        return QObject::tr("%1 m%2").arg(static_cast<double>(division) / 1000.0).arg(unit);
     } else {
-        return QObject::tr("%1 ").arg(static_cast<double>(division) / 1000000.0);
+        return QObject::tr("%1 %2").arg(static_cast<double>(division) / 1000000.0).arg(unit);
     }
 }
 

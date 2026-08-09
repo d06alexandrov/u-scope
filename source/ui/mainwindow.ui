@@ -252,13 +252,13 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
                 <item>
                  <widget class="QDial" name="horizontalScale">
                   <property name="minimum">
-                   <number>2</number>
+                   <number>-1</number>
                   </property>
                   <property name="maximum">
-                   <number>6</number>
+                   <number>4</number>
                   </property>
                   <property name="value">
-                   <number>4</number>
+                   <number>2</number>
                   </property>
                   <property name="wrapping">
                    <bool>false</bool>
@@ -324,13 +324,13 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
                    <bool>false</bool>
                   </property>
                   <property name="minimum">
-                   <number>2</number>
+                   <number>-2</number>
                   </property>
                   <property name="maximum">
-                   <number>8</number>
+                   <number>4</number>
                   </property>
                   <property name="value">
-                   <number>6</number>
+                   <number>0</number>
                   </property>
                   <property name="wrapping">
                    <bool>false</bool>

@@ -424,8 +424,7 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
                 connect(channel_assign_action, &QAction::triggered, this,
                         [this, reader_id, variable_id, ch_num]() {
                             int64_t vertical_uval = default_div_vertical_uval;
-                            m_div_vertical_uval[this, reader_id, variable_id, ch_num - 1] =
-                                    vertical_uval;
+                            m_div_vertical_uval[ch_num - 1] = vertical_uval;
 
                             m_channelbar_model.connect_channel(ch_num);
                             emit assign_channel(qMakePair(reader_id, variable_id), ch_num);

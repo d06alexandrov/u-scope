@@ -36,6 +36,8 @@ private:
     static constexpr size_t channels_amount = 12; /**< Amount of channels. */
     static constexpr int64_t default_div_horizontal_us =
             10000; /**< Default Size of one horizontal division in us. */
+    static constexpr int64_t default_div_vertical_uval =
+            1000000; /**< Default Size of one vertical division in 10^-6. */
     static constexpr int64_t default_time_width = 1000000; /**< Default window width in us. */
     static constexpr int default_frame_period_ms =
             33; /**< Default graph frame update period in ms. */
@@ -106,9 +108,15 @@ private:
     ScopeMode m_current_mode = ScopeMode::Stopped; /**< Current display mode. */
     int64_t m_div_horizontal_us =
             default_div_horizontal_us; /**< Size of one horizontal division in us. */
+    std::vector<int64_t> m_div_vertical_uval = std::vector<int64_t>(
+            channels_amount,
+            default_div_vertical_uval); /**< Sizes of vertical division in 10^-6. */
 
     UData::Time m_overview_min_time{ }; /**< Min overview graph time. */
     UData::Time m_overview_max_time{ }; /**< Max overview graph time. */
+
+    UData::Time m_graph_min_time{ }; /**< Min graph time. */
+    UData::Time m_graph_max_time{ }; /**< Max graph time. */
 
     ChannelBarModel m_channelbar_model; /**< Model for the channel bar. */
 
@@ -190,6 +198,14 @@ signals:
      * @param channel_id ID of the channel to be disable.
      */
     void disable_channel(ChannelId channel_id);
+
+    /**
+     * @brief Update vertical scale of a channel in the Data Processor
+     *
+     * @param channel_id ID of the channel to update.
+     * @param scale New vertical scale for the channel.
+     */
+    void update_channel_vertical_scale(ChannelId channel_id, double scale);
 
     /**
      * @brief Request stored data from Data Processor to display.

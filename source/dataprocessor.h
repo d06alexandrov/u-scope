@@ -175,6 +175,14 @@ public slots:
     void disable_channel(ChannelId channel_id);
 
     /**
+     * @brief Update vertical scale of the specific channel.
+     *
+     * @param channel_id ID of the channel to update vertical scale.
+     * @param scale New vertical scale value.
+     */
+    void update_channel_vertical_scale(ChannelId channel_id, double scale);
+
+    /**
      * @brief Receive data from the reader and store it in the buffer.
      *
      * @param reader_id ID of the reader.
@@ -297,6 +305,7 @@ private:
             m_channel_to_var{ }; /**< Correspondence between
                    channels and variables. */
     std::unordered_map<ChannelId, bool> m_channel_enabled{ }; /**< If channels are enabled. */
+    std::unordered_map<ChannelId, double> m_channel_vscale{ }; /**< Vertical channel scale. */
 
     size_t m_max_sample_points; /**< Maximum amount of sample points per channel. */
 

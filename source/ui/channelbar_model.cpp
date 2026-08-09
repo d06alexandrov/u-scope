@@ -154,7 +154,23 @@ void ChannelBarModel::disable_channel(ChannelId id)
     }
 }
 
-bool ChannelBarModel::is_enabled(ChannelId id)
+void ChannelBarModel::set_channel_text(ChannelId id, const QString &value_text)
+{
+    int channel_idx = static_cast<int>(id) - 1;
+
+    if (channel_idx < 0 || channel_idx >= m_channels.size()) {
+        return;
+    }
+
+    if (m_channels[channel_idx].connected) {
+        m_channels[channel_idx].value_text = value_text;
+
+        QModelIndex idx = createIndex(channel_idx, 0);
+        emit dataChanged(idx, idx, { ValueTextRole });
+    }
+}
+
+bool ChannelBarModel::is_enabled(ChannelId id) const
 {
     int channel_idx = static_cast<int>(id) - 1;
 
@@ -163,4 +179,20 @@ bool ChannelBarModel::is_enabled(ChannelId id)
     }
 
     return m_channels[channel_idx].enabled;
+}
+
+bool ChannelBarModel::is_selected(ChannelId id) const
+{
+    int channel_idx = static_cast<int>(id) - 1;
+
+    if (channel_idx < 0 || channel_idx >= m_channels.size()) {
+        return false;
+    }
+
+    return m_channels[channel_idx].selected;
+}
+
+std::optional<ChannelId> ChannelBarModel::get_selected() const
+{
+    return m_selected_channel;
 }

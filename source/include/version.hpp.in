@@ -1,0 +1,11 @@
+#pragma once
+
+namespace app_info {
+inline constexpr char app_name[] = "@PROJECT_NAME@";
+inline constexpr char version[] = "@PROJECT_VERSION@";
+// clang-format off
+inline constexpr int version_major = @PROJECT_VERSION_MAJOR@;
+inline constexpr int version_minor = @PROJECT_VERSION_MINOR@;
+inline constexpr int version_patch = @PROJECT_VERSION_PATCH@;
+// clang-format on
+} // namespace app_info

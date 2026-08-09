@@ -1,5 +1,6 @@
 #pragma once
 
+#include "channelbar_model.h"
 #include "dataprocessor.h"
 #include "universalreader.h"
 #include "universalreader_dialog.h"
@@ -17,6 +18,7 @@ class MainWindow;
 QT_END_NAMESPACE
 
 class SlidingWindow;
+class QQuickItem;
 
 /**
  * @brief Class that implements main window of the application
@@ -34,6 +36,8 @@ private:
     static constexpr size_t channels_amount = 12; /**< Amount of channels. */
     static constexpr int64_t default_div_horizontal_us =
             10000; /**< Default Size of one horizontal division in us. */
+    static constexpr int64_t default_div_vertical_uval =
+            1000000; /**< Default Size of one vertical division in 10^-6. */
     static constexpr int64_t default_time_width = 1000000; /**< Default window width in us. */
     static constexpr int default_frame_period_ms =
             33; /**< Default graph frame update period in ms. */
@@ -77,10 +81,16 @@ private:
         static constexpr QColor background_color = QColorConstants::Black; /**< Background color. */
     };
 
+    const std::vector<QColor> channel_colors = {
+        QColor("#FFFF00"), QColor("#00FFFF"), QColor("#FF00FF"), QColor("#00FF00"),
+        QColor("#FF8000"), QColor("#0080FF"), QColor("#FF0080"), QColor("#80FF00"),
+        QColor("#A060FF"), QColor("#FFD700"), QColor("#00F5FF"), QColor("#FF4500"),
+    };
+
     Ui::MainWindow *ui = nullptr; /**< Pointer to the Main Window user interface. */
-    QLineSeries *m_series[channels_amount]; /**< Pointer to Chart's series'. */
-    QValueAxis *m_axis_x = nullptr;
-    QValueAxis *m_axis_y = nullptr;
+    QQuickItem *m_main_chart_item = nullptr; /**< Pointer to the main chart quick item. */
+    QXYSeries *m_series[channels_amount]; /**< Pointer to Chart's series'. */
+    QValueAxis *m_axis_x = nullptr; /**< Pointer to Chart's x axis. */
 
     QLineSeries
             *m_series_overview[channels_amount]; /**< Pointer to Chart's series' for overview. */
@@ -91,16 +101,24 @@ private:
     QThread m_data_processor_thread; /**< Thread with a running Data Processor. */
     QMap<ReaderId, std::shared_ptr<UniversalReaderDialogConfig>>
             m_readers_config; /**< Readers configuration. */
-    QTimer m_render_timer;
+    QTimer m_render_timer; /**< Timer to trigger an update of the graph data. */
 
     QStandardItemModel *m_source_list_model = nullptr; /**< Source List model. */
 
     ScopeMode m_current_mode = ScopeMode::Stopped; /**< Current display mode. */
     int64_t m_div_horizontal_us =
             default_div_horizontal_us; /**< Size of one horizontal division in us. */
+    std::vector<int64_t> m_div_vertical_uval = std::vector<int64_t>(
+            channels_amount,
+            default_div_vertical_uval); /**< Sizes of vertical division in 10^-6. */
 
     UData::Time m_overview_min_time{ }; /**< Min overview graph time. */
     UData::Time m_overview_max_time{ }; /**< Max overview graph time. */
+
+    UData::Time m_graph_min_time{ }; /**< Min graph time. */
+    UData::Time m_graph_max_time{ }; /**< Max graph time. */
+
+    ChannelBarModel m_channelbar_model; /**< Model for the channel bar. */
 
     /**
      * @brief Initialize and run Data Processor.
@@ -166,6 +184,28 @@ signals:
      * @param channel_id id of the channel
      */
     void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
+
+    /**
+     * @brief Enable channel in the Data Processor
+     *
+     * @param channel_id ID of the channel to be enabled.
+     */
+    void enable_channel(ChannelId channel_id);
+
+    /**
+     * @brief Disable channel in the Data Processor
+     *
+     * @param channel_id ID of the channel to be disable.
+     */
+    void disable_channel(ChannelId channel_id);
+
+    /**
+     * @brief Update vertical scale of a channel in the Data Processor
+     *
+     * @param channel_id ID of the channel to update.
+     * @param scale New vertical scale for the channel.
+     */
+    void update_channel_vertical_scale(ChannelId channel_id, double scale);
 
     /**
      * @brief Request stored data from Data Processor to display.
@@ -257,4 +297,18 @@ public slots:
      * @brief Handle click on the stop button.
      */
     void handle_stop_clicked();
+
+    /**
+     * @brief Handle selection of the channel in the channel bar.
+     *
+     * @param channel_id ID of the selected channel.
+     */
+    void channel_selected(int channel_id);
+
+    /**
+     * @brief Handle toggling of the channel in the channel bar.
+     *
+     * @param channel_id ID of the toggled channel.
+     */
+    void channel_toggled(int channel_id);
 };

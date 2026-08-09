@@ -6,20 +6,28 @@
 #include "sliding_window.hpp"
 #include "ui_mainwindow.h"
 
+#include <QAction>
 #include <QChart>
+#include <QFile>
 #include <QGraphicsLayout>
 #include <QLineSeries>
+#include <QMessageBox>
 #include <QObject>
+#include <QQmlContext>
+#include <QQuickItem>
 #include <QThread>
 #include <QValueAxis>
+#include <QtCharts/QAbstractAxis>
+#include <QtCharts/QValueAxis>
+#include <QtCharts/QXYSeries>
 #include <algorithm>
 
 namespace {
 /**
  * @brief Powers of 10.
  */
-constexpr std::array<int64_t, 7> powers_of_10 = {
-    1LL, 10LL, 100LL, 1000LL, 10000LL, 100000LL, 1000000LL,
+constexpr std::array<int64_t, 9> powers_of_10 = {
+    1LL, 10LL, 100LL, 1000LL, 10000LL, 100000LL, 1000000LL, 10000000LL, 100000000LL,
 };
 
 /**
@@ -34,34 +42,47 @@ constexpr std::array<int64_t, 7> powers_of_10 = {
 void config_axis(QValueAxis *axis, int min, int max, int grid_cells, const QColor grid_color);
 
 /**
- * @brief Convert horizontal division in us to QDial value.
- *
- * @param division_us Horizontal division in us.
- * @return QDial value.
- */
-int horizontal_div_us_to_qdial_value(int64_t division_us);
-
-/**
- * @brief Convert QDial value to horizontal division in us.
- *
- * @param value QDial value.
- * @return Horizontal division in us.
- */
-int64_t horizontal_qdial_value_to_div_us(int value);
-
-/**
  * @brief Convert horizontal division in us to a string representation.
  *
  * @param us Horizontal division in us.
  * @return String representation of the horizontal division.
  */
-QString scale_to_string(int64_t us);
+QString horizontal_scale_to_string(int64_t us);
+
+/**
+ * @brief Convert division to QDial value.
+ *
+ * 10^-x division is converted into x.
+ *
+ * @param division_u Vertical division in 10^-6.
+ * @return QDial value.
+ */
+int div_uval_to_qdial_value(int64_t division_u);
+
+/**
+ * @brief Convert QDial value to vertical division in micro values.
+ *
+ * X is converted into 10^-x seconds.
+ *
+ * @param value QDial value.
+ * @return Vertical division in 10^-6.
+ */
+int64_t qdial_value_to_div_uval(int value);
+
+/**
+ * @brief Convert vertical division to a string representation.
+ *
+ * @param division Horizontal division in 10^-6.
+ * @return String representation of the vertical division.
+ */
+QString unit_scale_to_string(int64_t division, QStringView unit = u"");
 } // namespace
 
 MainWindow::MainWindow()
     : QMainWindow(nullptr)
     , ui(new Ui::MainWindow)
     , m_source_list_model(new QStandardItemModel(this))
+    , m_channelbar_model(channel_colors)
 {
     ui->setupUi(this);
 
@@ -106,6 +127,10 @@ void MainWindow::init_data_processor()
     connect(this, &MainWindow::configure_reader, data_processor, &DataProcessor::configure_reader);
     connect(this, &MainWindow::remove_reader, data_processor, &DataProcessor::remove_reader);
     connect(this, &MainWindow::assign_channel, data_processor, &DataProcessor::assign_channel);
+    connect(this, &MainWindow::enable_channel, data_processor, &DataProcessor::enable_channel);
+    connect(this, &MainWindow::disable_channel, data_processor, &DataProcessor::disable_channel);
+    connect(this, &MainWindow::update_channel_vertical_scale, data_processor,
+            &DataProcessor::update_channel_vertical_scale);
 
     connect(&m_data_processor_thread, &QThread::finished, data_processor,
             &DataProcessor::deleteLater);
@@ -128,60 +153,113 @@ void MainWindow::init_ui_elements()
 
     init_source_list();
 
+    // Initialize channel bar with channel badges
+    QVariantList color_list;
+    for (const QColor &color : channel_colors) {
+        color_list.append(color);
+    }
+
+    ui->qmlScreenView->setResizeMode(QQuickWidget::SizeRootObjectToView);
+    ui->qmlScreenView->rootContext()->setContextProperty("mainWindow", this);
+    ui->qmlScreenView->rootContext()->setContextProperty("channelModel", &m_channelbar_model);
+    ui->qmlScreenView->rootContext()->setContextProperty("cppChannelColors", color_list);
+    ui->qmlScreenView->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/ScreenRoot.qml")));
+
+    QQuickItem *root = ui->qmlScreenView->rootObject();
+
+    if (root != nullptr) {
+        m_main_chart_item = root->findChild<QQuickItem *>("mainChart");
+
+        if (m_main_chart_item != nullptr) {
+            QMetaObject::invokeMethod(m_main_chart_item, "getAxisX", Qt::DirectConnection,
+                                      Q_RETURN_ARG(QValueAxis *, m_axis_x));
+
+            for (int i = 0; i < channels_amount; ++i) {
+                QAbstractSeries *absSeries = nullptr;
+                QMetaObject::invokeMethod(m_main_chart_item, "getSeries", Qt::DirectConnection,
+                                          Q_RETURN_ARG(QAbstractSeries *, absSeries),
+                                          Q_ARG(int, i));
+
+                m_series[i] = qobject_cast<QXYSeries *>(absSeries);
+
+                if (m_series[i] == nullptr) {
+                    qFatal() << tr("Failed to find a main chart series # %1.").arg(i);
+                }
+            }
+        } else {
+            qFatal() << tr("Failed to get an access to Main Chart qml.");
+        }
+    } else {
+        qFatal() << tr("Failed to get an access to Screen Root qml.");
+    }
+
+    // Connect start and stop buttons
     connect(ui->pushButton_StartAll, &QPushButton::clicked, this,
             &MainWindow::handle_start_clicked);
     connect(ui->pushButton_StopAll, &QPushButton::clicked, this, &MainWindow::handle_stop_clicked);
 
     // Initialize horizontal scaler
     connect(ui->horizontalScale, &QDial::valueChanged, this, [this](int new_value) {
-        m_div_horizontal_us = horizontal_qdial_value_to_div_us(new_value);
-        ui->hScaleValue->setText(scale_to_string(m_div_horizontal_us));
+        m_div_horizontal_us = qdial_value_to_div_uval(new_value);
+        ui->hScaleValue->setText(unit_scale_to_string(m_div_horizontal_us, tr("s")));
         emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
     });
-    ui->horizontalScale->setValue(horizontal_div_us_to_qdial_value(default_div_horizontal_us));
-    ui->hScaleValue->setText(scale_to_string(default_div_horizontal_us));
+    ui->horizontalScale->setValue(div_uval_to_qdial_value(default_div_horizontal_us));
+    ui->hScaleValue->setText(unit_scale_to_string(default_div_horizontal_us, tr("s")));
     // Explicitly emit the signal, if horizontalScale value was not changed
     emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
+
+    // Initialize vertical scaler
+    connect(ui->verticalScale, &QDial::valueChanged, this, [this](int new_value) {
+        const auto selected_channel = m_channelbar_model.get_selected();
+
+        if (selected_channel.has_value()) {
+            int64_t vertical_uval = qdial_value_to_div_uval(new_value);
+
+            m_channelbar_model.set_channel_text(selected_channel.value(),
+                                                unit_scale_to_string(vertical_uval));
+            m_div_vertical_uval[selected_channel.value() - 1] = vertical_uval;
+
+            emit update_channel_vertical_scale(
+                    selected_channel.value(),
+                    ((GraphStyle::right_top_corner.y() - GraphStyle::left_bottom_corner.y())
+                     / GraphStyle::vertical_grid)
+                            / (static_cast<double>(vertical_uval) / 1000000));
+
+            if (m_current_mode == ScopeMode::Stopped) {
+                // trigger graph update
+                int pixel_width =
+                        std::max(minimum_graph_render_width,
+                                 static_cast<int>(m_main_chart_item->viewportItem()->width()));
+                emit request_stored_data(m_graph_min_time, m_graph_max_time, pixel_width);
+            }
+        }
+    });
+
+    // Initialize elements of the menu
+    connect(ui->actionAbout, &QAction::triggered, this, [this](bool checked) {
+        QMessageBox about_box(this);
+        about_box.setWindowTitle(tr("About %1").arg(QCoreApplication::applicationName()));
+        about_box.setText(
+                tr("<h3>%1</h3>"
+                   "<p>Version %2</p>"
+                   "<p>Built with Qt %3</p>"
+                   "This program is free software released under the GNU General Public License.")
+                        .arg(QCoreApplication::applicationName())
+                        .arg(QCoreApplication::applicationVersion())
+                        .arg(QT_VERSION_STR));
+
+        QFile license_file(QStringLiteral(":/ui/LICENSE"));
+        if (license_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+            about_box.setDetailedText(QString::fromUtf8(license_file.readAll()));
+        }
+
+        about_box.exec();
+    });
 }
 
 void MainWindow::init_graph()
 {
-    // Configure graph
-    m_axis_x = new QValueAxis;
-
-    config_axis(m_axis_x, GraphStyle::left_bottom_corner.x(), GraphStyle::right_top_corner.x(),
-                GraphStyle::horizontal_grid, GraphStyle::grid_line_color);
-
-    m_axis_y = new QValueAxis;
-
-    config_axis(m_axis_y, GraphStyle::left_bottom_corner.y(), GraphStyle::right_top_corner.y(),
-                GraphStyle::vertical_grid, GraphStyle::grid_line_color);
-
-    auto main_chart = ui->dataPlot->chart();
-
-    ui->dataPlot->setRenderHint(QPainter::Antialiasing, true);
-
-    main_chart->addAxis(m_axis_x, Qt::AlignBottom);
-    main_chart->addAxis(m_axis_y, Qt::AlignLeft);
-
-    main_chart->setBackgroundBrush(QBrush(GraphStyle::background_color));
-
-    main_chart->legend()->hide();
-
-    main_chart->setMargins(QMargins(0, 0, 0, 0));
-    main_chart->layout()->setContentsMargins(0, 0, 0, 0);
-
-    for (int i = 0; i < this->channels_amount; ++i) {
-        m_series[i] = new QLineSeries(this);
-        // TODO: check if series was created
-
-        main_chart->addSeries(m_series[i]);
-
-        m_series[i]->attachAxis(m_axis_x);
-        m_series[i]->attachAxis(m_axis_y);
-        m_series[i]->setPointsVisible(true);
-    }
-
     // Configure overview graph
     auto overview_chart = ui->dataOverview->chart();
 
@@ -211,6 +289,7 @@ void MainWindow::init_graph()
 
         m_series_overview[i]->attachAxis(m_overview_axis_x);
         m_series_overview[i]->attachAxis(m_overview_axis_y);
+        m_series_overview[i]->setPen(QPen(channel_colors[i]));
     }
 
     // Add sliding window to the overview graph
@@ -228,7 +307,8 @@ void MainWindow::init_graph()
     connect(m_sliding_window, &SlidingWindow::position_changed, this,
             [this](UData::Time window_min_time, UData::Time window_max_time) {
                 int pixel_width =
-                        std::max(minimum_graph_render_width, ui->dataPlot->viewport()->width());
+                        std::max(minimum_graph_render_width,
+                                 static_cast<int>(m_main_chart_item->viewportItem()->width()));
                 emit request_stored_data(window_min_time, window_max_time, pixel_width);
             });
 
@@ -254,7 +334,8 @@ void MainWindow::init_graph_rendering()
             UData::Time end_time = UData::get_timestamp();
 
             int pixel_width =
-                    std::max(minimum_graph_render_width, ui->dataPlot->viewport()->width());
+                    std::max(minimum_graph_render_width,
+                             static_cast<int>(m_main_chart_item->viewportItem()->width()));
 
             emit request_recent_stored_data(end_time, time_width_us, default_frame_period_ms * 1000,
                                             pixel_width);
@@ -324,13 +405,26 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
                     existing_item->data(ItemRoles::VariableIdRole).value<VariableId>();
             QMenu *assign_channel_submenu = contextMenu.addMenu("Assign to channel");
 
-            for (size_t ch_num = 0; ch_num < this->channels_amount; ch_num++) {
+            for (ChannelId ch_num = 1; ch_num <= this->channels_amount; ch_num++) {
                 QAction *channel_assign_action =
-                        assign_channel_submenu->addAction(tr("Channel %1").arg(ch_num + 1));
+                        assign_channel_submenu->addAction(tr("Channel %1").arg(ch_num));
 
                 connect(channel_assign_action, &QAction::triggered, this,
                         [this, reader_id, variable_id, ch_num]() {
+                            int64_t vertical_uval = default_div_vertical_uval;
+                            m_div_vertical_uval[ch_num - 1] = vertical_uval;
+
+                            m_channelbar_model.connect_channel(ch_num);
                             emit assign_channel(qMakePair(reader_id, variable_id), ch_num);
+                            emit update_channel_vertical_scale(
+                                    ch_num,
+                                    ((GraphStyle::right_top_corner.y()
+                                      - GraphStyle::left_bottom_corner.y())
+                                     / GraphStyle::vertical_grid)
+                                            / (static_cast<double>(vertical_uval) / 1000000));
+                            m_channelbar_model.enable_channel(ch_num,
+                                                              unit_scale_to_string(vertical_uval));
+                            emit enable_channel(ch_num);
                         });
             }
         } else {
@@ -388,9 +482,15 @@ void MainWindow::receive_stored_data(const QList<GraphData> &new_data,
 {
     m_axis_x->setRange(requested_start_time, requested_end_time);
 
+    m_graph_min_time = requested_start_time;
+    m_graph_max_time = requested_end_time;
+
     for (auto &channel_data : new_data) {
-        if (channel_data.get_id() < this->channels_amount) {
-            m_series[channel_data.get_id()]->replace(channel_data.get_values());
+        ChannelId channel_id = channel_data.get_id();
+
+        if (channel_id >= 1 && channel_id <= this->channels_amount
+            && m_channelbar_model.is_enabled(channel_id)) {
+            m_series[channel_id - 1]->replace(channel_data.get_values());
         }
     }
 }
@@ -412,8 +512,11 @@ void MainWindow::receive_full_history(const QList<GraphData> &new_data, UData::T
     }
 
     for (auto &channel_data : new_data) {
-        if (channel_data.get_id() < this->channels_amount) {
-            m_series_overview[channel_data.get_id()]->replace(channel_data.get_values());
+        ChannelId channel_id = channel_data.get_id();
+
+        if (channel_id >= 1 && channel_id <= this->channels_amount
+            && m_channelbar_model.is_enabled(channel_id)) {
+            m_series_overview[channel_data.get_id() - 1]->replace(channel_data.get_values());
         }
     }
 
@@ -442,6 +545,33 @@ void MainWindow::handle_stop_clicked()
     m_current_mode = ScopeMode::Stopped;
 }
 
+void MainWindow::channel_selected(int channel_id)
+{
+    m_channelbar_model.select_channel(channel_id);
+
+    if (m_channelbar_model.is_selected(channel_id)) {
+        const int64_t vertical_div = m_div_vertical_uval[channel_id - 1];
+        ui->verticalScale->setEnabled(true);
+        ui->verticalScale->setValue(div_uval_to_qdial_value(vertical_div));
+    }
+}
+
+void MainWindow::channel_toggled(int channel_id)
+{
+    // TODO: enable or disable channel readings
+    if (m_channelbar_model.is_enabled(channel_id)) {
+        m_channelbar_model.disable_channel(channel_id);
+        m_series[channel_id - 1]->clear();
+        m_series_overview[channel_id - 1]->clear();
+
+        emit disable_channel(channel_id);
+    } else {
+        m_channelbar_model.enable_channel(channel_id);
+
+        emit enable_channel(channel_id);
+    }
+}
+
 namespace {
 void config_axis(QValueAxis *axis, int min, int max, int grid_cells, const QColor grid_color)
 {
@@ -461,9 +591,9 @@ void config_axis(QValueAxis *axis, int min, int max, int grid_cells, const QColo
     axis->setTickCount(grid_cells + 1);
 }
 
-int horizontal_div_us_to_qdial_value(int64_t division_us)
+int div_uval_to_qdial_value(int64_t division_u)
 {
-    if (division_us <= 0) {
+    if (division_u <= 0) {
         // It should never happen
         return 0;
     }
@@ -471,26 +601,26 @@ int horizontal_div_us_to_qdial_value(int64_t division_us)
     int log10 = 0;
 
     // Take log10 and round up
-    for (int64_t value_left = division_us - 1; value_left > 0; value_left /= 10) {
+    for (int64_t value_left = division_u - 1; value_left > 0; value_left /= 10) {
         log10++;
     }
 
-    return log10;
+    return 6 - log10;
 }
 
-int64_t horizontal_qdial_value_to_div_us(int value)
+int64_t qdial_value_to_div_uval(int value)
 {
-    return powers_of_10.at(std::clamp(value, 0, static_cast<int>(powers_of_10.size() - 1)));
+    return powers_of_10.at(std::clamp(6 - value, 0, static_cast<int>(powers_of_10.size() - 1)));
 }
 
-QString scale_to_string(int64_t us)
+QString unit_scale_to_string(int64_t division, QStringView unit)
 {
-    if (us < 1000LL) {
-        return QObject::tr("%1 us").arg(us);
-    } else if (us < 1000000LL) {
-        return QObject::tr("%1 ms").arg(static_cast<double>(us) / 1000.0);
+    if (division < 1000LL) {
+        return QObject::tr("%1 u%2").arg(division).arg(unit);
+    } else if (division < 1000000LL) {
+        return QObject::tr("%1 m%2").arg(static_cast<double>(division) / 1000.0).arg(unit);
     } else {
-        return QObject::tr("%1 s").arg(static_cast<double>(us) / 1000000.0);
+        return QObject::tr("%1 %2").arg(static_cast<double>(division) / 1000000.0).arg(unit);
     }
 }
 

@@ -2,15 +2,17 @@ name: Generate Documentation
 
 on:
   push:
-    branches: [ develop ]
+    branches:
+      - develop
   pull_request:
-    branches: [ develop ]
+    branches:
+      - develop
 
 jobs:
   doxygen-generate:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/d06alexandrov/u-scope:0.5
+      image: ghcr.io/d06alexandrov/u-scope:0.6
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}

@@ -20,7 +20,19 @@
    <string>MainWindow</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QWidget[cssClass=&quot;displayedValue&quot;] {
+   <string notr="true">QGroupBox#outputScreen {
+    background-color: black;
+    border: 1px solid #333333;
+    border-radius: 4px;
+    margin-top: 16px;
+}
+
+QChartView {
+    background: transparent;
+    border: none;
+}
+
+QWidget[cssClass=&quot;displayedValue&quot;] {
     background-color: black;
     border-radius: 4px;
 }
@@ -64,7 +76,13 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
        </layout>
       </widget>
       <widget class="QWidget" name="mainScreen" native="true">
-       <layout class="QVBoxLayout" name="verticalLayout">
+       <property name="sizePolicy">
+        <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+         <horstretch>4</horstretch>
+         <verstretch>0</verstretch>
+        </sizepolicy>
+       </property>
+       <layout class="QHBoxLayout" name="horizontalLayout_2">
         <property name="topMargin">
          <number>0</number>
         </property>
@@ -76,6 +94,12 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
         </property>
         <item>
          <widget class="QGroupBox" name="outputScreen">
+          <property name="sizePolicy">
+           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+            <horstretch>0</horstretch>
+            <verstretch>0</verstretch>
+           </sizepolicy>
+          </property>
           <property name="title">
            <string>Screen</string>
           </property>
@@ -84,7 +108,7 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
             <widget class="QWidget" name="widget" native="true">
              <layout class="QVBoxLayout" name="verticalLayout_6">
               <property name="spacing">
-               <number>0</number>
+               <number>3</number>
               </property>
               <property name="leftMargin">
                <number>0</number>
@@ -99,7 +123,7 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
                <number>0</number>
               </property>
               <item>
-               <layout class="QHBoxLayout" name="horizontalLayout_2">
+               <layout class="QHBoxLayout" name="overDataPlot">
                 <property name="spacing">
                  <number>10</number>
                 </property>
@@ -157,89 +181,15 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
                </layout>
               </item>
               <item>
-               <widget class="QChartView" name="dataPlot">
-                <property name="enabled">
-                 <bool>true</bool>
-                </property>
+               <widget class="QQuickWidget" name="qmlScreenView">
                 <property name="sizePolicy">
                  <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
                   <horstretch>0</horstretch>
                   <verstretch>0</verstretch>
                  </sizepolicy>
                 </property>
-                <property name="renderHints">
-                 <set>QPainter::RenderHint::Antialiasing|QPainter::RenderHint::TextAntialiasing</set>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-           <item>
-            <widget class="QWidget" name="formWidget" native="true">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Maximum" vsizetype="Preferred">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <layout class="QFormLayout" name="formLayout">
-              <item row="0" column="0">
-               <widget class="QLabel" name="ch1Label">
-                <property name="text">
-                 <string>CH1</string>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="0">
-               <widget class="QLabel" name="ch2Label">
-                <property name="text">
-                 <string>CH2</string>
-                </property>
-               </widget>
-              </item>
-              <item row="2" column="0">
-               <spacer name="verticalSpacer">
-                <property name="orientation">
-                 <enum>Qt::Orientation::Vertical</enum>
-                </property>
-                <property name="sizeHint" stdset="0">
-                 <size>
-                  <width>20</width>
-                  <height>40</height>
-                 </size>
-                </property>
-               </spacer>
-              </item>
-              <item row="0" column="1">
-               <widget class="QLabel" name="ch1Val">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
-                </property>
-               </widget>
-              </item>
-              <item row="1" column="1">
-               <widget class="QLabel" name="ch2Val">
-                <property name="minimumSize">
-                 <size>
-                  <width>100</width>
-                  <height>0</height>
-                 </size>
-                </property>
-                <property name="text">
-                 <string/>
-                </property>
-                <property name="alignment">
-                 <set>Qt::AlignmentFlag::AlignRight|Qt::AlignmentFlag::AlignTrailing|Qt::AlignmentFlag::AlignVCenter</set>
+                <property name="resizeMode">
+                 <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
                 </property>
                </widget>
               </item>
@@ -254,145 +204,26 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
           <property name="title">
            <string>Control panel</string>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_6">
+          <layout class="QVBoxLayout" name="verticalLayout_9">
            <item>
-            <widget class="QGroupBox" name="verticalConfig">
-             <property name="enabled">
-              <bool>false</bool>
-             </property>
+            <widget class="QGroupBox" name="triggerConfig">
              <property name="title">
-              <string>Vertical</string>
+              <string>Trigger</string>
              </property>
-             <layout class="QHBoxLayout" name="horizontalLayout_5">
-              <item>
-               <layout class="QGridLayout" name="channelSelectors">
-                <item row="2" column="1">
-                 <widget class="QPushButton" name="configCh10">
-                  <property name="text">
-                   <string>CH10</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="0">
-                 <widget class="QPushButton" name="configCh01">
-                  <property name="text">
-                   <string>CH1</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="1">
-                 <widget class="QPushButton" name="configCh06">
-                  <property name="text">
-                   <string>CH6</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="2">
-                 <widget class="QPushButton" name="configCh11">
-                  <property name="text">
-                   <string>CH11</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="2">
-                 <widget class="QPushButton" name="configCh03">
-                  <property name="text">
-                   <string>CH3</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="2">
-                 <widget class="QPushButton" name="configCh07">
-                  <property name="text">
-                   <string>CH7</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="0">
-                 <widget class="QPushButton" name="configCh05">
-                  <property name="text">
-                   <string>CH5</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="0">
-                 <widget class="QPushButton" name="configCh09">
-                  <property name="text">
-                   <string>CH9</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="1">
-                 <widget class="QPushButton" name="configCh02">
-                  <property name="text">
-                   <string>CH2</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="0" column="3">
-                 <widget class="QPushButton" name="configCh04">
-                  <property name="text">
-                   <string>CH4</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="1" column="3">
-                 <widget class="QPushButton" name="configCh08">
-                  <property name="text">
-                   <string>CH8</string>
-                  </property>
-                 </widget>
-                </item>
-                <item row="2" column="3">
-                 <widget class="QPushButton" name="configCh12">
-                  <property name="text">
-                   <string>CH12</string>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+             <layout class="QGridLayout" name="gridLayout_2">
+              <item row="0" column="0">
+               <widget class="QPushButton" name="pushButton_StartAll">
+                <property name="text">
+                 <string>Start</string>
+                </property>
+               </widget>
               </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_2">
-                <item>
-                 <widget class="QLabel" name="label">
-                  <property name="text">
-                   <string>Scale</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignmentFlag::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QDial" name="dial_3">
-                  <property name="wrapping">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <layout class="QVBoxLayout" name="verticalLayout_3">
-                <item>
-                 <widget class="QLabel" name="label_2">
-                  <property name="text">
-                   <string>Position</string>
-                  </property>
-                  <property name="alignment">
-                   <set>Qt::AlignmentFlag::AlignCenter</set>
-                  </property>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QDial" name="dial_4">
-                  <property name="wrapping">
-                   <bool>true</bool>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
+              <item row="0" column="1">
+               <widget class="QPushButton" name="pushButton_StopAll">
+                <property name="text">
+                 <string>Stop</string>
+                </property>
+               </widget>
               </item>
              </layout>
             </widget>
@@ -421,13 +252,13 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
                 <item>
                  <widget class="QDial" name="horizontalScale">
                   <property name="minimum">
-                   <number>2</number>
+                   <number>-1</number>
                   </property>
                   <property name="maximum">
-                   <number>6</number>
+                   <number>4</number>
                   </property>
                   <property name="value">
-                   <number>4</number>
+                   <number>2</number>
                   </property>
                   <property name="wrapping">
                    <bool>false</bool>
@@ -470,40 +301,89 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
             </widget>
            </item>
            <item>
-            <spacer name="horizontalSpacer">
-             <property name="orientation">
-              <enum>Qt::Orientation::Horizontal</enum>
-             </property>
-             <property name="sizeHint" stdset="0">
-              <size>
-               <width>8</width>
-               <height>20</height>
-              </size>
-             </property>
-            </spacer>
-           </item>
-           <item>
-            <widget class="QGroupBox" name="triggerConfig">
+            <widget class="QGroupBox" name="verticalConfig">
              <property name="title">
-              <string>Trigger</string>
+              <string>Vertical</string>
              </property>
-             <layout class="QGridLayout" name="gridLayout_2">
-              <item row="0" column="0">
-               <widget class="QPushButton" name="pushButton_StartAll">
-                <property name="text">
-                 <string>Start</string>
-                </property>
-               </widget>
+             <layout class="QHBoxLayout" name="horizontalLayout_5">
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_2">
+                <item>
+                 <widget class="QLabel" name="label">
+                  <property name="text">
+                   <string>Scale</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDial" name="verticalScale">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="minimum">
+                   <number>-2</number>
+                  </property>
+                  <property name="maximum">
+                   <number>4</number>
+                  </property>
+                  <property name="value">
+                   <number>0</number>
+                  </property>
+                  <property name="wrapping">
+                   <bool>false</bool>
+                  </property>
+                  <property name="notchTarget">
+                   <double>1.000000000000000</double>
+                  </property>
+                  <property name="notchesVisible">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
-              <item row="0" column="1">
-               <widget class="QPushButton" name="pushButton_StopAll">
-                <property name="text">
-                 <string>Stop</string>
-                </property>
-               </widget>
+              <item>
+               <layout class="QVBoxLayout" name="verticalLayout_3">
+                <item>
+                 <widget class="QLabel" name="label_2">
+                  <property name="text">
+                   <string>Position</string>
+                  </property>
+                  <property name="alignment">
+                   <set>Qt::AlignmentFlag::AlignCenter</set>
+                  </property>
+                 </widget>
+                </item>
+                <item>
+                 <widget class="QDial" name="dial_4">
+                  <property name="enabled">
+                   <bool>false</bool>
+                  </property>
+                  <property name="wrapping">
+                   <bool>true</bool>
+                  </property>
+                 </widget>
+                </item>
+               </layout>
               </item>
              </layout>
             </widget>
+           </item>
+           <item>
+            <spacer name="verticalSpacer">
+             <property name="orientation">
+              <enum>Qt::Orientation::Vertical</enum>
+             </property>
+             <property name="sizeHint" stdset="0">
+              <size>
+               <width>20</width>
+               <height>40</height>
+              </size>
+             </property>
+            </spacer>
            </item>
           </layout>
          </widget>
@@ -528,15 +408,27 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
      <string>File</string>
     </property>
    </widget>
+   <widget class="QMenu" name="menuHelp">
+    <property name="title">
+     <string>Help</string>
+    </property>
+    <addaction name="actionAbout"/>
+   </widget>
    <addaction name="menuFile"/>
+   <addaction name="menuHelp"/>
   </widget>
-  <action name="actionConfig_UART">
+  <action name="actionAbout">
    <property name="text">
-    <string>Config UART</string>
+    <string>About</string>
    </property>
   </action>
  </widget>
  <customwidgets>
+  <customwidget>
+   <class>QQuickWidget</class>
+   <extends>QWidget</extends>
+   <header location="global">QtQuickWidgets/QQuickWidget</header>
+  </customwidget>
   <customwidget>
    <class>QChartView</class>
    <extends>QGraphicsView</extends>

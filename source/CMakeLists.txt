@@ -1,14 +1,27 @@
 cmake_minimum_required(VERSION 3.23)
 
-find_package(Qt6 REQUIRED COMPONENTS Widgets Charts SerialPort)
+find_package(
+    Qt6 REQUIRED COMPONENTS Widgets Quick QuickWidgets Qml Charts SerialPort
+)
 
 # Add interface library to propagate common header
 add_library(common_headers INTERFACE)
 
+configure_file(
+    ${CMAKE_CURRENT_SOURCE_DIR}/include/version.hpp.in
+    ${CMAKE_CURRENT_BINARY_DIR}/include/version.hpp @ONLY
+)
+
 target_sources(
     common_headers
-    PUBLIC FILE_SET HEADERS BASE_DIRS ${CMAKE_CURRENT_SOURCE_DIR}/include FILES
+    PUBLIC FILE_SET
+           HEADERS
+           BASE_DIRS
+           ${CMAKE_CURRENT_SOURCE_DIR}/include
+           ${CMAKE_CURRENT_BINARY_DIR}/include
+           FILES
            ${CMAKE_CURRENT_SOURCE_DIR}/include/commontypes.hpp
+           ${CMAKE_CURRENT_BINARY_DIR}/include/version.hpp
 )
 
 target_link_libraries(common_headers INTERFACE Qt${QT_VERSION_MAJOR}::Core)
@@ -16,20 +29,20 @@ target_link_libraries(common_headers INTERFACE Qt${QT_VERSION_MAJOR}::Core)
 # Add directory with readers library
 add_subdirectory(readers)
 
+# Add directory with user interface
+add_subdirectory(ui)
+
 # Main application
 qt_add_executable(u-scope)
 
 target_sources(
-    u-scope
-    PRIVATE # cmake-format: sortable
-            dataprocessor.cpp main.cpp mainwindow.cpp mainwindow.ui
-            sliding_window.hpp
+    u-scope PRIVATE # cmake-format: sortable
+                    dataprocessor.cpp main.cpp
 )
 
 target_link_libraries(
-    u-scope
-    PRIVATE Qt${QT_VERSION_MAJOR}::Widgets Qt${QT_VERSION_MAJOR}::Charts
-            common_headers universal_reader serial_reader simulated_reader
+    u-scope PRIVATE Qt${QT_VERSION_MAJOR}::Core common_headers universal_reader
+                    serial_reader simulated_reader user_interface
 )
 
 set_target_properties(
@@ -51,9 +64,8 @@ qt_add_translations(
 
 if(WIN32)
     install(TARGETS u-scope)
-    qt_generate_deploy_app_script(
-        TARGET u-scope
-        OUTPUT_SCRIPT deploy_script
+    qt_generate_deploy_qml_app_script(
+        TARGET u-scope OUTPUT_SCRIPT deploy_script
         NO_UNSUPPORTED_PLATFORM_ERROR NO_TRANSLATIONS
     )
     install(SCRIPT ${deploy_script})

@@ -32,6 +32,8 @@ jobs:
       contents: read
       packages: write
       pull-requests: write
+    with:
+      skip_linter: true
 
   upload-release-assets:
     needs: [release-please, build-app]

@@ -8,6 +8,12 @@ on:
     branches:
       - develop
   workflow_call:
+    inputs:
+      skip_linter:
+        description: 'Skip the C++ linter job'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   app-build-linux:
@@ -76,7 +82,7 @@ jobs:
 
   cpp-linter:
     needs: app-build-linux
-    if: github.event_name != 'workflow_call'
+    if: ${{ !inputs.skip_linter }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/d06alexandrov/u-scope:0.6

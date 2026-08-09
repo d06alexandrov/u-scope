@@ -382,9 +382,9 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
 
     for (const auto &[channel_id, channel_data] : m_buffers) {
         QList<QPointF> processed_values;
-        qreal scale = m_channel_vscale.find(channel_id) == m_channel_vscale.end()
-                ? 1.0
-                : m_channel_vscale.at(channel_id);
+
+        auto scale_it = m_channel_vscale.find(channel_id);
+        qreal scale = (scale_it != m_channel_vscale.end()) ? scale_it->second : 1.0;
 
         auto left_it =
                 std::ranges::lower_bound(channel_data, start_time_actual, std::less<>{ }, get_time);

@@ -67,8 +67,8 @@ This transitions the application into Stopped Mode, which is designed for detail
 
 ## Author
 
-Dmitriy Alexandov [d06alexandrov](https://github.com/d06alexandrov)
+Dmitriy Alexandrov [d06alexandrov](https://github.com/d06alexandrov)
 
 ## License
 
-This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](LICENSE) file for details.
+This project is licensed under the GNU General Public License v3.0 - see the [LICENSE](./LICENSE) file for details.

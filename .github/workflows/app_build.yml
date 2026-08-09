@@ -110,7 +110,7 @@ jobs:
           style: ''
           tidy-checks: ''
           database: 'build'
-          thread-comments: true
+          thread-comments: ${{ github.event_name == 'pull_request' }}
           step-summary: true
           lines-changed-only: ${{ github.event_name == 'pull_request' }}
           files-changed-only: ${{ github.event_name == 'pull_request' }}

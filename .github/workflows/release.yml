@@ -31,6 +31,7 @@ jobs:
     permissions:
       contents: read
       packages: write
+      pull-requests: write
 
   upload-release-assets:
     needs: [release-please, build-app]

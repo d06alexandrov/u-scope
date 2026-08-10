@@ -110,6 +110,10 @@ void ChannelBarModel::select_channel(ChannelId id)
         if (m_selected_channel.has_value()) {
             ChannelId previous_channel_idx = m_selected_channel.value();
 
+            if (previous_channel_idx == id) {
+                return;
+            }
+
             m_channels[previous_channel_idx].selected = false;
             QModelIndex previous_idx = createIndex(previous_channel_idx, 0);
             emit dataChanged(previous_idx, previous_idx, { ChannelSelectedRole });

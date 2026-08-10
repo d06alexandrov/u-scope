@@ -545,7 +545,11 @@ void MainWindow::handle_stop_clicked()
 
 void MainWindow::channel_selected(int channel_id)
 {
-    ChannelId id = static_cast<ChannelId>(channel_id);
+    if (channel_id < 0 || channel_id >= this->channels_amount) {
+        return;
+    }
+
+    auto id = static_cast<ChannelId>(channel_id);
 
     m_channelbar_model.select_channel(id);
 
@@ -558,7 +562,11 @@ void MainWindow::channel_selected(int channel_id)
 
 void MainWindow::channel_toggled(int channel_id)
 {
-    ChannelId id = static_cast<ChannelId>(channel_id);
+    if (channel_id < 0 || channel_id >= this->channels_amount) {
+        return;
+    }
+
+    auto id = static_cast<ChannelId>(channel_id);
 
     // TODO: enable or disable channel readings
     if (m_channelbar_model.is_enabled(id)) {

@@ -369,8 +369,8 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
                                       - GraphStyle::left_bottom_corner.y())
                                      / GraphStyle::vertical_grid)
                                             / (static_cast<double>(vertical_uval) / 1000000));
-                            m_channelbar_model.enable_channel(ch_num,
-                                                              unit_scale_to_string(vertical_uval));
+                            m_channelbar_model.enable_channel(
+                                    ch_num, InputConversion::unit_scale_to_string(vertical_uval));
                             emit enable_channel(ch_num);
                         });
             }
@@ -503,7 +503,7 @@ void MainWindow::channel_selected(int channel_id)
     if (m_channelbar_model.is_selected(id)) {
         const int64_t vertical_div = m_div_vertical_uval[id];
         ui->verticalScale->setEnabled(true);
-        ui->verticalScale->setValue(div_uval_to_qdial_value(vertical_div));
+        ui->verticalScale->setValue(InputConversion::div_uval_to_qdial_value(vertical_div));
     }
 }
 

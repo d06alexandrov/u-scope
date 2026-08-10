@@ -9,8 +9,8 @@ target_include_directories(
 target_sources(
     user_interface
     PRIVATE # cmake-format: sortable
-            channelbar_model.cpp mainwindow.cpp mainwindow.ui
-            sliding_window.hpp
+            channelbar_model.cpp mainchart_controller.cpp mainwindow.cpp
+            mainwindow.ui sliding_window.hpp
 )
 
 qt_add_qml_module(

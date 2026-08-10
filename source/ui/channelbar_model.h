@@ -19,7 +19,8 @@ public:
      * @brief Roles for the channel bar model.
      */
     enum Roles {
-        ChannelNumberRole = Qt::UserRole + 1, /**< Index of the channel. */
+        ChannelIdRole = Qt::UserRole + 1, /**< Index of the channel. */
+        ChannelNumberRole, /**< Number of the channel. */
         BadgeColorRole, /**< Color of the badge. */
         ValueTextRole, /**< Text for the badge. */
         ChannelConnected, /**< If channel is connected to the source. */
@@ -32,7 +33,6 @@ public:
      */
     struct ChannelState
     {
-        int number; /**< Index of the channel. */
         QColor color; /**< Color of the badge. */
         QString value_text; /**< Text for the badge. */
         bool connected; /**< Channel is connected. */

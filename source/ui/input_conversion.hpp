@@ -6,20 +6,14 @@
 #include <algorithm>
 #include <array>
 
+namespace InputConversion {
+
 /**
  * @brief Powers of 10.
  */
 inline constexpr std::array<int64_t, 9> powers_of_10 = {
     1LL, 10LL, 100LL, 1000LL, 10000LL, 100000LL, 1000000LL, 10000000LL, 100000000LL,
 };
-
-/**
- * @brief Convert horizontal division in us to a string representation.
- *
- * @param us Horizontal division in us.
- * @return String representation of the horizontal division.
- */
-inline QString horizontal_scale_to_string(int64_t us);
 
 /**
  * @brief Convert division to QDial value.
@@ -75,3 +69,5 @@ inline QString unit_scale_to_string(int64_t division, QStringView unit = u"")
         return QObject::tr("%1 %2").arg(static_cast<double>(division) / 1000000.0).arg(unit);
     }
 }
+
+} // namespace InputConversion

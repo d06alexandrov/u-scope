@@ -144,12 +144,15 @@ void MainWindow::init_ui_elements()
 
     // Initialize horizontal scaler
     connect(ui->horizontalScale, &QDial::valueChanged, this, [this](int new_value) {
-        m_div_horizontal_us = qdial_value_to_div_uval(new_value);
-        ui->hScaleValue->setText(unit_scale_to_string(m_div_horizontal_us, tr("s")));
+        m_div_horizontal_us = InputConversion::qdial_value_to_div_uval(new_value);
+        ui->hScaleValue->setText(
+                InputConversion::unit_scale_to_string(m_div_horizontal_us, tr("s")));
         emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
     });
-    ui->horizontalScale->setValue(div_uval_to_qdial_value(default_div_horizontal_us));
-    ui->hScaleValue->setText(unit_scale_to_string(default_div_horizontal_us, tr("s")));
+    ui->horizontalScale->setValue(
+            InputConversion::div_uval_to_qdial_value(default_div_horizontal_us));
+    ui->hScaleValue->setText(
+            InputConversion::unit_scale_to_string(default_div_horizontal_us, tr("s")));
     // Explicitly emit the signal, if horizontalScale value was not changed
     emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
 
@@ -158,10 +161,10 @@ void MainWindow::init_ui_elements()
         const auto selected_channel = m_channelbar_model.get_selected();
 
         if (selected_channel.has_value()) {
-            int64_t vertical_uval = qdial_value_to_div_uval(new_value);
+            int64_t vertical_uval = InputConversion::qdial_value_to_div_uval(new_value);
 
-            m_channelbar_model.set_channel_text(selected_channel.value(),
-                                                unit_scale_to_string(vertical_uval));
+            m_channelbar_model.set_channel_text(
+                    selected_channel.value(), InputConversion::unit_scale_to_string(vertical_uval));
             m_div_vertical_uval[selected_channel.value()] = vertical_uval;
 
             emit update_channel_vertical_scale(

@@ -10,6 +10,10 @@ MainChartController::MainChartController(QObject *parent)
 
 void MainChartController::attach_ui(QValueAxis *x_axis, std::span<QXYSeries *> series_array)
 {
+    if (x_axis == nullptr) {
+        return;
+    }
+
     m_axis_x = x_axis;
     m_axis_div_count = std::max(1, x_axis->tickCount() - 1);
     m_series.assign(series_array.begin(), series_array.end());

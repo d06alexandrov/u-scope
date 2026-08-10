@@ -51,6 +51,8 @@ void MainChartController::receive_stored_data(const QList<GraphData> &new_data,
     m_graph_min_time = requested_start_time;
     m_graph_max_time = requested_end_time;
 
+    // TODO: clear channels that are not present in the new_data list
+
     for (auto &channel_data : new_data) {
         ChannelId channel_id = channel_data.get_id();
 

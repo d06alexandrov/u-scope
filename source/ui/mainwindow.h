@@ -2,6 +2,7 @@
 
 #include "channelbar_model.h"
 #include "dataprocessor.h"
+#include "mainchart_controller.h"
 #include "universalreader.h"
 #include "universalreader_dialog.h"
 
@@ -34,17 +35,10 @@ public:
 private:
     static constexpr ReaderId readers_amount = 10; /**< Maximum amount of readers. */
     static constexpr size_t channels_amount = 12; /**< Amount of channels. */
-    static constexpr int64_t default_div_horizontal_us =
-            10000; /**< Default Size of one horizontal division in us. */
     static constexpr int64_t default_div_vertical_uval =
             1000000; /**< Default Size of one vertical division in 10^-6. */
-    static constexpr int64_t default_time_width = 1000000; /**< Default window width in us. */
-    static constexpr int default_frame_period_ms =
-            33; /**< Default graph frame update period in ms. */
     static constexpr int maximum_overview_points =
             2000; /**< Maximum amount of points of the overview chart. */
-    static constexpr int minimum_graph_render_width =
-            100; /**< Minimum expected pixel width of the graph. */
 
     /**
      * @brief Roles of the items in the source list.
@@ -88,9 +82,6 @@ private:
     };
 
     Ui::MainWindow *ui = nullptr; /**< Pointer to the Main Window user interface. */
-    QQuickItem *m_main_chart_item = nullptr; /**< Pointer to the main chart quick item. */
-    QXYSeries *m_series[channels_amount]; /**< Pointer to Chart's series'. */
-    QValueAxis *m_axis_x = nullptr; /**< Pointer to Chart's x axis. */
 
     QLineSeries
             *m_series_overview[channels_amount]; /**< Pointer to Chart's series' for overview. */
@@ -98,16 +89,15 @@ private:
     QValueAxis *m_overview_axis_y = nullptr; /**< Overview's y axis. */
     SlidingWindow *m_sliding_window = nullptr; /**< Sliding window on the overview graph. */
 
+    DataProcessor *m_data_processor = nullptr; /**< Main Data Processor. */
     QThread m_data_processor_thread; /**< Thread with a running Data Processor. */
     QMap<ReaderId, std::shared_ptr<UniversalReaderDialogConfig>>
             m_readers_config; /**< Readers configuration. */
-    QTimer m_render_timer; /**< Timer to trigger an update of the graph data. */
 
     QStandardItemModel *m_source_list_model = nullptr; /**< Source List model. */
 
     ScopeMode m_current_mode = ScopeMode::Stopped; /**< Current display mode. */
-    int64_t m_div_horizontal_us =
-            default_div_horizontal_us; /**< Size of one horizontal division in us. */
+    int64_t m_div_horizontal_us{ }; /**< Size of one horizontal division in us. */
     std::vector<int64_t> m_div_vertical_uval = std::vector<int64_t>(
             channels_amount,
             default_div_vertical_uval); /**< Sizes of vertical division in 10^-6. */
@@ -115,9 +105,7 @@ private:
     UData::Time m_overview_min_time{ }; /**< Min overview graph time. */
     UData::Time m_overview_max_time{ }; /**< Max overview graph time. */
 
-    UData::Time m_graph_min_time{ }; /**< Min graph time. */
-    UData::Time m_graph_max_time{ }; /**< Max graph time. */
-
+    MainChartController m_mainchart_controller; /**< Controller of the main chart. */
     ChannelBarModel m_channelbar_model; /**< Model for the channel bar. */
 
     /**
@@ -139,11 +127,6 @@ private:
      * @brief Initialize source list.
      */
     void init_source_list();
-
-    /**
-     * @brief Configure and start rendering timer.
-     */
-    void init_graph_rendering();
 
     /**
      * @brief Get available reader index.
@@ -208,29 +191,6 @@ signals:
     void update_channel_vertical_scale(ChannelId channel_id, double scale);
 
     /**
-     * @brief Request stored data from Data Processor to display.
-     *
-     * @param start_time Start time of the requested data.
-     * @param end_time End time of the requested data.
-     * @param points_limit Maximum amount of points to be displayed on the graph.
-     */
-    void request_stored_data(UData::Time start_time, UData::Time end_time, int points_limit);
-
-    /**
-     * @brief Request most recent stored data from Data Processor to display.
-     *
-     * Request data, where the latest data is not less than end_time - max_drift_us. The returned
-     * range is [newest data - data_windows_us, newest data].
-     *
-     * @param end_time Maximum time of the requested data.
-     * @param data_window_us Time window of the requested data in microseconds.
-     * @param max_drift_us Maximum difference between requested and returned end time.
-     * @param points_limit Maximum amount of points to be displayed on the graph.
-     */
-    void request_recent_stored_data(UData::Time end_time, int64_t data_window_us,
-                                    int64_t max_drift_us, int points_limit);
-
-    /**
      * @brief Request full history data from Data Processor to display.
      *
      * @param points_limit Maximum amount of points to be returned.
@@ -259,6 +219,25 @@ signals:
      */
     void sliding_window_reset(UData::Time min_time, UData::Time max_time, int64_t window_width_us);
 
+    /**
+     * @brief Switch between continuous and stopped mode of the chart.
+     *
+     * @param on True to switch to continuous mode, false to switch to stopped mode.
+     */
+    void switch_continuous_mode(bool on);
+
+    /**
+     * @brief Set the horizontal division of the main chart.
+     *
+     * @param div_us Size of one horizontal division in microseconds.
+     */
+    void set_horizontal_div(int64_t div_us);
+
+    /**
+     * @brief Force refresh of the chart data.
+     */
+    void force_graph_refresh();
+
 private slots:
     /**
      * @brief Show context menu for the source list.
@@ -268,15 +247,6 @@ private slots:
     void source_list_context_menu(const QPoint &pos);
 
 public slots:
-    /**
-     * @brief Receive requested data from Data Processor and display it on the graph.
-     *
-     * @param new_data List of new data to be displayed on the graph.
-     * @param requested_start_time Start time of the requested data.
-     * @param requested_end_time End time of the requested data.
-     */
-    void receive_stored_data(const QList<GraphData> &new_data, UData::Time requested_start_time,
-                             UData::Time requested_end_time);
 
     /**
      * @brief Receive full data history from Data Processor.

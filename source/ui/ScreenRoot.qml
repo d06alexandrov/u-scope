@@ -10,9 +10,14 @@ Rectangle {
         spacing: 0
 
         MainChart {
+            id: mainChart
             objectName: "mainChart"
             Layout.fillWidth: true
             Layout.fillHeight: true
+
+            onWidthChanged: {
+                mainChartController.set_chart_width(mainChart.width);
+            }
         }
 
         ChannelBar {
@@ -21,8 +26,8 @@ Rectangle {
             Layout.margins: 5
             channelBarModel: channelModel
 
-            onChannelSelected: (channelId) => mainWindow.channel_selected(channelId)
-            onChannelToggled: (channelId) => mainWindow.channel_toggled(channelId)
+            onChannelSelected: channelId => mainWindow.channel_selected(channelId)
+            onChannelToggled: channelId => mainWindow.channel_toggled(channelId)
         }
     }
 }

@@ -103,8 +103,6 @@ void MainWindow::init_data_processor()
 
 void MainWindow::init_ui_elements()
 {
-    init_graph();
-
     init_source_list();
 
     // Initialize channel bar with channel badges
@@ -132,6 +130,19 @@ void MainWindow::init_ui_elements()
         } else {
             qFatal() << tr("Failed to extract Main Chart series.");
         }
+
+        if (auto extract_result = extract_graph_series(root, u"overviewChart", channels_amount);
+            extract_result.has_value()) {
+            auto [extracted_axis, extracted_series] = extract_result.value();
+
+            m_overview_axis_x = extracted_axis;
+            for (int i = 0; i < this->channels_amount; ++i) {
+                m_series_overview.at(i) = extracted_series.at(i);
+            }
+        } else {
+            qFatal() << tr("Failed to extract Main Chart series.");
+        }
+
     } else {
         qFatal() << tr("Failed to get an access to Screen Root qml.");
     }
@@ -184,13 +195,14 @@ void MainWindow::init_ui_elements()
 
         about_box.exec();
     });
+
+    init_graph();
 }
 
 void MainWindow::init_graph()
 {
     // Configure overview graph
     auto overview_chart = ui->dataOverview->chart();
-
     overview_chart->setBackgroundBrush(QBrush(GraphStyle::background_color));
 
     overview_chart->legend()->hide();
@@ -198,27 +210,13 @@ void MainWindow::init_graph()
     overview_chart->setMargins(QMargins(0, 0, 0, 0));
     overview_chart->layout()->setContentsMargins(0, 0, 0, 0);
 
-    m_overview_axis_x = new QValueAxis;
-    m_overview_axis_y = new QValueAxis;
+    auto overview_axis_x = new QValueAxis;
 
-    m_overview_axis_x->setRange(0, 1);
-    m_overview_axis_y->setRange(-100, 100);
+    overview_axis_x->setRange(0, 1);
 
-    overview_chart->addAxis(m_overview_axis_x, Qt::AlignBottom);
-    overview_chart->addAxis(m_overview_axis_y, Qt::AlignLeft);
+    overview_chart->addAxis(overview_axis_x, Qt::AlignBottom);
 
-    m_overview_axis_x->setVisible(false);
-    m_overview_axis_y->setVisible(false);
-
-    for (int i = 0; i < this->channels_amount; ++i) {
-        m_series_overview[i] = new QLineSeries(this);
-
-        overview_chart->addSeries(m_series_overview[i]);
-
-        m_series_overview[i]->attachAxis(m_overview_axis_x);
-        m_series_overview[i]->attachAxis(m_overview_axis_y);
-        m_series_overview[i]->setPen(QPen(channel_colors[i]));
-    }
+    overview_axis_x->setVisible(false);
 
     // Add sliding window to the overview graph
     m_sliding_window = new SlidingWindow();
@@ -420,14 +418,14 @@ void MainWindow::receive_full_history(const QList<GraphData> &new_data, UData::T
     m_overview_max_time = max_time;
 
     for (int i = 0; i < this->channels_amount; ++i) {
-        m_series_overview[i]->clear();
+        m_series_overview.at(i)->clear();
     }
 
     for (auto &channel_data : new_data) {
         ChannelId channel_id = channel_data.get_id();
 
         if (channel_id < this->channels_amount && m_channelbar_model.is_enabled(channel_id)) {
-            m_series_overview[channel_data.get_id()]->replace(channel_data.get_values());
+            m_series_overview.at(channel_data.get_id())->replace(channel_data.get_values());
         }
     }
 
@@ -484,7 +482,7 @@ void MainWindow::channel_toggled(int channel_id)
     // TODO: enable or disable channel readings
     if (m_channelbar_model.is_enabled(id)) {
         m_channelbar_model.disable_channel(id);
-        m_series_overview[id]->clear();
+        m_series_overview.at(id)->clear();
 
         emit disable_channel(id);
 

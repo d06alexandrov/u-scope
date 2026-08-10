@@ -83,10 +83,9 @@ private:
 
     Ui::MainWindow *ui = nullptr; /**< Pointer to the Main Window user interface. */
 
-    QLineSeries
-            *m_series_overview[channels_amount]; /**< Pointer to Chart's series' for overview. */
+    std::array<QXYSeries *, channels_amount>
+            m_series_overview; /**< Pointer to Chart's series' for overview. */
     QValueAxis *m_overview_axis_x = nullptr; /**< Overview's x axis. */
-    QValueAxis *m_overview_axis_y = nullptr; /**< Overview's y axis. */
     SlidingWindow *m_sliding_window = nullptr; /**< Sliding window on the overview graph. */
 
     DataProcessor *m_data_processor = nullptr; /**< Main Data Processor. */

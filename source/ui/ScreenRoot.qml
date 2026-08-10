@@ -9,6 +9,12 @@ Rectangle {
         anchors.fill: parent
         spacing: 0
 
+        OverviewChart {
+            id: overviewChart
+            objectName: "overviewChart"
+            Layout.fillWidth: true
+        }
+
         MainChart {
             id: mainChart
             objectName: "mainChart"

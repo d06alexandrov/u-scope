@@ -7,8 +7,8 @@ Flow {
 
     required property var channelBarModel
 
-    signal channelSelected(int channelNumber)
-    signal channelToggled(int channelNumber)
+    signal channelSelected(int channelId)
+    signal channelToggled(int channelId)
 
     width: parent ? parent.width : 0
     spacing: 5
@@ -17,11 +17,11 @@ Flow {
         model: flowRoot.channelBarModel
 
         ChannelBadge {
-            onBadgeClicked: channelNumber => {
-                flowRoot.channelSelected(channelNumber);
+            onBadgeClicked: channelId => {
+                flowRoot.channelSelected(channelId);
             }
-            onBadgeDoubleClicked: channelNumber => {
-                flowRoot.channelToggled(channelNumber);
+            onBadgeDoubleClicked: channelId => {
+                flowRoot.channelToggled(channelId);
             }
         }
     }
@@ -29,9 +29,12 @@ Flow {
     component ChannelBadge: Item {
         id: badgeRoot
 
-        signal badgeClicked(int channelNumber)
-        signal badgeDoubleClicked(int channelNumber)
+        signal badgeClicked(int channelId)
+        signal badgeDoubleClicked(int channelId)
 
+        required property int channelId
+
+        // ChannelNumber is a displayed number
         required property int channelNumber
         required property string valueText
         required property color badgeColor
@@ -59,7 +62,7 @@ Flow {
             interval: Qt.styleHints.mouseDoubleClickInterval
             repeat: false
             onTriggered: {
-                badgeRoot.badgeClicked(badgeRoot.channelNumber);
+                badgeRoot.badgeClicked(badgeRoot.channelId);
             }
         }
 
@@ -73,7 +76,7 @@ Flow {
 
             onDoubleClicked: {
                 clickTimer.stop();
-                badgeRoot.badgeDoubleClicked(badgeRoot.channelNumber);
+                badgeRoot.badgeDoubleClicked(badgeRoot.channelId);
             }
         }
 

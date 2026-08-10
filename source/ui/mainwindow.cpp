@@ -218,7 +218,7 @@ void MainWindow::init_ui_elements()
 
             m_channelbar_model.set_channel_text(selected_channel.value(),
                                                 unit_scale_to_string(vertical_uval));
-            m_div_vertical_uval[selected_channel.value() - 1] = vertical_uval;
+            m_div_vertical_uval[selected_channel.value()] = vertical_uval;
 
             emit update_channel_vertical_scale(
                     selected_channel.value(),
@@ -405,14 +405,14 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
                     existing_item->data(ItemRoles::VariableIdRole).value<VariableId>();
             QMenu *assign_channel_submenu = contextMenu.addMenu("Assign to channel");
 
-            for (ChannelId ch_num = 1; ch_num <= this->channels_amount; ch_num++) {
+            for (ChannelId ch_num = 0; ch_num < this->channels_amount; ch_num++) {
                 QAction *channel_assign_action =
-                        assign_channel_submenu->addAction(tr("Channel %1").arg(ch_num));
+                        assign_channel_submenu->addAction(tr("Channel %1").arg(ch_num + 1));
 
                 connect(channel_assign_action, &QAction::triggered, this,
                         [this, reader_id, variable_id, ch_num]() {
                             int64_t vertical_uval = default_div_vertical_uval;
-                            m_div_vertical_uval[ch_num - 1] = vertical_uval;
+                            m_div_vertical_uval[ch_num] = vertical_uval;
 
                             m_channelbar_model.connect_channel(ch_num);
                             emit assign_channel(qMakePair(reader_id, variable_id), ch_num);
@@ -488,9 +488,8 @@ void MainWindow::receive_stored_data(const QList<GraphData> &new_data,
     for (auto &channel_data : new_data) {
         ChannelId channel_id = channel_data.get_id();
 
-        if (channel_id >= 1 && channel_id <= this->channels_amount
-            && m_channelbar_model.is_enabled(channel_id)) {
-            m_series[channel_id - 1]->replace(channel_data.get_values());
+        if (channel_id < this->channels_amount && m_channelbar_model.is_enabled(channel_id)) {
+            m_series[channel_id]->replace(channel_data.get_values());
         }
     }
 }
@@ -514,9 +513,8 @@ void MainWindow::receive_full_history(const QList<GraphData> &new_data, UData::T
     for (auto &channel_data : new_data) {
         ChannelId channel_id = channel_data.get_id();
 
-        if (channel_id >= 1 && channel_id <= this->channels_amount
-            && m_channelbar_model.is_enabled(channel_id)) {
-            m_series_overview[channel_data.get_id() - 1]->replace(channel_data.get_values());
+        if (channel_id < this->channels_amount && m_channelbar_model.is_enabled(channel_id)) {
+            m_series_overview[channel_data.get_id()]->replace(channel_data.get_values());
         }
     }
 
@@ -547,10 +545,12 @@ void MainWindow::handle_stop_clicked()
 
 void MainWindow::channel_selected(int channel_id)
 {
-    m_channelbar_model.select_channel(channel_id);
+    ChannelId id = static_cast<ChannelId>(channel_id);
 
-    if (m_channelbar_model.is_selected(channel_id)) {
-        const int64_t vertical_div = m_div_vertical_uval[channel_id - 1];
+    m_channelbar_model.select_channel(id);
+
+    if (m_channelbar_model.is_selected(id)) {
+        const int64_t vertical_div = m_div_vertical_uval[id];
         ui->verticalScale->setEnabled(true);
         ui->verticalScale->setValue(div_uval_to_qdial_value(vertical_div));
     }
@@ -558,17 +558,19 @@ void MainWindow::channel_selected(int channel_id)
 
 void MainWindow::channel_toggled(int channel_id)
 {
+    ChannelId id = static_cast<ChannelId>(channel_id);
+
     // TODO: enable or disable channel readings
-    if (m_channelbar_model.is_enabled(channel_id)) {
-        m_channelbar_model.disable_channel(channel_id);
-        m_series[channel_id - 1]->clear();
-        m_series_overview[channel_id - 1]->clear();
+    if (m_channelbar_model.is_enabled(id)) {
+        m_channelbar_model.disable_channel(id);
+        m_series[id]->clear();
+        m_series_overview[id]->clear();
 
-        emit disable_channel(channel_id);
+        emit disable_channel(id);
     } else {
-        m_channelbar_model.enable_channel(channel_id);
+        m_channelbar_model.enable_channel(id);
 
-        emit enable_channel(channel_id);
+        emit enable_channel(id);
     }
 }
 

@@ -21,7 +21,6 @@
 #include <QtCharts/QAbstractAxis>
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QXYSeries>
-#include <algorithm>
 
 MainWindow::MainWindow()
     : QMainWindow(nullptr)

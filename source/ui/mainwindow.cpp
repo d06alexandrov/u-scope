@@ -22,6 +22,21 @@
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QXYSeries>
 
+namespace {
+
+/**
+ * @brief Extracts QValueAxis and QXYSeries from a QQuickItem representing a graph.
+ *
+ * @param root The root QQuickItem containing the graph.
+ * @param graph_name The name of the graph to extract.
+ * @param channels_amount The expected number of QXYSeries in the graph.
+ * @return The QValueAxis and a vector of QXYSeries if successful, or std::nullopt if fails.
+ */
+std::optional<std::tuple<QValueAxis *, std::vector<QXYSeries *>>>
+extract_graph_series(QQuickItem *root, QStringView graph_name, size_t channels_amount);
+
+} // namespace
+
 MainWindow::MainWindow()
     : QMainWindow(nullptr)
     , ui(new Ui::MainWindow)
@@ -109,31 +124,13 @@ void MainWindow::init_ui_elements()
     QQuickItem *root = ui->qmlScreenView->rootObject();
 
     if (root != nullptr) {
-        auto main_chart_item = root->findChild<QQuickItem *>("mainChart");
-
-        if (main_chart_item != nullptr) {
-            QValueAxis *extracted_axis = nullptr;
-            std::array<QXYSeries *, channels_amount> extracted_series;
-
-            QMetaObject::invokeMethod(main_chart_item, "getAxisX", Qt::DirectConnection,
-                                      Q_RETURN_ARG(QValueAxis *, extracted_axis));
-
-            for (int i = 0; i < channels_amount; ++i) {
-                QAbstractSeries *absSeries = nullptr;
-                QMetaObject::invokeMethod(main_chart_item, "getSeries", Qt::DirectConnection,
-                                          Q_RETURN_ARG(QAbstractSeries *, absSeries),
-                                          Q_ARG(int, i));
-
-                extracted_series.at(i) = qobject_cast<QXYSeries *>(absSeries);
-
-                if (extracted_series.at(i) == nullptr) {
-                    qFatal() << tr("Failed to find a main chart series # %1.").arg(i);
-                }
-            }
+        if (auto extract_result = extract_graph_series(root, u"mainChart", channels_amount);
+            extract_result.has_value()) {
+            auto [extracted_axis, extracted_series] = extract_result.value();
 
             m_mainchart_controller.attach_ui(extracted_axis, extracted_series);
         } else {
-            qFatal() << tr("Failed to get an access to Main Chart qml.");
+            qFatal() << tr("Failed to extract Main Chart series.");
         }
     } else {
         qFatal() << tr("Failed to get an access to Screen Root qml.");
@@ -171,14 +168,14 @@ void MainWindow::init_ui_elements()
     connect(ui->actionAbout, &QAction::triggered, this, [this](bool checked) {
         QMessageBox about_box(this);
         about_box.setWindowTitle(tr("About %1").arg(QCoreApplication::applicationName()));
-        about_box.setText(
-                tr("<h3>%1</h3>"
-                   "<p>Version %2</p>"
-                   "<p>Built with Qt %3</p>"
-                   "This program is free software released under the GNU General Public License.")
-                        .arg(QCoreApplication::applicationName())
-                        .arg(QCoreApplication::applicationVersion())
-                        .arg(QT_VERSION_STR));
+        about_box.setText(tr("<h3>%1</h3>"
+                             "<p>Version %2</p>"
+                             "<p>Built with Qt %3</p>"
+                             "This program is free software released under the GNU General "
+                             "Public License.")
+                                  .arg(QCoreApplication::applicationName())
+                                  .arg(QCoreApplication::applicationVersion())
+                                  .arg(QT_VERSION_STR));
 
         QFile license_file(QStringLiteral(":/ui/LICENSE"));
         if (license_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
@@ -371,8 +368,8 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
                 emit remove_reader(reader_id);
                 // TODO: remove correspondence between reader variables and channels
 
-                // TODO: gracefully remove config to prevent any issues during the data transmit
-                // from data processor to main window
+                // TODO: gracefully remove config to prevent any issues during the data
+                // transmit from data processor to main window
 
                 m_readers_config.remove(reader_id);
                 m_source_list_model->removeRow(index.row(), index.parent());
@@ -500,3 +497,50 @@ void MainWindow::channel_toggled(int channel_id)
         emit enable_channel(id);
     }
 }
+
+namespace {
+
+std::optional<std::tuple<QValueAxis *, std::vector<QXYSeries *>>>
+extract_graph_series(QQuickItem *root, QStringView graph_name, size_t channels_amount)
+{
+    if (root == nullptr) {
+        return std::nullopt;
+    }
+
+    auto graph_item = root->findChild<QQuickItem *>(graph_name);
+
+    if (graph_item == nullptr) {
+        return std::nullopt;
+    }
+
+    QValueAxis *extracted_axis = nullptr;
+
+    QMetaObject::invokeMethod(graph_item, "getAxisX", Qt::DirectConnection,
+                              Q_RETURN_ARG(QValueAxis *, extracted_axis));
+
+    if (extracted_axis == nullptr) {
+        return std::nullopt;
+    }
+
+    std::vector<QXYSeries *> extracted_series;
+    extracted_series.reserve(channels_amount);
+
+    for (size_t i = 0; i < channels_amount; ++i) {
+        QAbstractSeries *absSeries = nullptr;
+        QMetaObject::invokeMethod(graph_item, "getSeries", Qt::DirectConnection,
+                                  Q_RETURN_ARG(QAbstractSeries *, absSeries),
+                                  Q_ARG(int, static_cast<int>(i)));
+
+        auto *xy_series = qobject_cast<QXYSeries *>(absSeries);
+
+        if (xy_series == nullptr) {
+            return std::nullopt;
+        }
+
+        extracted_series.push_back(xy_series);
+    }
+
+    return std::tuple{ extracted_axis, extracted_series };
+}
+
+} // namespace

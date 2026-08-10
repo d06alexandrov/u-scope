@@ -113,7 +113,7 @@ void MainWindow::init_ui_elements()
 
         if (main_chart_item != nullptr) {
             QValueAxis *extracted_axis = nullptr;
-            QXYSeries *extracted_series[channels_amount];
+            std::array<QXYSeries *, channels_amount> extracted_series;
 
             QMetaObject::invokeMethod(main_chart_item, "getAxisX", Qt::DirectConnection,
                                       Q_RETURN_ARG(QValueAxis *, extracted_axis));
@@ -124,9 +124,9 @@ void MainWindow::init_ui_elements()
                                           Q_RETURN_ARG(QAbstractSeries *, absSeries),
                                           Q_ARG(int, i));
 
-                extracted_series[i] = qobject_cast<QXYSeries *>(absSeries);
+                extracted_series.at(i) = qobject_cast<QXYSeries *>(absSeries);
 
-                if (extracted_series[i] == nullptr) {
+                if (extracted_series.at(i) == nullptr) {
                     qFatal() << tr("Failed to find a main chart series # %1.").arg(i);
                 }
             }

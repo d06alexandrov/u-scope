@@ -7,11 +7,8 @@
 #include "universalreader.h"
 #include "universalreader_dialog.h"
 
-#include <QChart>
-#include <QLineSeries>
 #include <QMainWindow>
 #include <QStandardItemModel>
-#include <QValueAxis>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {

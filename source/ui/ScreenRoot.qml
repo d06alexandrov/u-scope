@@ -9,6 +9,16 @@ Rectangle {
         anchors.fill: parent
         spacing: 0
 
+        OverviewChart {
+            id: overviewChart
+            objectName: "overviewChart"
+            Layout.fillWidth: true
+
+            onWidthChanged: {
+                overviewChartController.set_chart_width(overviewChart.plotArea.width);
+            }
+        }
+
         MainChart {
             id: mainChart
             objectName: "mainChart"

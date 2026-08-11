@@ -10,7 +10,7 @@ target_sources(
     user_interface
     PRIVATE # cmake-format: sortable
             channelbar_model.cpp mainchart_controller.cpp mainwindow.cpp
-            mainwindow.ui sliding_window.hpp
+            mainwindow.ui overviewchart_controller.cpp
 )
 
 qt_add_qml_module(
@@ -20,7 +20,7 @@ qt_add_qml_module(
     RESOURCE_PREFIX "/qt/qml"
     OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/UI"
     QML_FILES # cmake-format: sortable
-              ChannelBar.qml ScreenRoot.qml MainChart.qml
+              ChannelBar.qml ScreenRoot.qml MainChart.qml OverviewChart.qml
 )
 
 set_source_files_properties(

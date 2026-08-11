@@ -3,6 +3,7 @@
 #include "channelbar_model.h"
 #include "dataprocessor.h"
 #include "mainchart_controller.h"
+#include "overviewchart_controller.h"
 #include "universalreader.h"
 #include "universalreader_dialog.h"
 
@@ -83,12 +84,6 @@ private:
 
     Ui::MainWindow *ui = nullptr; /**< Pointer to the Main Window user interface. */
 
-    QLineSeries
-            *m_series_overview[channels_amount]; /**< Pointer to Chart's series' for overview. */
-    QValueAxis *m_overview_axis_x = nullptr; /**< Overview's x axis. */
-    QValueAxis *m_overview_axis_y = nullptr; /**< Overview's y axis. */
-    SlidingWindow *m_sliding_window = nullptr; /**< Sliding window on the overview graph. */
-
     DataProcessor *m_data_processor = nullptr; /**< Main Data Processor. */
     QThread m_data_processor_thread; /**< Thread with a running Data Processor. */
     QMap<ReaderId, std::shared_ptr<UniversalReaderDialogConfig>>
@@ -102,10 +97,8 @@ private:
             channels_amount,
             default_div_vertical_uval); /**< Sizes of vertical division in 10^-6. */
 
-    UData::Time m_overview_min_time{ }; /**< Min overview graph time. */
-    UData::Time m_overview_max_time{ }; /**< Max overview graph time. */
-
     MainChartController m_mainchart_controller; /**< Controller of the main chart. */
+    OverviewChartController m_overviewchart_controller; /**< Controller of the overview chart. */
     ChannelBarModel m_channelbar_model; /**< Model for the channel bar. */
 
     /**
@@ -191,13 +184,6 @@ signals:
     void update_channel_vertical_scale(ChannelId channel_id, double scale);
 
     /**
-     * @brief Request full history data from Data Processor to display.
-     *
-     * @param points_limit Maximum amount of points to be returned.
-     */
-    void request_full_history(int points_limit);
-
-    /**
      * @brief Start data processing in the Data Processor.
      */
     void start_data_processing();
@@ -247,16 +233,6 @@ private slots:
     void source_list_context_menu(const QPoint &pos);
 
 public slots:
-
-    /**
-     * @brief Receive full data history from Data Processor.
-     *
-     * @param new_data List of data history values.
-     * @param min_time Minimum timestamp of the data history.
-     * @param max_time Maximum timestamp of the data history.
-     */
-    void receive_full_history(const QList<GraphData> &new_data, UData::Time min_time,
-                              UData::Time max_time);
 
     /**
      * @brief Handle click on the start button.

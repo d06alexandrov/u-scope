@@ -109,9 +109,24 @@ private:
     void init_ui_elements();
 
     /**
+     * @brief Initialize qml elements.
+     */
+    void init_qml();
+
+    /**
      * @brief Initialize graph.
      */
     void init_graph();
+
+    /**
+     * @brief Initialize ui input elements.
+     */
+    void init_input();
+
+    /**
+     * @brief Initialize menu.
+     */
+    void init_menu();
 
     /**
      * @brief Initialize source list.

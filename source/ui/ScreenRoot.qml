@@ -15,7 +15,7 @@ Rectangle {
             Layout.fillWidth: true
 
             onWidthChanged: {
-                overviewChartController.set_chart_width(mainChart.plotArea.width);
+                overviewChartController.set_chart_width(overviewChart.plotArea.width);
             }
         }
 

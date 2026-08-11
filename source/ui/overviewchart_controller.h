@@ -16,8 +16,10 @@ class OverviewChartController : public QObject
 {
     Q_OBJECT
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
     Q_PROPERTY(qreal xPos READ xPos NOTIFY geometryChanged)
     Q_PROPERTY(qreal rectWidth READ rectWidth NOTIFY geometryChanged)
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 public:
     /**
@@ -35,7 +37,18 @@ public:
      */
     void attach_ui(QValueAxis *x_axis, std::span<QXYSeries *> series_array);
 
+    /**
+     * @brief Get the current x position of the sliding window.
+     *
+     * @return The x position of the sliding window in pixels.
+     */
     qreal xPos() const;
+
+    /**
+     * @brief Get the current width of the sliding window in pixels.
+     *
+     * @return The width of the sliding window in pixels.
+     */
     qreal rectWidth() const;
 
 public slots:
@@ -87,6 +100,9 @@ public slots:
 
 signals:
 
+    /**
+     * @brief Signal emitted when the geometry of the sliding window changes.
+     */
     void geometryChanged();
 
     /**

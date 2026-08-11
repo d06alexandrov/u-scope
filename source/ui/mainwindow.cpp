@@ -92,9 +92,19 @@ void MainWindow::init_data_processor()
 
 void MainWindow::init_ui_elements()
 {
+    init_qml();
+
     init_source_list();
 
-    // Initialize channel bar with channel badges
+    init_graph();
+
+    init_input();
+
+    init_menu();
+}
+
+void MainWindow::init_qml()
+{
     QVariantList color_list;
     for (const QColor &color : channel_colors) {
         color_list.append(color);
@@ -109,7 +119,10 @@ void MainWindow::init_ui_elements()
     ui->qmlScreenView->rootContext()->setContextProperty("channelModel", &m_channelbar_model);
     ui->qmlScreenView->rootContext()->setContextProperty("cppChannelColors", color_list);
     ui->qmlScreenView->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/ScreenRoot.qml")));
+}
 
+void MainWindow::init_graph()
+{
     QQuickItem *root = ui->qmlScreenView->rootObject();
 
     if (root != nullptr) {
@@ -135,6 +148,51 @@ void MainWindow::init_ui_elements()
     } else {
         qFatal() << tr("Failed to get an access to Screen Root qml.");
     }
+
+    // Main Chart Controller
+    connect(this, &MainWindow::switch_continuous_mode, &m_mainchart_controller,
+            &MainChartController::switch_continuous_mode);
+    connect(this, &MainWindow::set_horizontal_div, &m_mainchart_controller,
+            &MainChartController::set_horizontal_div);
+    connect(this, &MainWindow::force_graph_refresh, &m_mainchart_controller,
+            &MainChartController::force_graph_refresh);
+    connect(m_data_processor, &DataProcessor::send_new_data, &m_mainchart_controller,
+            &MainChartController::receive_stored_data);
+    connect(&m_mainchart_controller, &MainChartController::request_recent_stored_data,
+            m_data_processor, &DataProcessor::handle_recent_data_request);
+    connect(&m_mainchart_controller, &MainChartController::request_stored_data, m_data_processor,
+            &DataProcessor::handle_data_request);
+
+    // Overview Chart Controller
+    connect(this, &MainWindow::switch_continuous_mode, &m_overviewchart_controller,
+            &OverviewChartController::switch_continuous_mode);
+    connect(this, &MainWindow::force_graph_refresh, &m_overviewchart_controller,
+            &OverviewChartController::force_graph_refresh);
+    connect(this, &MainWindow::window_width_updated, &m_overviewchart_controller,
+            &OverviewChartController::set_sliding_window_width);
+    connect(m_data_processor, &DataProcessor::send_full_history, &m_overviewchart_controller,
+            &OverviewChartController::receive_full_history);
+    connect(&m_overviewchart_controller, &OverviewChartController::request_full_history,
+            m_data_processor, &DataProcessor::handle_full_history_request);
+    connect(&m_overviewchart_controller, &OverviewChartController::selected_time_frame,
+            &m_mainchart_controller, &MainChartController::set_time_frame);
+}
+
+void MainWindow::init_input()
+{
+    // Initialize horizontal scaler
+    connect(ui->horizontalScale, &QDial::valueChanged, this, [this](int new_value) {
+        m_div_horizontal_us = InputConversion::qdial_value_to_div_uval(new_value);
+        ui->hScaleValue->setText(
+                InputConversion::unit_scale_to_string(m_div_horizontal_us, tr("s")));
+        emit set_horizontal_div(m_div_horizontal_us);
+        emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
+    });
+
+    m_div_horizontal_us = InputConversion::qdial_value_to_div_uval(ui->horizontalScale->value());
+    ui->hScaleValue->setText(InputConversion::unit_scale_to_string(m_div_horizontal_us, tr("s")));
+    emit set_horizontal_div(m_div_horizontal_us);
+    emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
 
     // Connect start and stop buttons
     connect(ui->pushButton_StartAll, &QPushButton::clicked, this,
@@ -163,7 +221,10 @@ void MainWindow::init_ui_elements()
             }
         }
     });
+}
 
+void MainWindow::init_menu()
+{
     // Initialize elements of the menu
     connect(ui->actionAbout, &QAction::triggered, this, [this](bool checked) {
         QMessageBox about_box(this);
@@ -184,53 +245,6 @@ void MainWindow::init_ui_elements()
 
         about_box.exec();
     });
-
-    init_graph();
-}
-
-void MainWindow::init_graph()
-{
-    // Main Chart Controller
-    connect(this, &MainWindow::switch_continuous_mode, &m_mainchart_controller,
-            &MainChartController::switch_continuous_mode);
-    connect(this, &MainWindow::set_horizontal_div, &m_mainchart_controller,
-            &MainChartController::set_horizontal_div);
-    connect(this, &MainWindow::force_graph_refresh, &m_mainchart_controller,
-            &MainChartController::force_graph_refresh);
-    connect(m_data_processor, &DataProcessor::send_new_data, &m_mainchart_controller,
-            &MainChartController::receive_stored_data);
-    connect(&m_mainchart_controller, &MainChartController::request_recent_stored_data,
-            m_data_processor, &DataProcessor::handle_recent_data_request);
-    connect(&m_mainchart_controller, &MainChartController::request_stored_data, m_data_processor,
-            &DataProcessor::handle_data_request);
-
-    // Overview Chart Controller
-    connect(this, &MainWindow::switch_continuous_mode, &m_overviewchart_controller,
-            &OverviewChartController::switch_continuous_mode);
-    connect(this, &MainWindow::force_graph_refresh, &m_overviewchart_controller,
-            &OverviewChartController::force_graph_refresh);
-    connect(this, &MainWindow::window_width_updated, &m_overviewchart_controller,
-            &OverviewChartController::set_sliding_window_width);
-    connect(m_data_processor, &DataProcessor::send_full_history, &m_overviewchart_controller,
-            &OverviewChartController::receive_full_history);
-    connect(&m_overviewchart_controller, &OverviewChartController::request_full_history,
-            m_data_processor, &DataProcessor::handle_full_history_request);
-    connect(&m_overviewchart_controller, &OverviewChartController::selected_time_frame,
-            &m_mainchart_controller, &MainChartController::set_time_frame);
-
-    // Initialize horizontal scaler
-    connect(ui->horizontalScale, &QDial::valueChanged, this, [this](int new_value) {
-        m_div_horizontal_us = InputConversion::qdial_value_to_div_uval(new_value);
-        ui->hScaleValue->setText(
-                InputConversion::unit_scale_to_string(m_div_horizontal_us, tr("s")));
-        emit set_horizontal_div(m_div_horizontal_us);
-        emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
-    });
-
-    m_div_horizontal_us = InputConversion::qdial_value_to_div_uval(ui->horizontalScale->value());
-    ui->hScaleValue->setText(InputConversion::unit_scale_to_string(m_div_horizontal_us, tr("s")));
-    emit set_horizontal_div(m_div_horizontal_us);
-    emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
 }
 
 void MainWindow::init_source_list()

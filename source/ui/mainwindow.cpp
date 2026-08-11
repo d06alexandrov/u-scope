@@ -7,17 +7,12 @@
 #include "ui_mainwindow.h"
 
 #include <QAction>
-#include <QChart>
 #include <QFile>
-#include <QGraphicsLayout>
-#include <QLineSeries>
 #include <QMessageBox>
 #include <QObject>
 #include <QQmlContext>
 #include <QQuickItem>
 #include <QThread>
-#include <QValueAxis>
-#include <QtCharts/QAbstractAxis>
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QXYSeries>
 

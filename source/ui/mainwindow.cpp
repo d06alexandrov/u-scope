@@ -4,7 +4,6 @@
 #include "input_conversion.hpp"
 #include "serialreader_dialog.h"
 #include "simulatedreader_dialog.h"
-#include "sliding_window.hpp"
 #include "ui_mainwindow.h"
 
 #include <QAction>
@@ -71,11 +70,6 @@ void MainWindow::init_data_processor()
 
     connect(&m_data_processor_thread, &QThread::started, m_data_processor, &DataProcessor::setup);
 
-    connect(this, &MainWindow::request_full_history, m_data_processor,
-            &DataProcessor::handle_full_history_request);
-    connect(m_data_processor, &DataProcessor::send_full_history, this,
-            &MainWindow::receive_full_history);
-
     // Data Processor commands
     connect(this, &MainWindow::configure_reader, m_data_processor,
             &DataProcessor::configure_reader);
@@ -115,6 +109,8 @@ void MainWindow::init_ui_elements()
     ui->qmlScreenView->rootContext()->setContextProperty("mainWindow", this);
     ui->qmlScreenView->rootContext()->setContextProperty("mainChartController",
                                                          &m_mainchart_controller);
+    ui->qmlScreenView->rootContext()->setContextProperty("overviewChartController",
+                                                         &m_overviewchart_controller);
     ui->qmlScreenView->rootContext()->setContextProperty("channelModel", &m_channelbar_model);
     ui->qmlScreenView->rootContext()->setContextProperty("cppChannelColors", color_list);
     ui->qmlScreenView->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/ScreenRoot.qml")));
@@ -135,12 +131,10 @@ void MainWindow::init_ui_elements()
             extract_result.has_value()) {
             auto [extracted_axis, extracted_series] = extract_result.value();
 
-            m_overview_axis_x = extracted_axis;
-            for (int i = 0; i < this->channels_amount; ++i) {
-                m_series_overview.at(i) = extracted_series.at(i);
-            }
+            m_overviewchart_controller.attach_ui(extracted_axis, extracted_series);
+
         } else {
-            qFatal() << tr("Failed to extract Main Chart series.");
+            qFatal() << tr("Failed to extract Overview Chart series.");
         }
 
     } else {
@@ -201,38 +195,6 @@ void MainWindow::init_ui_elements()
 
 void MainWindow::init_graph()
 {
-    // Configure overview graph
-    auto overview_chart = ui->dataOverview->chart();
-    overview_chart->setBackgroundBrush(QBrush(GraphStyle::background_color));
-
-    overview_chart->legend()->hide();
-
-    overview_chart->setMargins(QMargins(0, 0, 0, 0));
-    overview_chart->layout()->setContentsMargins(0, 0, 0, 0);
-
-    auto overview_axis_x = new QValueAxis;
-
-    overview_axis_x->setRange(0, 1);
-
-    overview_chart->addAxis(overview_axis_x, Qt::AlignBottom);
-
-    overview_axis_x->setVisible(false);
-
-    // Add sliding window to the overview graph
-    m_sliding_window = new SlidingWindow();
-
-    overview_chart->scene()->addItem(m_sliding_window);
-    m_sliding_window->setRect(0, 0, overview_chart->plotArea().width(),
-                              overview_chart->plotArea().height());
-
-    connect(this, &MainWindow::window_width_updated, m_sliding_window,
-            &SlidingWindow::set_window_width);
-    connect(this, &MainWindow::sliding_window_reset, m_sliding_window,
-            &SlidingWindow::reset_window_to_right);
-
-    connect(overview_chart, &QChart::plotAreaChanged, m_sliding_window,
-            &SlidingWindow::plot_area_changed);
-
     // Main Chart Controller
     connect(this, &MainWindow::switch_continuous_mode, &m_mainchart_controller,
             &MainChartController::switch_continuous_mode);
@@ -242,12 +204,24 @@ void MainWindow::init_graph()
             &MainChartController::force_graph_refresh);
     connect(m_data_processor, &DataProcessor::send_new_data, &m_mainchart_controller,
             &MainChartController::receive_stored_data);
-    connect(m_sliding_window, &SlidingWindow::position_changed, &m_mainchart_controller,
-            &MainChartController::set_time_frame);
     connect(&m_mainchart_controller, &MainChartController::request_recent_stored_data,
             m_data_processor, &DataProcessor::handle_recent_data_request);
     connect(&m_mainchart_controller, &MainChartController::request_stored_data, m_data_processor,
             &DataProcessor::handle_data_request);
+
+    // Overview Chart Controller
+    connect(this, &MainWindow::switch_continuous_mode, &m_overviewchart_controller,
+            &OverviewChartController::switch_continuous_mode);
+    connect(this, &MainWindow::force_graph_refresh, &m_overviewchart_controller,
+            &OverviewChartController::force_graph_refresh);
+    connect(this, &MainWindow::window_width_updated, &m_overviewchart_controller,
+            &OverviewChartController::set_sliding_window_width);
+    connect(m_data_processor, &DataProcessor::send_full_history, &m_overviewchart_controller,
+            &OverviewChartController::receive_full_history);
+    connect(&m_overviewchart_controller, &OverviewChartController::request_full_history,
+            m_data_processor, &DataProcessor::handle_full_history_request);
+    connect(&m_overviewchart_controller, &OverviewChartController::selected_time_frame,
+            &m_mainchart_controller, &MainChartController::set_time_frame);
 
     // Initialize horizontal scaler
     connect(ui->horizontalScale, &QDial::valueChanged, this, [this](int new_value) {
@@ -255,13 +229,13 @@ void MainWindow::init_graph()
         ui->hScaleValue->setText(
                 InputConversion::unit_scale_to_string(m_div_horizontal_us, tr("s")));
         emit set_horizontal_div(m_div_horizontal_us);
-        if (m_current_mode == ScopeMode::Stopped) {
-            emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
-        }
+        emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
     });
 
     m_div_horizontal_us = InputConversion::qdial_value_to_div_uval(ui->horizontalScale->value());
+    ui->hScaleValue->setText(InputConversion::unit_scale_to_string(m_div_horizontal_us, tr("s")));
     emit set_horizontal_div(m_div_horizontal_us);
+    emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
 }
 
 void MainWindow::init_source_list()
@@ -405,35 +379,6 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
     contextMenu.exec(ui->sourceList->viewport()->mapToGlobal(pos));
 }
 
-void MainWindow::receive_full_history(const QList<GraphData> &new_data, UData::Time min_time,
-                                      UData::Time max_time)
-{
-    if (new_data.empty() || (max_time <= min_time)) {
-        return;
-    }
-
-    m_overview_axis_x->setRange(min_time, max_time);
-
-    m_overview_min_time = min_time;
-    m_overview_max_time = max_time;
-
-    for (int i = 0; i < this->channels_amount; ++i) {
-        m_series_overview.at(i)->clear();
-    }
-
-    for (auto &channel_data : new_data) {
-        ChannelId channel_id = channel_data.get_id();
-
-        if (channel_id < this->channels_amount && m_channelbar_model.is_enabled(channel_id)) {
-            m_series_overview.at(channel_data.get_id())->replace(channel_data.get_values());
-        }
-    }
-
-    int64_t time_width_us = m_div_horizontal_us * GraphStyle::horizontal_grid;
-
-    emit sliding_window_reset(m_overview_min_time, m_overview_max_time, time_width_us);
-}
-
 void MainWindow::handle_start_clicked()
 {
     m_current_mode = ScopeMode::Roll;
@@ -448,8 +393,6 @@ void MainWindow::handle_stop_clicked()
     emit switch_continuous_mode(false);
 
     emit stop_data_processing();
-
-    emit request_full_history(maximum_overview_points);
 
     m_current_mode = ScopeMode::Stopped;
 }
@@ -482,7 +425,6 @@ void MainWindow::channel_toggled(int channel_id)
     // TODO: enable or disable channel readings
     if (m_channelbar_model.is_enabled(id)) {
         m_channelbar_model.disable_channel(id);
-        m_series_overview.at(id)->clear();
 
         emit disable_channel(id);
 

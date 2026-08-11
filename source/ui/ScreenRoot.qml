@@ -13,6 +13,10 @@ Rectangle {
             id: overviewChart
             objectName: "overviewChart"
             Layout.fillWidth: true
+
+            onWidthChanged: {
+                overviewChartController.set_chart_width(mainChart.plotArea.width);
+            }
         }
 
         MainChart {

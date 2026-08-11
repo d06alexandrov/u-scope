@@ -6,12 +6,10 @@ ChartView {
     id: root
     objectName: "overviewChart"
 
-    // UI Translation: "dataOverview" has vsizetype="Fixed" and maximumSize.height="40"[cite: 9]
     Layout.fillWidth: true
     Layout.maximumHeight: 40
     Layout.preferredHeight: 40
 
-    // Design properties mirroring MainChart.qml[cite: 8] and UI stylesheet[cite: 9]
     backgroundColor: "transparent"
     legend.visible: false
     antialiasing: true
@@ -54,7 +52,45 @@ ChartView {
 
             series.objectName = "overview_series_" + i;
             series.color = (cppChannelColors.length > i) ? cppChannelColors[i] : "white";
-            series.pointsVisible = false; 
+            series.pointsVisible = false;
+        }
+    }
+
+    Rectangle {
+        id: slidingRect
+
+        y: root.plotArea.y
+        height: root.plotArea.height
+
+        color: Qt.rgba(0, 120 / 255, 255 / 255, 80 / 255)
+        border.color: Qt.rgba(0, 120 / 255, 255 / 255, 1)
+        border.width: 2
+
+        onXChanged: {
+            if (dragHandler.active && overviewChartController) {
+                let relativeX = slidingRect.x - root.plotArea.x;
+                overviewChartController.updateDragPosition(relativeX);
+            }
+        }
+
+        DragHandler {
+            id: dragHandler
+            target: slidingRect
+            xAxis.minimum: root.plotArea.x
+            xAxis.maximum: root.plotArea.x + root.plotArea.width - slidingRect.width
+            yAxis.enabled: false
+            cursorShape: Qt.SizeAllCursor
+        }
+
+        Connections {
+            target: overviewChartController
+            
+            function onGeometryChanged() {
+                if (!dragHandler.active && overviewChartController) {
+                    slidingRect.x = root.plotArea.x + overviewChartController.xPos;
+                    slidingRect.width = overviewChartController.rectWidth;
+                }
+            }
         }
     }
 }

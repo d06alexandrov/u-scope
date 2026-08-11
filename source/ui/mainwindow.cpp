@@ -99,6 +99,8 @@ void MainWindow::init_ui_elements()
     init_graph();
 
     init_input();
+
+    init_menu();
 }
 
 void MainWindow::init_qml()

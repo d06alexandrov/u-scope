@@ -1,7 +1,6 @@
 #include "mainwindow.h"
 
 #include "dataprocessor.h"
-#include "input_conversion.hpp"
 #include "serialreader_dialog.h"
 #include "simulatedreader_dialog.h"
 #include "ui_mainwindow.h"

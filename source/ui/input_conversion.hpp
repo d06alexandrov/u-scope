@@ -5,22 +5,32 @@
 #include <QStringView>
 #include <algorithm>
 #include <array>
+#include <cmath>
+#include <ranges>
+#include <ratio>
 
 namespace InputConversion {
 
 /**
- * @brief Powers of 10.
+ * @brief Scale threshold in micro values.
+ *
+ * The threshold is calculated as the ratio of the target scale to the input scale.
  */
-inline constexpr std::array<int64_t, 9> powers_of_10 = {
-    1LL, 10LL, 100LL, 1000LL, 10000LL, 100000LL, 1000000LL, 10000000LL, 100000000LL,
-};
+template <typename TargetScale, typename InputScale = std::micro>
+constexpr int64_t scale_threshold_uval = std::ratio_divide<TargetScale, InputScale>::num
+        / std::ratio_divide<TargetScale, InputScale>::den;
+
+/**
+ * @brief Base steps (exponent) for division values.
+ */
+inline constexpr std::array<int64_t, 3> base_steps = { 1, 2, 5 };
 
 /**
  * @brief Convert division to QDial value.
  *
- * 10^-x division is converted into x.
+ * Divisions 1, 2, 5, 10, 20, 50, ... are converted to 0, -1, -2, and so on.
  *
- * @param division_u Vertical division in 10^-6.
+ * @param division_u Division in 10^-6.
  * @return QDial value.
  */
 inline int div_uval_to_qdial_value(int64_t division_u)
@@ -30,40 +40,56 @@ inline int div_uval_to_qdial_value(int64_t division_u)
         return 0;
     }
 
-    int log10 = 0;
+    int qdial_val = 0;
 
-    // Take log10 and round up
-    for (int64_t value_left = division_u - 1; value_left > 0; value_left /= 10) {
-        log10++;
+    while (division_u >= 10) {
+        division_u /= 10;
+        qdial_val += base_steps.size();
     }
 
-    return 6 - log10;
+    if (auto it = std::ranges::lower_bound(base_steps, division_u); it != base_steps.end()) {
+        qdial_val += std::distance(base_steps.begin(), it);
+    } else {
+        qdial_val += base_steps.size() - 1;
+    }
+
+    return -qdial_val;
 }
 
 /**
- * @brief Convert QDial value to vertical division in micro values.
+ * @brief Convert QDial value to division in micro values.
  *
- * X is converted into 10^-x seconds.
+ * Negative X is converted into a number from the sequence 1, 2, 5, 10, 20, ...
+ * Where 0 is translated to 1, -1 is translated to 2, -2 is translated to 5, -3 is translated to 10,
+ * and so on.
  *
  * @param value QDial value.
- * @return Vertical division in 10^-6.
+ * @return Division in 10^-6.
  */
-inline int64_t qdial_value_to_div_uval(int value)
+inline int64_t qdial_value_to_div_uval(int dial_value)
 {
-    return powers_of_10.at(std::clamp(6 - value, 0, static_cast<int>(powers_of_10.size() - 1)));
+    if (dial_value > 0) {
+        return 1;
+    }
+
+    int inverted_value = -dial_value;
+
+    return base_steps.at(inverted_value % base_steps.size())
+            * static_cast<int64_t>(std::pow(10, inverted_value / base_steps.size()));
 }
 
 /**
- * @brief Convert vertical division to a string representation.
+ * @brief Convert division to a string representation.
  *
  * @param division Horizontal division in 10^-6.
- * @return String representation of the vertical division.
+ * @param unit Optional unit string to append to the result.
+ * @return String representation of the division.
  */
 inline QString unit_scale_to_string(int64_t division, QStringView unit = u"")
 {
-    if (division < 1000LL) {
+    if (division < scale_threshold_uval<std::milli>) {
         return QObject::tr("%1 u%2").arg(division).arg(unit);
-    } else if (division < 1000000LL) {
+    } else if (division < scale_threshold_uval<std::ratio<1>>) {
         return QObject::tr("%1 m%2").arg(static_cast<double>(division) / 1000.0).arg(unit);
     } else {
         return QObject::tr("%1 %2").arg(static_cast<double>(division) / 1000000.0).arg(unit);

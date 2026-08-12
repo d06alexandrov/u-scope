@@ -31,8 +31,8 @@ ChartView {
     ValueAxis {
         id: plotAxisY
         objectName: "overviewAxisY"
-        min: -100
-        max: 100
+        min: -plotAxisY.max
+        max: verticalScaleModel ? verticalScaleModel.vGridCells / 2 : 1
         gridVisible: false
         labelsVisible: false
         lineVisible: false

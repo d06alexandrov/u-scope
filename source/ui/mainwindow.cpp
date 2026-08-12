@@ -37,6 +37,7 @@ MainWindow::MainWindow()
     , ui(new Ui::MainWindow)
     , m_source_list_model(new QStandardItemModel(this))
     , m_channelbar_model(channel_colors)
+    , m_verticalscale_model(channels_amount)
 {
     ui->setupUi(this);
 
@@ -112,14 +113,15 @@ void MainWindow::init_qml()
     }
 
     ui->qmlScreenView->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    ui->qmlScreenView->rootContext()->setContextProperty("mainWindow", this);
-    ui->qmlScreenView->rootContext()->setContextProperty("mainChartController",
-                                                         &m_mainchart_controller);
-    ui->qmlScreenView->rootContext()->setContextProperty("overviewChartController",
-                                                         &m_overviewchart_controller);
-    ui->qmlScreenView->rootContext()->setContextProperty("channelModel", &m_channelbar_model);
-    ui->qmlScreenView->rootContext()->setContextProperty("timebaseModel", &m_timebase_model);
-    ui->qmlScreenView->rootContext()->setContextProperty("cppChannelColors", color_list);
+    ui->qmlScreenView->rootContext()->setContextProperties({
+            { "mainWindow", QVariant::fromValue(this) },
+            { "mainChartController", QVariant::fromValue(&m_mainchart_controller) },
+            { "overviewChartController", QVariant::fromValue(&m_overviewchart_controller) },
+            { "channelModel", QVariant::fromValue(&m_channelbar_model) },
+            { "timebaseModel", QVariant::fromValue(&m_timebase_model) },
+            { "verticalScaleModel", QVariant::fromValue(&m_verticalscale_model) },
+            { "cppChannelColors", color_list },
+    });
     ui->qmlScreenView->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/ScreenRoot.qml")));
 }
 
@@ -196,33 +198,37 @@ void MainWindow::init_input()
                 ui->horizontalScale->setValue(m_timebase_model.qDialValue());
             }));
 
-    // Connect start and stop buttons
-    connect(ui->pushButton_StartAll, &QPushButton::clicked, this,
-            &MainWindow::handle_start_clicked);
-    connect(ui->pushButton_StopAll, &QPushButton::clicked, this, &MainWindow::handle_stop_clicked);
-
-    // Initialize vertical scaler
+    // Initialize vertical scaler model
     connect(ui->verticalScale, &QDial::valueChanged, this, [this](int new_value) {
         const auto selected_channel = m_channelbar_model.get_selected();
 
         if (selected_channel.has_value()) {
-            int64_t vertical_uval = InputConversion::qdial_value_to_div_uval(new_value);
+            m_verticalscale_model.dial_value_updated(selected_channel.value(), new_value);
+        }
+    });
 
+    connect(&m_verticalscale_model, &VerticalScaleModel::vDivisionChanged, this, [this]() {
+        const auto selected_channel = m_channelbar_model.get_selected();
+
+        if (selected_channel.has_value()) {
             m_channelbar_model.set_channel_text(
-                    selected_channel.value(), InputConversion::unit_scale_to_string(vertical_uval));
-            m_div_vertical_uval[selected_channel.value()] = vertical_uval;
+                    selected_channel.value(),
+                    m_verticalscale_model.vScaleText(selected_channel.value()));
 
             emit update_channel_vertical_scale(
                     selected_channel.value(),
-                    ((GraphStyle::right_top_corner.y() - GraphStyle::left_bottom_corner.y())
-                     / GraphStyle::vertical_grid)
-                            / (static_cast<double>(vertical_uval) / 1000000));
+                    m_verticalscale_model.vScaleFactor(selected_channel.value()));
 
             if (m_current_mode == ScopeMode::Stopped) {
                 emit force_graph_refresh();
             }
         }
     });
+
+    // Connect start and stop buttons
+    connect(ui->pushButton_StartAll, &QPushButton::clicked, this,
+            &MainWindow::handle_start_clicked);
+    connect(ui->pushButton_StopAll, &QPushButton::clicked, this, &MainWindow::handle_stop_clicked);
 }
 
 void MainWindow::init_menu()
@@ -325,19 +331,11 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
 
                 connect(channel_assign_action, &QAction::triggered, this,
                         [this, reader_id, variable_id, ch_num]() {
-                            int64_t vertical_uval = default_div_vertical_uval;
-                            m_div_vertical_uval[ch_num] = vertical_uval;
-
+                            m_verticalscale_model.reset_channel(ch_num);
                             m_channelbar_model.connect_channel(ch_num);
-                            emit assign_channel(qMakePair(reader_id, variable_id), ch_num);
-                            emit update_channel_vertical_scale(
-                                    ch_num,
-                                    ((GraphStyle::right_top_corner.y()
-                                      - GraphStyle::left_bottom_corner.y())
-                                     / GraphStyle::vertical_grid)
-                                            / (static_cast<double>(vertical_uval) / 1000000));
                             m_channelbar_model.enable_channel(
-                                    ch_num, InputConversion::unit_scale_to_string(vertical_uval));
+                                    ch_num, m_verticalscale_model.vScaleText(ch_num));
+                            emit assign_channel(qMakePair(reader_id, variable_id), ch_num);
                             emit enable_channel(ch_num);
                         });
             }
@@ -419,9 +417,8 @@ void MainWindow::channel_selected(int channel_id)
     m_channelbar_model.select_channel(id);
 
     if (m_channelbar_model.is_selected(id)) {
-        const int64_t vertical_div = m_div_vertical_uval[id];
         ui->verticalScale->setEnabled(true);
-        ui->verticalScale->setValue(InputConversion::div_uval_to_qdial_value(vertical_div));
+        ui->verticalScale->setValue(m_verticalscale_model.qDialValue(id));
     }
 }
 

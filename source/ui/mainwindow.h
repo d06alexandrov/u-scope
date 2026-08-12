@@ -7,6 +7,7 @@
 #include "timebase_model.h"
 #include "universalreader.h"
 #include "universalreader_dialog.h"
+#include "verticalscale_model.h"
 
 #include <QMainWindow>
 #include <QPropertyChangeHandler>
@@ -58,20 +59,6 @@ private:
         OneShot, /**< One-shot trigger mode. */
     };
 
-    /**
-     * @brief Configuration of the Graph
-     */
-    struct GraphStyle
-    {
-        static constexpr QPoint left_bottom_corner = {
-            -100, -100
-        }; /**< Value in the bottom left corner of the graph. */
-        static constexpr QPoint right_top_corner = {
-            100, 100
-        }; /**< Value in the top right corner of the graph. */
-        static constexpr int vertical_grid = 8; /**< Amount of vertical cells in a grid. */
-    };
-
     const std::vector<QColor> channel_colors = {
         QColor("#FFFF00"), QColor("#00FFFF"), QColor("#FF00FF"), QColor("#00FF00"),
         QColor("#FF8000"), QColor("#0080FF"), QColor("#FF0080"), QColor("#80FF00"),
@@ -89,14 +76,12 @@ private:
     QStandardItemModel *m_source_list_model = nullptr; /**< Source List model. */
 
     ScopeMode m_current_mode = ScopeMode::Stopped; /**< Current display mode. */
-    std::vector<int64_t> m_div_vertical_uval = std::vector<int64_t>(
-            channels_amount,
-            default_div_vertical_uval); /**< Sizes of vertical division in 10^-6. */
 
     MainChartController m_mainchart_controller; /**< Controller of the main chart. */
     OverviewChartController m_overviewchart_controller; /**< Controller of the overview chart. */
     ChannelBarModel m_channelbar_model; /**< Model for the channel bar. */
     TimebaseModel m_timebase_model; /**< Model for horizontal timebase. */
+    VerticalScaleModel m_verticalscale_model; /**< Model for vertical scale. */
 
     std::optional<QPropertyChangeHandler<std::function<void()>>>
             m_timebase_sync_division; /**< Property change handler for horizontal division. */

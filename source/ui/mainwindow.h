@@ -4,10 +4,12 @@
 #include "dataprocessor.h"
 #include "mainchart_controller.h"
 #include "overviewchart_controller.h"
+#include "timebase_model.h"
 #include "universalreader.h"
 #include "universalreader_dialog.h"
 
 #include <QMainWindow>
+#include <QPropertyChangeHandler>
 #include <QStandardItemModel>
 
 QT_BEGIN_NAMESPACE
@@ -67,10 +69,7 @@ private:
         static constexpr QPoint right_top_corner = {
             100, 100
         }; /**< Value in the top right corner of the graph. */
-        static constexpr int horizontal_grid = 10; /**< Amount of horizontal cells in a grid. */
         static constexpr int vertical_grid = 8; /**< Amount of vertical cells in a grid. */
-        static constexpr QColor grid_line_color = QColor(0, 255, 0, 100); /**< Color of a grid. */
-        static constexpr QColor background_color = QColorConstants::Black; /**< Background color. */
     };
 
     const std::vector<QColor> channel_colors = {
@@ -83,13 +82,13 @@ private:
 
     DataProcessor *m_data_processor = nullptr; /**< Main Data Processor. */
     QThread m_data_processor_thread; /**< Thread with a running Data Processor. */
+
     QMap<ReaderId, std::shared_ptr<UniversalReaderDialogConfig>>
             m_readers_config; /**< Readers configuration. */
 
     QStandardItemModel *m_source_list_model = nullptr; /**< Source List model. */
 
     ScopeMode m_current_mode = ScopeMode::Stopped; /**< Current display mode. */
-    int64_t m_div_horizontal_us{ }; /**< Size of one horizontal division in us. */
     std::vector<int64_t> m_div_vertical_uval = std::vector<int64_t>(
             channels_amount,
             default_div_vertical_uval); /**< Sizes of vertical division in 10^-6. */
@@ -97,6 +96,10 @@ private:
     MainChartController m_mainchart_controller; /**< Controller of the main chart. */
     OverviewChartController m_overviewchart_controller; /**< Controller of the overview chart. */
     ChannelBarModel m_channelbar_model; /**< Model for the channel bar. */
+    TimebaseModel m_timebase_model; /**< Model for horizontal timebase. */
+
+    std::optional<QPropertyChangeHandler<std::function<void()>>>
+            m_timebase_sync_division; /**< Property change handler for horizontal division. */
 
     /**
      * @brief Initialize and run Data Processor.

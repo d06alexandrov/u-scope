@@ -9,13 +9,53 @@ Rectangle {
         anchors.fill: parent
         spacing: 0
 
-        OverviewChart {
-            id: overviewChart
-            objectName: "overviewChart"
-            Layout.fillWidth: true
+        RowLayout {
+            Rectangle {
+                id: hScaleDisplay
 
-            onWidthChanged: {
-                overviewChartController.set_chart_width(overviewChart.plotArea.width);
+                color: "black"
+                radius: 4
+
+                border.color: "grey"
+                border.width: 1
+
+                Layout.preferredHeight: 40
+                Layout.preferredWidth: hScaleLayout.implicitWidth + 16
+
+                RowLayout {
+                    id: hScaleLayout
+                    anchors.centerIn: parent
+                    spacing: 4
+
+                    Text {
+                        text: "H"
+                        color: "white"
+                        font.pixelSize: 12
+                    }
+
+                    Text {
+                        id: hScaleValue
+                        objectName: "hScaleValue"
+                        text: timebaseModel ? timebaseModel.hScaleText : ""
+                        color: "white"
+                        horizontalAlignment: Text.AlignHCenter
+
+                        Layout.minimumWidth: 50
+                        font.pixelSize: 12
+                    }
+                }
+            }
+
+            OverviewChart {
+                id: overviewChart
+                objectName: "overviewChart"
+                Layout.fillWidth: true
+
+                onWidthChanged: {
+                    if (overviewChartController) {
+                        overviewChartController.set_chart_width(overviewChart.plotArea.width);
+                    }
+                }
             }
         }
 
@@ -26,7 +66,9 @@ Rectangle {
             Layout.fillHeight: true
 
             onWidthChanged: {
-                mainChartController.set_chart_width(mainChart.width);
+                if (mainChartController) {
+                    mainChartController.set_chart_width(mainChart.width);
+                }
             }
         }
 

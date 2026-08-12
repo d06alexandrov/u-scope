@@ -12,6 +12,7 @@
 #include <QObject>
 #include <QQmlContext>
 #include <QQuickItem>
+#include <QSignalBlocker>
 #include <QThread>
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QXYSeries>
@@ -117,6 +118,7 @@ void MainWindow::init_qml()
     ui->qmlScreenView->rootContext()->setContextProperty("overviewChartController",
                                                          &m_overviewchart_controller);
     ui->qmlScreenView->rootContext()->setContextProperty("channelModel", &m_channelbar_model);
+    ui->qmlScreenView->rootContext()->setContextProperty("timebaseModel", &m_timebase_model);
     ui->qmlScreenView->rootContext()->setContextProperty("cppChannelColors", color_list);
     ui->qmlScreenView->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/ScreenRoot.qml")));
 }
@@ -180,19 +182,19 @@ void MainWindow::init_graph()
 
 void MainWindow::init_input()
 {
-    // Initialize horizontal scaler
-    connect(ui->horizontalScale, &QDial::valueChanged, this, [this](int new_value) {
-        m_div_horizontal_us = InputConversion::qdial_value_to_div_uval(new_value);
-        ui->hScaleValue->setText(
-                InputConversion::unit_scale_to_string(m_div_horizontal_us, tr("s")));
-        emit set_horizontal_div(m_div_horizontal_us);
-        emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
-    });
+    // Initialize timebase model (horizontal scaler)
+    connect(ui->horizontalScale, &QDial::valueChanged, &m_timebase_model,
+            &TimebaseModel::dial_value_updated);
 
-    m_div_horizontal_us = InputConversion::qdial_value_to_div_uval(ui->horizontalScale->value());
-    ui->hScaleValue->setText(InputConversion::unit_scale_to_string(m_div_horizontal_us, tr("s")));
-    emit set_horizontal_div(m_div_horizontal_us);
-    emit window_width_updated(m_div_horizontal_us * GraphStyle::horizontal_grid);
+    m_timebase_sync_division =
+            m_timebase_model.bindableDivisionUs().subscribe(std::function<void()>([this]() {
+                m_mainchart_controller.set_horizontal_div(m_timebase_model.divisionUs());
+                m_overviewchart_controller.set_sliding_window_width(
+                        m_timebase_model.frameWidthUs());
+
+                QSignalBlocker blocker(ui->horizontalScale);
+                ui->horizontalScale->setValue(m_timebase_model.qDialValue());
+            }));
 
     // Connect start and stop buttons
     connect(ui->pushButton_StartAll, &QPushButton::clicked, this,

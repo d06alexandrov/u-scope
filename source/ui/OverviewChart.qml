@@ -84,7 +84,7 @@ ChartView {
 
         Connections {
             target: overviewChartController
-            
+
             function onGeometryChanged() {
                 if (!dragHandler.active && overviewChartController) {
                     slidingRect.x = root.plotArea.x + overviewChartController.xPos;

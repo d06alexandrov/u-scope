@@ -20,7 +20,7 @@ ChartView {
         gridLineColor: Qt.rgba(0, 1, 0, 100 / 255)
         labelsVisible: false
         lineVisible: false
-        tickCount: 11
+        tickCount: timebaseModel ? timebaseModel.hGridCells + 1 : 2
     }
 
     ValueAxis {

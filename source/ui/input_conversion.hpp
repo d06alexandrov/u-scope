@@ -50,7 +50,7 @@ inline int div_uval_to_qdial_value(int64_t division_u)
     }
 
     if (auto it = std::ranges::lower_bound(base_steps, division_u); it != base_steps.end()) {
-        qdial_val += std::distance(base_steps.begin(), it);
+        qdial_val += static_cast<int>(std::distance(base_steps.begin(), it));
     } else {
         qdial_val += base_steps.size() - 1;
     }

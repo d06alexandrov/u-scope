@@ -25,6 +25,8 @@ constexpr int64_t scale_threshold_uval = std::ratio_divide<TargetScale, InputSca
  */
 inline constexpr std::array<int64_t, 3> base_steps = { 1, 2, 5 };
 
+inline constexpr int64_t decade_base = 10;
+
 /**
  * @brief Convert division to QDial value.
  *
@@ -42,8 +44,8 @@ inline int div_uval_to_qdial_value(int64_t division_u)
 
     int qdial_val = 0;
 
-    while (division_u >= 10) {
-        division_u /= 10;
+    while (division_u >= decade_base) {
+        division_u /= decade_base;
         qdial_val += base_steps.size();
     }
 
@@ -75,7 +77,7 @@ inline int64_t qdial_value_to_div_uval(int dial_value)
     int inverted_value = -dial_value;
 
     return base_steps.at(inverted_value % base_steps.size())
-            * static_cast<int64_t>(std::pow(10, inverted_value / base_steps.size()));
+            * std::llround(std::pow(decade_base, inverted_value / base_steps.size()));
 }
 
 /**
@@ -90,9 +92,13 @@ inline QString unit_scale_to_string(int64_t division, QStringView unit = u"")
     if (division < scale_threshold_uval<std::milli>) {
         return QObject::tr("%1 u%2").arg(division).arg(unit);
     } else if (division < scale_threshold_uval<std::ratio<1>>) {
-        return QObject::tr("%1 m%2").arg(static_cast<double>(division) / 1000.0).arg(unit);
+        return QObject::tr("%1 m%2")
+                .arg(static_cast<double>(division) / scale_threshold_uval<std::milli>)
+                .arg(unit);
     } else {
-        return QObject::tr("%1 %2").arg(static_cast<double>(division) / 1000000.0).arg(unit);
+        return QObject::tr("%1 %2")
+                .arg(static_cast<double>(division) / scale_threshold_uval<std::ratio<1>>)
+                .arg(unit);
     }
 }
 

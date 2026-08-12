@@ -27,7 +27,7 @@ int VerticalScaleModel::qDialValue(ChannelId id) const
 qreal VerticalScaleModel::vScaleFactor(ChannelId id) const
 {
     if (id >= m_channel_scales_uval.size()) {
-        return std::micro::den / std::micro::num * static_cast<qreal>(default_division_uval);
+        return std::micro::den / (std::micro::num * static_cast<qreal>(default_division_uval));
     }
 
     return std::micro::den / (std::micro::num * static_cast<qreal>(m_channel_scales_uval.at(id)));

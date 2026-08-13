@@ -73,13 +73,17 @@ ChartView {
             }
         }
 
+        HoverHandler {
+            cursorShape: Qt.SizeHorCursor
+        }
+
         DragHandler {
             id: dragHandler
             target: slidingRect
             xAxis.minimum: root.plotArea.x
             xAxis.maximum: root.plotArea.x + root.plotArea.width - slidingRect.width
             yAxis.enabled: false
-            cursorShape: Qt.SizeAllCursor
+            cursorShape: Qt.SizeHorCursor
         }
 
         Connections {

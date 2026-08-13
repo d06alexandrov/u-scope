@@ -202,6 +202,13 @@ void OverviewChartController::update_sliding_window_on_graph()
 
 std::tuple<UData::Time, UData::Time> OverviewChartController::get_window_boundaries()
 {
+    // Return the time frame aligned to the right, if the whole history is shorter than sliding
+    // window.
+    if (UData::get_timestamp_diff_us(m_graph_min_time, m_graph_max_time) <= m_sliding_window_us) {
+        return std::tuple{ UData::timestamp_sub_us_rounddown(m_graph_max_time, m_sliding_window_us),
+                           m_graph_max_time };
+    }
+
     UData::Time left_boundary = m_sliding_window_start;
     UData::Time right_boundary =
             std::clamp(UData::timestamp_add_us_roundup(m_sliding_window_start, m_sliding_window_us),

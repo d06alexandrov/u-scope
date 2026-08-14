@@ -58,6 +58,64 @@ MainWindow::~MainWindow()
     delete ui;
 }
 
+void MainWindow::handle_start_clicked()
+{
+    m_current_mode = ScopeMode::Roll;
+
+    emit switch_continuous_mode(true);
+
+    emit start_data_processing();
+}
+
+void MainWindow::handle_stop_clicked()
+{
+    emit switch_continuous_mode(false);
+
+    emit stop_data_processing();
+
+    m_current_mode = ScopeMode::Stopped;
+}
+
+void MainWindow::channel_selected(int channel_id)
+{
+    if (channel_id < 0 || channel_id >= this->channels_amount) {
+        return;
+    }
+
+    auto id = static_cast<ChannelId>(channel_id);
+
+    m_channelbar_model.select_channel(id);
+
+    if (m_channelbar_model.is_selected(id)) {
+        ui->verticalScale->setEnabled(true);
+        ui->verticalScale->setValue(m_verticalscale_model.qDialValue(id));
+    }
+}
+
+void MainWindow::channel_toggled(int channel_id)
+{
+    if (channel_id < 0 || channel_id >= this->channels_amount) {
+        return;
+    }
+
+    auto id = static_cast<ChannelId>(channel_id);
+
+    // TODO: enable or disable channel readings
+    if (m_channelbar_model.is_enabled(id)) {
+        m_channelbar_model.disable_channel(id);
+
+        emit disable_channel(id);
+
+        if (m_current_mode == ScopeMode::Stopped) {
+            emit force_graph_refresh();
+        }
+    } else {
+        m_channelbar_model.enable_channel(id);
+
+        emit enable_channel(id);
+    }
+}
+
 void MainWindow::init_data_processor()
 {
     m_data_processor = new DataProcessor;
@@ -385,64 +443,6 @@ void MainWindow::source_list_context_menu(const QPoint &pos)
     }
 
     contextMenu.exec(ui->sourceList->viewport()->mapToGlobal(pos));
-}
-
-void MainWindow::handle_start_clicked()
-{
-    m_current_mode = ScopeMode::Roll;
-
-    emit switch_continuous_mode(true);
-
-    emit start_data_processing();
-}
-
-void MainWindow::handle_stop_clicked()
-{
-    emit switch_continuous_mode(false);
-
-    emit stop_data_processing();
-
-    m_current_mode = ScopeMode::Stopped;
-}
-
-void MainWindow::channel_selected(int channel_id)
-{
-    if (channel_id < 0 || channel_id >= this->channels_amount) {
-        return;
-    }
-
-    auto id = static_cast<ChannelId>(channel_id);
-
-    m_channelbar_model.select_channel(id);
-
-    if (m_channelbar_model.is_selected(id)) {
-        ui->verticalScale->setEnabled(true);
-        ui->verticalScale->setValue(m_verticalscale_model.qDialValue(id));
-    }
-}
-
-void MainWindow::channel_toggled(int channel_id)
-{
-    if (channel_id < 0 || channel_id >= this->channels_amount) {
-        return;
-    }
-
-    auto id = static_cast<ChannelId>(channel_id);
-
-    // TODO: enable or disable channel readings
-    if (m_channelbar_model.is_enabled(id)) {
-        m_channelbar_model.disable_channel(id);
-
-        emit disable_channel(id);
-
-        if (m_current_mode == ScopeMode::Stopped) {
-            emit force_graph_refresh();
-        }
-    } else {
-        m_channelbar_model.enable_channel(id);
-
-        emit enable_channel(id);
-    }
 }
 
 namespace {

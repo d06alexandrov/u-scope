@@ -38,7 +38,7 @@ public:
     /**
      * @brief Destructor of MainWindow class.
      */
-    ~MainWindow();
+    ~MainWindow() override;
 
 public slots:
 

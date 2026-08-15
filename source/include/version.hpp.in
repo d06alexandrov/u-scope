@@ -1,8 +1,10 @@
 #pragma once
 
+#include <string_view>
+
 namespace app_info {
-inline constexpr char app_name[] = "@PROJECT_NAME@";
-inline constexpr char version[] = "@PROJECT_VERSION@";
+inline constexpr std::string_view app_name = "@PROJECT_NAME@";
+inline constexpr std::string_view version = "@PROJECT_VERSION@";
 // clang-format off
 inline constexpr int version_major = @PROJECT_VERSION_MAJOR@;
 inline constexpr int version_minor = @PROJECT_VERSION_MINOR@;

@@ -20,7 +20,7 @@ Rectangle {
             border.width: 1
             radius: 4
         }
-        
+
         label: Text {
             x: outputScreenBox.leftPadding
             text: outputScreenBox.title

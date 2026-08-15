@@ -14,6 +14,10 @@ Rectangle {
                 id: hScaleDisplay
 
                 color: "black"
+                radius: 4
+
+                border.color: "grey"
+                border.width: 1
 
                 Layout.preferredHeight: 40
                 Layout.preferredWidth: hScaleLayout.implicitWidth + 16

@@ -20,25 +20,8 @@
    <string>U-Scope</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QGroupBox#outputScreen {
-    background-color: black;
-    border: 1px solid #333333;
-    border-radius: 4px;
-    margin-top: 16px;
-}
-
-QChartView {
-    background: transparent;
-    border: none;
-}
-
-QWidget[cssClass=&quot;displayedValue&quot;] {
-    background-color: black;
-    border-radius: 4px;
-}
-
-QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
-    color: white;
+   <string notr="true">MainWindow {
+    background-color: white;
 }
 </string>
   </property>
@@ -93,31 +76,16 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
          <number>0</number>
         </property>
         <item>
-         <widget class="QGroupBox" name="outputScreen">
+         <widget class="QQuickWidget" name="qmlScreenView">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="title">
-           <string>Screen</string>
+          <property name="resizeMode">
+           <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
           </property>
-          <layout class="QGridLayout" name="gridLayout">
-           <item row="0" column="0">
-            <widget class="QQuickWidget" name="qmlScreenView">
-             <property name="sizePolicy">
-              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-               <horstretch>0</horstretch>
-               <verstretch>0</verstretch>
-              </sizepolicy>
-             </property>
-             <property name="resizeMode">
-              <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
-             </property>
-            </widget>
-           </item>
-          </layout>
          </widget>
         </item>
         <item>

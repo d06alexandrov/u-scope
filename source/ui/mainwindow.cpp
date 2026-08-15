@@ -179,7 +179,7 @@ void MainWindow::init_qml()
             { "verticalScaleModel", QVariant::fromValue(&m_verticalscale_model) },
             { "cppChannelColors", color_list },
     });
-    ui->qmlScreenView->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/ScreenRoot.qml")));
+    ui->qmlScreenView->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/MainWindow.qml")));
 }
 
 void MainWindow::init_graph()

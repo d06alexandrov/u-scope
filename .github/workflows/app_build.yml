@@ -121,6 +121,7 @@ jobs:
           style: ''
           tidy-checks: ''
           database: 'build'
+          ignore: 'build'
           thread-comments: ${{ github.event_name == 'pull_request' }}
           step-summary: true
           lines-changed-only: ${{ github.event_name == 'pull_request' }}

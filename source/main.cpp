@@ -9,8 +9,10 @@ int main(int argc, char *argv[])
 {
     QApplication a(argc, argv);
 
-    QCoreApplication::setApplicationName(app_info::app_name);
-    QCoreApplication::setApplicationVersion(app_info::version);
+    QCoreApplication::setApplicationName(
+            QString::fromUtf8(app_info::app_name.data(), app_info::app_name.size()));
+    QCoreApplication::setApplicationVersion(
+            QString::fromUtf8(app_info::version.data(), app_info::version.size()));
 
     QTranslator translator;
     const QStringList uiLanguages = QLocale::system().uiLanguages();

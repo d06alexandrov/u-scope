@@ -54,7 +54,7 @@ public:
      * @param parent Parent index.
      * @return Number of channels.
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    [[nodiscard]] int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the data for the given index and role.
@@ -63,7 +63,8 @@ public:
      * @param role Role for which data is requested.
      * @return Data for the given index and role.
      */
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    [[nodiscard]] QVariant data(const QModelIndex &index,
+                                int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Returns the role names for the model.
@@ -138,7 +139,7 @@ public:
      * @return Optional containing the selected channel ID if one is selected, std::nullopt
      * otherwise.
      */
-    std::optional<ChannelId> get_selected() const;
+    [[nodiscard]] std::optional<ChannelId> get_selected() const;
 
 private:
     std::vector<ChannelState> m_channels; /**< List of channels. */

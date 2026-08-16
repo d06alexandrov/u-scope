@@ -13,7 +13,7 @@ class DataProcessor;
  */
 struct SerialReaderConfig : UniversalReaderConfig
 {
-    std::shared_ptr<UniversalReaderConfig> clone() const override
+    [[nodiscard]] std::shared_ptr<UniversalReaderConfig> clone() const override
     {
         return std::make_shared<SerialReaderConfig>(*this);
     }

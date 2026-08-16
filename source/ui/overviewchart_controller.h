@@ -42,14 +42,14 @@ public:
      *
      * @return The x position of the sliding window in pixels.
      */
-    qreal xPos() const;
+    [[nodiscard]] qreal xPos() const;
 
     /**
      * @brief Get the current width of the sliding window in pixels.
      *
      * @return The width of the sliding window in pixels.
      */
-    qreal rectWidth() const;
+    [[nodiscard]] qreal rectWidth() const;
 
 public slots:
 

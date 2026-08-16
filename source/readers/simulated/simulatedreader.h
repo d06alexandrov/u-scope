@@ -34,7 +34,7 @@ struct SimulatedReaderConfig : UniversalReaderConfig
      */
     using Config = std::variant<ConstConfig, SinConfig>;
 
-    std::shared_ptr<UniversalReaderConfig> clone() const override
+    [[nodiscard]] std::shared_ptr<UniversalReaderConfig> clone() const override
     {
         return std::make_shared<SimulatedReaderConfig>(*this);
     }
@@ -73,7 +73,7 @@ private:
      *
      * @return A pointer to the configuration.
      */
-    const SimulatedReaderConfig *get_config() const;
+    [[nodiscard]] const SimulatedReaderConfig *get_config() const;
 
 protected:
     void setup() override; /**< Initialization of a particular type of the reader. */

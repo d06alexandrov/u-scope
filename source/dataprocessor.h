@@ -155,10 +155,11 @@ public slots:
     /**
      * @brief Bind particular variable to the channel.
      *
-     * @param variable Pair of ReaderId and VariableId to be assigned to the channel.
+     * @param reader_id ID of the reader.
+     * @param variable_id ID of the variable.
      * @param channel_id ID of the channel to be assigned to the variable.
      */
-    void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
+    void assign_channel(ReaderId reader_id, VariableId variable_id, ChannelId channel_id);
 
     /**
      * @brief Enable specific channel to receive data from the reader.

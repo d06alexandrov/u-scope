@@ -34,7 +34,6 @@ extract_graph_series(QQuickItem *root, QStringView graph_name, size_t channels_a
 MainWindow::MainWindow()
     : QMainWindow(nullptr)
     , ui(new Ui::MainWindow)
-    , m_source_list_model(new QStandardItemModel(this))
     , m_channelbar_model(channel_colors)
     , m_verticalscale_model(channels_amount)
 {
@@ -125,10 +124,6 @@ void MainWindow::init_data_processor()
     connect(&m_data_processor_thread, &QThread::started, m_data_processor, &DataProcessor::setup);
 
     // Data Processor commands
-    connect(this, &MainWindow::configure_reader, m_data_processor,
-            &DataProcessor::configure_reader);
-    connect(this, &MainWindow::remove_reader, m_data_processor, &DataProcessor::remove_reader);
-    connect(this, &MainWindow::assign_channel, m_data_processor, &DataProcessor::assign_channel);
     connect(this, &MainWindow::enable_channel, m_data_processor, &DataProcessor::enable_channel);
     connect(this, &MainWindow::disable_channel, m_data_processor, &DataProcessor::disable_channel);
     connect(this, &MainWindow::update_channel_vertical_scale, m_data_processor,
@@ -172,6 +167,7 @@ void MainWindow::init_qml()
     ui->qmlScreenView->setResizeMode(QQuickWidget::SizeRootObjectToView);
     ui->qmlScreenView->rootContext()->setContextProperties({
             { "mainWindow", QVariant::fromValue(this) },
+            { "sourceListController", QVariant::fromValue(&m_sourcelist_controller) },
             { "mainChartController", QVariant::fromValue(&m_mainchart_controller) },
             { "overviewChartController", QVariant::fromValue(&m_overviewchart_controller) },
             { "channelModel", QVariant::fromValue(&m_channelbar_model) },
@@ -314,135 +310,19 @@ void MainWindow::init_menu()
 
 void MainWindow::init_source_list()
 {
-    ui->sourceList->setModel(m_source_list_model);
-
-    connect(ui->sourceList, &QTreeView::customContextMenuRequested, this,
-            &MainWindow::source_list_context_menu);
-}
-
-ReaderId MainWindow::get_available_reader_idx() const
-{
-    ReaderId reader_id = 0;
-
-    for (auto it = m_readers_config.lowerBound(reader_id); it != m_readers_config.end(); it++) {
-        if (it.key() == reader_id) {
-            reader_id++;
-        } else if (it.key() > reader_id) {
-            break;
-        }
-    }
-
-    if (reader_id >= this->readers_amount) {
-        throw std::range_error("Reader amount limit exceeded");
-    }
-
-    return reader_id;
-}
-
-void MainWindow::add_reader(const std::shared_ptr<UniversalReaderDialogConfig> &config)
-{
-    ReaderId new_reader_id = get_available_reader_idx();
-
-    m_readers_config.insert(new_reader_id, config);
-
-    QStandardItem *new_item = new QStandardItem(tr("Source %1").arg(new_reader_id));
-    new_item->setData(QVariant::fromValue(new_reader_id), ItemRoles::ReaderIdRole);
-    m_source_list_model->appendRow(new_item);
-
-    if (!config->variable_names.isEmpty()) {
-        for (const auto [id, name] : config->variable_names.asKeyValueRange()) {
-            QStandardItem *new_variable_item = new QStandardItem(tr("#%1 %2").arg(id).arg(name));
-            new_variable_item->setData(QVariant::fromValue(new_reader_id), ItemRoles::ReaderIdRole);
-            new_variable_item->setData(QVariant::fromValue(id), ItemRoles::VariableIdRole);
-            new_item->appendRow(new_variable_item);
-        }
-    }
-
-    emit configure_reader(new_reader_id, config);
-}
-
-void MainWindow::source_list_context_menu(const QPoint &pos)
-{
-    QModelIndex index = ui->sourceList->indexAt(pos);
-
-    QMenu contextMenu(this);
-
-    if (index.isValid()) {
-        auto existing_item = m_source_list_model->itemFromIndex(index);
-
-        if (existing_item == nullptr) {
-            return;
-        }
-
-        const ReaderId reader_id = existing_item->data(ItemRoles::ReaderIdRole).value<ReaderId>();
-
-        if (existing_item->data(ItemRoles::VariableIdRole).isValid()) {
-            // Variable item was clicked
-            const VariableId variable_id =
-                    existing_item->data(ItemRoles::VariableIdRole).value<VariableId>();
-            QMenu *assign_channel_submenu = contextMenu.addMenu("Assign to channel");
-
-            for (ChannelId ch_num = 0; ch_num < this->channels_amount; ch_num++) {
-                QAction *channel_assign_action =
-                        assign_channel_submenu->addAction(tr("Channel %1").arg(ch_num + 1));
-
-                connect(channel_assign_action, &QAction::triggered, this,
-                        [this, reader_id, variable_id, ch_num]() {
-                            m_verticalscale_model.reset_channel(ch_num);
-                            m_channelbar_model.connect_channel(ch_num);
-                            m_channelbar_model.enable_channel(
-                                    ch_num, m_verticalscale_model.vScaleText(ch_num));
-                            emit assign_channel(qMakePair(reader_id, variable_id), ch_num);
-                            emit enable_channel(ch_num);
-                        });
-            }
-        } else {
-            // Reader item was clicked
-            QAction *modify_source_action = contextMenu.addAction("Modify existing source");
-            QAction *delete_source_action = contextMenu.addAction("Delete existing source");
-
-            modify_source_action->setEnabled(false);
-            connect(delete_source_action, &QAction::triggered, this, [this, index, reader_id]() {
-                emit remove_reader(reader_id);
-                // TODO: remove correspondence between reader variables and channels
-
-                // TODO: gracefully remove config to prevent any issues during the data
-                // transmit from data processor to main window
-
-                m_readers_config.remove(reader_id);
-                m_source_list_model->removeRow(index.row(), index.parent());
+    connect(&m_sourcelist_controller, &SourceListController::configure_reader, m_data_processor,
+            &DataProcessor::configure_reader);
+    connect(&m_sourcelist_controller, &SourceListController::request_channel_assignment,
+            m_data_processor, &DataProcessor::assign_channel);
+    connect(&m_sourcelist_controller, &SourceListController::request_channel_assignment, this,
+            [this](ReaderId reader_id, VariableId variable_id, ChannelId channel_id) {
+                m_verticalscale_model.reset_channel(channel_id);
+                m_channelbar_model.connect_channel(channel_id);
+                m_channelbar_model.enable_channel(channel_id,
+                                                  m_verticalscale_model.vScaleText(channel_id));
             });
-        }
-    } else {
-        if (m_readers_config.size() >= this->readers_amount) {
-            QAction *new_source_action = contextMenu.addAction("Source amount limit was achieved");
-            new_source_action->setEnabled(false);
-        } else {
-            QAction *new_simulated_source_action =
-                    contextMenu.addAction("Configure new simulated source");
-
-            connect(new_simulated_source_action, &QAction::triggered, this, [this, index]() {
-                SimulatedReaderDialog dialog(this);
-
-                if (dialog.exec() == QDialog::Accepted) {
-                    add_reader(dialog.get_config());
-                }
-            });
-
-            QAction *new_serial_source_action =
-                    contextMenu.addAction("Configure new serial port source");
-
-            connect(new_serial_source_action, &QAction::triggered, this, [this, index]() {
-                SerialReaderDialog dialog(this);
-
-                if (dialog.exec() == QDialog::Accepted) {
-                    add_reader(dialog.get_config());
-                }
-            });
-        }
-    }
-
-    contextMenu.exec(ui->sourceList->viewport()->mapToGlobal(pos));
+    connect(&m_sourcelist_controller, &SourceListController::request_reader_remove,
+            m_data_processor, &DataProcessor::remove_reader);
 }
 
 namespace {

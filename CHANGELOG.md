@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.2](https://github.com/d06alexandrov/u-scope/compare/v0.2.1...v0.2.2) (2026-08-16)
+
+
+### Bug Fixes
+
+* Fix horizontal scale in maximum zoom out in stopped mode. ([1489f64](https://github.com/d06alexandrov/u-scope/commit/1489f64ae517bd0d2d90edcb793f91423819af9c))
+* Remove explicit groupbox backgrounds to normalize windows layout. ([1d4e8c7](https://github.com/d06alexandrov/u-scope/commit/1d4e8c76279ca1bdf02589e87dfdc8a5d302bd78))
+* Show proper vertical scale after channel reenabling. ([ac11fd3](https://github.com/d06alexandrov/u-scope/commit/ac11fd30a2a3b066dee09727f026740fbbef410e))
+* **ui:** Hide new source menu before dialog popup. ([2decf00](https://github.com/d06alexandrov/u-scope/commit/2decf00015a12516b32dc518130bf35aa7b09766))
+
 ## [0.2.1](https://github.com/d06alexandrov/u-scope/compare/v0.2.0...v0.2.1) (2026-08-09)
 
 

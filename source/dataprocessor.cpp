@@ -41,7 +41,7 @@ DataProcessor::~DataProcessor()
     }
 }
 
-void DataProcessor::setup(void) { }
+void DataProcessor::setup() { }
 
 void DataProcessor::reported_reader_status(ReaderId reader_id, UniversalReader::Status status)
 {
@@ -218,7 +218,7 @@ void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap da
             const size_t new_data_size = new_data->size();
 
             if (new_data_size >= m_max_sample_points) {
-                auto start_it = new_data->end() - m_max_sample_points;
+                auto start_it = std::prev(new_data->end(), m_max_sample_points);
 
                 destination_buffer.assign(std::make_move_iterator(start_it),
                                           std::make_move_iterator(new_data->end()));
@@ -229,7 +229,7 @@ void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap da
                     const size_t overflow_count = combined_size - m_max_sample_points;
 
                     destination_buffer.erase(destination_buffer.begin(),
-                                             destination_buffer.begin() + overflow_count);
+                                             std::next(destination_buffer.begin(), overflow_count));
                 }
 
                 destination_buffer.insert(destination_buffer.end(),
@@ -348,8 +348,8 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
 {
     QList<GraphData> new_data;
 
-    UData::Time start_time_actual;
-    UData::Time end_time_actual;
+    UData::Time start_time_actual{ };
+    UData::Time end_time_actual{ };
 
     if (start_time.has_value()) {
         start_time_actual = start_time.value();

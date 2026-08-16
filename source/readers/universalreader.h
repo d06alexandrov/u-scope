@@ -144,7 +144,7 @@ protected:
      * @param amount Number of buffers to allocate.
      * @param reserved_size Number of points to reserve in each buffer.
      */
-    void allocate_buffer_pool(int amount, size_t reserved_size);
+    void allocate_buffer_pool(size_t amount, size_t reserved_size);
     /**
      * @brief Store one data point in the buffer.
      *

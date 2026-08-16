@@ -104,9 +104,9 @@ void UniversalReader::set_status(Status new_status)
     }
 }
 
-void UniversalReader::allocate_buffer_pool(int amount, size_t reserved_size)
+void UniversalReader::allocate_buffer_pool(size_t amount, size_t reserved_size)
 {
-    for (int i = 0; i < amount; i++) {
+    for (size_t i = 0; i < amount; i++) {
         auto new_buffer = std::make_shared<std::vector<UData::Point>>();
         new_buffer->reserve(reserved_size);
         m_buffer_pool.emplace(std::move(new_buffer));

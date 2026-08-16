@@ -25,7 +25,7 @@ TreeView {
             text: "Configure new simulated source"
             onTriggered: {
                 if (sourceListController) {
-                    sourceListController.open_simulated_source_dialog(mainWindow);
+                    Qt.callLater(() => sourceListController.open_simulated_source_dialog(mainWindow));
                 }
             }
         }
@@ -33,7 +33,7 @@ TreeView {
             text: "Configure new serial port source"
             onTriggered: {
                 if (sourceListController) {
-                    sourceListController.open_serial_source_dialog(mainWindow);
+                    Qt.callLater(() => sourceListController.open_serial_source_dialog(mainWindow));
                 }
             }
         }

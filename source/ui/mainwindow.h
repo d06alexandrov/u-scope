@@ -6,8 +6,6 @@
 #include "overviewchart_controller.h"
 #include "sourcelist_controller.h"
 #include "timebase_model.h"
-#include "universalreader.h"
-#include "universalreader_dialog.h"
 #include "verticalscale_model.h"
 
 #include <QMainWindow>
@@ -18,9 +16,6 @@ namespace Ui {
 class MainWindow;
 }
 QT_END_NAMESPACE
-
-class SlidingWindow;
-class QQuickItem;
 
 /**
  * @brief Class that implements main window of the application
@@ -69,24 +64,6 @@ public slots:
 signals:
 
     /**
-     * @brief Send reader configuration to the Data Processor
-     *
-     * If the reader exists, it changes the config of it.
-     *
-     * @param id reader id
-     * @param config configuration of the reader
-     */
-    void configure_reader(ReaderId id, std::shared_ptr<UniversalReaderDialogConfig> config);
-
-    /**
-     * @brief Send correspondence between a variable and a channel to the Data Processor
-     *
-     * @param variable uniq identificator of a variable
-     * @param channel_id id of the channel
-     */
-    void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
-
-    /**
      * @brief Enable channel in the Data Processor
      *
      * @param channel_id ID of the channel to be enabled.
@@ -119,25 +96,11 @@ signals:
     void stop_data_processing();
 
     /**
-     * @brief Update sliding window width on the overview chart.
-     *
-     * @param window_width_us New width of the sliding window in microseconds.
-     */
-    void window_width_updated(int64_t window_width_us);
-
-    /**
      * @brief Switch between continuous and stopped mode of the chart.
      *
      * @param on True to switch to continuous mode, false to switch to stopped mode.
      */
     void switch_continuous_mode(bool on);
-
-    /**
-     * @brief Set the horizontal division of the main chart.
-     *
-     * @param div_us Size of one horizontal division in microseconds.
-     */
-    void set_horizontal_div(int64_t div_us);
 
     /**
      * @brief Force refresh of the chart data.
@@ -148,10 +111,6 @@ private slots:
 
 private:
     static constexpr size_t channels_amount = 12; /**< Amount of channels. */
-    static constexpr int64_t default_div_vertical_uval =
-            1000000; /**< Default Size of one vertical division in 10^-6. */
-    static constexpr int maximum_overview_points =
-            2000; /**< Maximum amount of points of the overview chart. */
 
     /**
      * @brief Current state of the scope.

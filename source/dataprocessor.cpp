@@ -152,7 +152,7 @@ void DataProcessor::remove_reader(ReaderId id)
     }
 }
 
-void DataProcessor::assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id)
+void DataProcessor::assign_channel(ReaderId reader_id, VariableId variable_id, ChannelId channel_id)
 {
     auto it = m_channel_to_var.find(channel_id);
 
@@ -164,8 +164,9 @@ void DataProcessor::assign_channel(QPair<ReaderId, VariableId> variable, Channel
         m_buffers.erase(channel_id);
     }
 
-    m_var_to_channel[variable] = channel_id;
-    m_channel_to_var[channel_id] = variable;
+    m_var_to_channel[{ reader_id, variable_id }] = channel_id;
+    m_channel_to_var[channel_id] = { reader_id, variable_id };
+    m_channel_enabled[channel_id] = true;
 }
 
 void DataProcessor::enable_channel(ChannelId channel_id)

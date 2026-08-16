@@ -86,7 +86,7 @@ TreeView {
             acceptedButtons: Qt.RightButton
             gesturePolicy: TapHandler.WithinBounds
             onTapped: {
-                if (hasChildren) {
+                if (depth == 0) {
                     readerMenu.popup();
                 } else {
                     variableMenu.popup();

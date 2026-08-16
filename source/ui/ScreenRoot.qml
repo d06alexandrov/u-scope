@@ -4,9 +4,12 @@ import QtQuick.Layouts
 Rectangle {
     id: screenRoot
     color: "black"
+    radius: 4
 
     ColumnLayout {
         anchors.fill: parent
+
+        anchors.margins: 4
         spacing: 0
 
         RowLayout {

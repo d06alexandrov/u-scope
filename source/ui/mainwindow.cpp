@@ -1,8 +1,5 @@
 #include "mainwindow.h"
 
-#include "dataprocessor.h"
-#include "serialreader_dialog.h"
-#include "simulatedreader_dialog.h"
 #include "ui_mainwindow.h"
 
 #include <QAction>
@@ -209,8 +206,6 @@ void MainWindow::init_graph()
     // Main Chart Controller
     connect(this, &MainWindow::switch_continuous_mode, &m_mainchart_controller,
             &MainChartController::switch_continuous_mode);
-    connect(this, &MainWindow::set_horizontal_div, &m_mainchart_controller,
-            &MainChartController::set_horizontal_div);
     connect(this, &MainWindow::force_graph_refresh, &m_mainchart_controller,
             &MainChartController::force_graph_refresh);
     connect(m_data_processor, &DataProcessor::send_new_data, &m_mainchart_controller,
@@ -225,8 +220,6 @@ void MainWindow::init_graph()
             &OverviewChartController::switch_continuous_mode);
     connect(this, &MainWindow::force_graph_refresh, &m_overviewchart_controller,
             &OverviewChartController::force_graph_refresh);
-    connect(this, &MainWindow::window_width_updated, &m_overviewchart_controller,
-            &OverviewChartController::set_sliding_window_width);
     connect(m_data_processor, &DataProcessor::send_full_history, &m_overviewchart_controller,
             &OverviewChartController::receive_full_history);
     connect(&m_overviewchart_controller, &OverviewChartController::request_full_history,

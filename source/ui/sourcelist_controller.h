@@ -14,7 +14,9 @@ class SourceListController : public QObject
 {
     Q_OBJECT
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
     Q_PROPERTY(QAbstractItemModel *model MEMBER m_source_model CONSTANT)
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 public:
     static constexpr ReaderId readers_max_amount = 10; /**< Maximum amount of readers. */
@@ -34,10 +36,34 @@ public:
      */
     explicit SourceListController(QObject *parent = nullptr);
 
+    /**
+     * @brief Open the dialog for adding a simulated source.
+     *
+     * @param parent_widget The parent widget for the dialog.
+     */
     Q_INVOKABLE void open_simulated_source_dialog(QObject *parent_widget);
+
+    /**
+     * @brief Open the dialog for adding a serial source.
+     *
+     * @param parent_widget The parent widget for the dialog.
+     */
     Q_INVOKABLE void open_serial_source_dialog(QObject *parent_widget);
 
+    /**
+     * @brief Delete a source from the source list.
+     *
+     * @param reader_id The ID of the source to be deleted.
+     */
     Q_INVOKABLE void delete_source(int reader_id);
+
+    /**
+     * @brief Assign a variable to a channel.
+     *
+     * @param reader_id The ID of the reader.
+     * @param variable_id The ID of the variable.
+     * @param channel_id The ID of the channel.
+     */
     Q_INVOKABLE void assign_variable_to_channel(int reader_id, int variable_id, int channel_id);
 
 public slots:
@@ -52,7 +78,7 @@ signals:
      * @param reader_id ID of the reader.
      * @param config Configuration of the reader.
      */
-    void configure_reader(ReaderId id, std::shared_ptr<UniversalReaderDialogConfig> config);
+    void configure_reader(ReaderId reader_id, std::shared_ptr<UniversalReaderDialogConfig> config);
 
     /**
      * @brief Assign reader's variable to a channel.
@@ -76,17 +102,16 @@ private slots:
 
 private:
     QMap<ReaderId, std::shared_ptr<UniversalReaderDialogConfig>>
-            m_readers_config; /**< Readers
-                                 configuration. */
+            m_readers_config; /**< Readers configuration. */
 
-    QStandardItemModel *m_source_model;
+    QStandardItemModel *m_source_model; /**< Source List model. */
 
     /**
      * @brief Get available reader index.
      *
      * @return Available reader index.
      */
-    ReaderId get_available_reader_idx() const;
+    [[nodiscard]] ReaderId get_available_reader_idx() const;
 
     /**
      * @brief Add reader to the source list

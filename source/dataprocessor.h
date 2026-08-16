@@ -109,13 +109,17 @@ public:
      * @param parent QObject parent of the DataProcessor.
      */
     explicit DataProcessor(QObject *parent = nullptr);
-    ~DataProcessor();
+
+    /**
+     * @brief Data Processor destructor.
+     */
+    ~DataProcessor() override;
 
 public slots:
     /**
      * @brief Initialize DataProcessor.
      */
-    void setup(void);
+    void setup();
 
     /**
      * @brief Handle reader status report.
@@ -242,7 +246,7 @@ signals:
     /**
      * @brief Report finish of the Data Processor.
      */
-    void finished(void);
+    void finished();
 
     /**
      * @brief Start specific reader.
@@ -279,6 +283,8 @@ private:
      */
     struct ReaderVariableHash
     {
+        static constexpr int hash_bit_shift =
+                32; /**< Bit shift value used to combine ReaderId and VariableId. */
         /**
          * @brief Calculate the hash value for a pair of ReaderId and VariableId.
          *
@@ -287,8 +293,8 @@ private:
          */
         size_t operator()(const std::pair<ReaderId, VariableId> &p) const noexcept
         {
-            uint64_t combined =
-                    (static_cast<uint64_t>(p.first) << 32) ^ static_cast<uint64_t>(p.second);
+            uint64_t combined = (static_cast<uint64_t>(p.first) << hash_bit_shift)
+                    ^ static_cast<uint64_t>(p.second);
 
             return static_cast<size_t>(combined);
         }

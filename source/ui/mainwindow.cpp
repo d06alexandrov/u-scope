@@ -109,7 +109,7 @@ void MainWindow::channel_toggled(int channel_id)
             emit force_graph_refresh();
         }
     } else {
-        m_channelbar_model.enable_channel(id);
+        m_channelbar_model.enable_channel(id, m_verticalscale_model.vScaleText(channel_id));
 
         emit enable_channel(id);
     }

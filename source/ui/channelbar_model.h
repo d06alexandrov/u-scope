@@ -71,7 +71,7 @@ public:
      *
      * @return Hash of role names.
      */
-    QHash<int, QByteArray> roleNames() const override;
+    [[nodiscard]] QHash<int, QByteArray> roleNames() const override;
 
     /**
      * @brief Connects a channel to the source.
@@ -123,7 +123,7 @@ public:
      * @param id Index of the channel to check.
      * @return True if the channel is enabled, false otherwise.
      */
-    bool is_enabled(ChannelId id) const;
+    [[nodiscard]] bool is_enabled(ChannelId id) const;
 
     /**
      * @brief Checks if a channel is selected.
@@ -131,7 +131,7 @@ public:
      * @param id Index of the channel to check.
      * @return True if the channel is selected, false otherwise.
      */
-    bool is_selected(ChannelId id) const;
+    [[nodiscard]] bool is_selected(ChannelId id) const;
 
     /**
      * @brief Gets the currently selected channel.

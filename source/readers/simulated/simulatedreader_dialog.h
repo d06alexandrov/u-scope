@@ -22,7 +22,7 @@ struct SimulatedReaderDialogConfig : UniversalReaderDialogConfig
     QHash<VariableId, SimulatedReaderConfig::Config>
             form_configs; /**< Configurations of the simulated values. */
 
-    std::shared_ptr<UniversalReaderConfig> to_reader_config() const override;
+    [[nodiscard]] std::shared_ptr<UniversalReaderConfig> to_reader_config() const override;
 
     /**
      * @brief Get a short name for a given simulated form configuration.

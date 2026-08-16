@@ -25,17 +25,6 @@ Rectangle {
                 }
             }
 
-            background: Rectangle {
-                y: sourceListBox.topPadding - sourceListBox.bottomPadding
-                width: parent.width
-                height: parent.height - y
-                border.color: "#333333"
-                border.width: 1
-                radius: 4
-
-                visible: parent.width > 100
-            }
-
             label: Text {
                 x: sourceListBox.leftPadding
                 text: sourceListBox.title
@@ -55,16 +44,6 @@ Rectangle {
 
             SplitView.minimumWidth: 400
             SplitView.fillWidth: true
-
-            background: Rectangle {
-                y: outputScreenBox.topPadding - outputScreenBox.bottomPadding
-                width: parent.width
-                height: parent.height - y
-                color: "black"
-                border.color: "#333333"
-                border.width: 1
-                radius: 4
-            }
 
             label: Text {
                 x: outputScreenBox.leftPadding

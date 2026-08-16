@@ -54,6 +54,9 @@ class SimulatedReader : public UniversalReader
     Q_OBJECT
 
 public:
+    static constexpr int32_t min_frequency = 1; /**< Minimum allowed frequency. */
+    static constexpr int32_t max_frequency = 1000000; /**< Maximum allowed frequency. */
+
     /**
      * @brief Constructor.
      *

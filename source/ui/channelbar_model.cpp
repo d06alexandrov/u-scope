@@ -5,8 +5,8 @@ ChannelBarModel::ChannelBarModel(const std::vector<QColor> channel_colors, QObje
 {
     m_channels.reserve(channel_colors.size());
 
-    for (int i = 0; i < channel_colors.size(); ++i) {
-        m_channels.push_back({ channel_colors[i], "", false, false, false });
+    for (auto &color : channel_colors) {
+        m_channels.push_back({ color, "", false, false, false });
     }
 }
 

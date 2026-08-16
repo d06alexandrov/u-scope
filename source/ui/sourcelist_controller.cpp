@@ -3,6 +3,8 @@
 #include "serialreader_dialog.h"
 #include "simulatedreader_dialog.h"
 
+#include <QMessageBox>
+
 SourceListController::SourceListController(QObject *parent)
     : QObject{ parent }
     , m_source_model(new QStandardItemModel(this))
@@ -18,6 +20,14 @@ SourceListController::SourceListController(QObject *parent)
 Q_INVOKABLE void SourceListController::open_simulated_source_dialog(QObject *parent_widget)
 {
     auto *parent_window = qobject_cast<QWidget *>(parent_widget);
+
+    if (m_readers_config.size() >= readers_max_amount) {
+        QMessageBox::warning(
+                parent_window, tr("Source limit"),
+                tr("Maximum amount of sources (%1) has been reached.").arg(readers_max_amount));
+        return;
+    }
+
     SimulatedReaderDialog dialog(parent_window);
 
     if (dialog.exec() == QDialog::Accepted) {
@@ -28,6 +38,14 @@ Q_INVOKABLE void SourceListController::open_simulated_source_dialog(QObject *par
 Q_INVOKABLE void SourceListController::open_serial_source_dialog(QObject *parent_widget)
 {
     auto *parent_window = qobject_cast<QWidget *>(parent_widget);
+
+    if (m_readers_config.size() >= readers_max_amount) {
+        QMessageBox::warning(
+                parent_window, tr("Source limit"),
+                tr("Maximum amount of sources (%1) has been reached.").arg(readers_max_amount));
+        return;
+    }
+
     SerialReaderDialog dialog(parent_window);
 
     if (dialog.exec() == QDialog::Accepted) {

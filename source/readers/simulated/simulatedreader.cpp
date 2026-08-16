@@ -25,7 +25,7 @@ void SimulatedReader::setup()
 
     m_setup_timestamp = UData::get_timestamp();
 
-    allocate_buffer_pool(static_cast<int>(config->form_configs.size() * 2), config->sample_rate);
+    allocate_buffer_pool(config->form_configs.size() * 2, config->sample_rate);
 }
 
 void SimulatedReader::start()

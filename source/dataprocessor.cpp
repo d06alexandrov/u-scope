@@ -218,7 +218,8 @@ void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap da
             const size_t new_data_size = new_data->size();
 
             if (new_data_size >= m_max_sample_points) {
-                auto start_it = std::prev(new_data->end(), m_max_sample_points);
+                auto start_it = std::prev(new_data->end(),
+                                          static_cast<std::ptrdiff_t>(m_max_sample_points));
 
                 destination_buffer.assign(std::make_move_iterator(start_it),
                                           std::make_move_iterator(new_data->end()));
@@ -228,8 +229,10 @@ void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap da
                 if (combined_size > m_max_sample_points) {
                     const size_t overflow_count = combined_size - m_max_sample_points;
 
-                    destination_buffer.erase(destination_buffer.begin(),
-                                             std::next(destination_buffer.begin(), overflow_count));
+                    destination_buffer.erase(
+                            destination_buffer.begin(),
+                            std::next(destination_buffer.begin(),
+                                      static_cast<std::ptrdiff_t>(overflow_count)));
                 }
 
                 destination_buffer.insert(destination_buffer.end(),

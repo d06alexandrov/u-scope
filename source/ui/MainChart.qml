@@ -20,19 +20,19 @@ ChartView {
         gridLineColor: Qt.rgba(0, 1, 0, 100 / 255)
         labelsVisible: false
         lineVisible: false
-        tickCount: 11
+        tickCount: timebaseModel ? timebaseModel.hGridCells + 1 : 2
     }
 
     ValueAxis {
         id: plotAxisY
         objectName: "plotAxisY"
-        min: -100
-        max: 100
+        min: -plotAxisY.max
+        max: verticalScaleModel ? verticalScaleModel.vGridCells / 2 : 1
         gridVisible: true
         gridLineColor: Qt.rgba(0, 1, 0, 100 / 255)
         labelsVisible: false
         lineVisible: false
-        tickCount: 9
+        tickCount: verticalScaleModel ? verticalScaleModel.vGridCells + 1 : 3
     }
 
     function getAxisX(): ValueAxis {

@@ -20,25 +20,8 @@
    <string>U-Scope</string>
   </property>
   <property name="styleSheet">
-   <string notr="true">QGroupBox#outputScreen {
-    background-color: black;
-    border: 1px solid #333333;
-    border-radius: 4px;
-    margin-top: 16px;
-}
-
-QChartView {
-    background: transparent;
-    border: none;
-}
-
-QWidget[cssClass=&quot;displayedValue&quot;] {
-    background-color: black;
-    border-radius: 4px;
-}
-
-QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
-    color: white;
+   <string notr="true">MainWindow {
+    background-color: white;
 }
 </string>
   </property>
@@ -49,32 +32,6 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
       <property name="orientation">
        <enum>Qt::Orientation::Horizontal</enum>
       </property>
-      <widget class="QGroupBox" name="sourceListBox">
-       <property name="minimumSize">
-        <size>
-         <width>200</width>
-         <height>0</height>
-        </size>
-       </property>
-       <property name="title">
-        <string>Sources</string>
-       </property>
-       <layout class="QVBoxLayout" name="verticalLayout_7">
-        <item>
-         <widget class="QTreeView" name="sourceList">
-          <property name="contextMenuPolicy">
-           <enum>Qt::ContextMenuPolicy::CustomContextMenu</enum>
-          </property>
-          <property name="editTriggers">
-           <set>QAbstractItemView::EditTrigger::NoEditTriggers</set>
-          </property>
-          <property name="headerHidden">
-           <bool>true</bool>
-          </property>
-         </widget>
-        </item>
-       </layout>
-      </widget>
       <widget class="QWidget" name="mainScreen" native="true">
        <property name="sizePolicy">
         <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
@@ -93,110 +50,16 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
          <number>0</number>
         </property>
         <item>
-         <widget class="QGroupBox" name="outputScreen">
+         <widget class="QQuickWidget" name="qmlScreenView">
           <property name="sizePolicy">
-           <sizepolicy hsizetype="Expanding" vsizetype="Preferred">
+           <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
             <horstretch>0</horstretch>
             <verstretch>0</verstretch>
            </sizepolicy>
           </property>
-          <property name="title">
-           <string>Screen</string>
+          <property name="resizeMode">
+           <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
           </property>
-          <layout class="QHBoxLayout" name="horizontalLayout_3">
-           <item>
-            <widget class="QWidget" name="widget" native="true">
-             <layout class="QVBoxLayout" name="verticalLayout_6">
-              <property name="spacing">
-               <number>3</number>
-              </property>
-              <property name="leftMargin">
-               <number>0</number>
-              </property>
-              <property name="topMargin">
-               <number>0</number>
-              </property>
-              <property name="rightMargin">
-               <number>0</number>
-              </property>
-              <property name="bottomMargin">
-               <number>0</number>
-              </property>
-              <item>
-               <layout class="QHBoxLayout" name="overDataPlot">
-                <property name="spacing">
-                 <number>10</number>
-                </property>
-                <property name="bottomMargin">
-                 <number>5</number>
-                </property>
-                <item>
-                 <widget class="QWidget" name="hScaleDisplay" native="true">
-                  <property name="cssClass" stdset="0">
-                   <string notr="true">displayedValue</string>
-                  </property>
-                  <layout class="QHBoxLayout" name="horizontalLayout_7">
-                   <item>
-                    <widget class="QLabel" name="label_5">
-                     <property name="text">
-                      <string>H</string>
-                     </property>
-                    </widget>
-                   </item>
-                   <item>
-                    <widget class="QLabel" name="hScaleValue">
-                     <property name="minimumSize">
-                      <size>
-                       <width>50</width>
-                       <height>0</height>
-                      </size>
-                     </property>
-                     <property name="text">
-                      <string/>
-                     </property>
-                     <property name="alignment">
-                      <set>Qt::AlignmentFlag::AlignCenter</set>
-                     </property>
-                    </widget>
-                   </item>
-                  </layout>
-                 </widget>
-                </item>
-                <item>
-                 <widget class="QChartView" name="dataOverview">
-                  <property name="sizePolicy">
-                   <sizepolicy hsizetype="Expanding" vsizetype="Fixed">
-                    <horstretch>0</horstretch>
-                    <verstretch>0</verstretch>
-                   </sizepolicy>
-                  </property>
-                  <property name="maximumSize">
-                   <size>
-                    <width>16777215</width>
-                    <height>40</height>
-                   </size>
-                  </property>
-                 </widget>
-                </item>
-               </layout>
-              </item>
-              <item>
-               <widget class="QQuickWidget" name="qmlScreenView">
-                <property name="sizePolicy">
-                 <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
-                  <horstretch>0</horstretch>
-                  <verstretch>0</verstretch>
-                 </sizepolicy>
-                </property>
-                <property name="resizeMode">
-                 <enum>QQuickWidget::ResizeMode::SizeRootObjectToView</enum>
-                </property>
-               </widget>
-              </item>
-             </layout>
-            </widget>
-           </item>
-          </layout>
          </widget>
         </item>
         <item>
@@ -252,13 +115,13 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
                 <item>
                  <widget class="QDial" name="horizontalScale">
                   <property name="minimum">
-                   <number>-1</number>
+                   <number>-21</number>
                   </property>
                   <property name="maximum">
-                   <number>4</number>
+                   <number>-4</number>
                   </property>
                   <property name="value">
-                   <number>2</number>
+                   <number>-4</number>
                   </property>
                   <property name="wrapping">
                    <bool>false</bool>
@@ -324,13 +187,13 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
                    <bool>false</bool>
                   </property>
                   <property name="minimum">
-                   <number>-2</number>
+                   <number>-24</number>
                   </property>
                   <property name="maximum">
-                   <number>4</number>
+                   <number>-4</number>
                   </property>
                   <property name="value">
-                   <number>0</number>
+                   <number>-4</number>
                   </property>
                   <property name="wrapping">
                    <bool>false</bool>
@@ -428,11 +291,6 @@ QWidget[cssClass=&quot;displayedValue&quot;] QLabel {
    <class>QQuickWidget</class>
    <extends>QWidget</extends>
    <header location="global">QtQuickWidgets/QQuickWidget</header>
-  </customwidget>
-  <customwidget>
-   <class>QChartView</class>
-   <extends>QGraphicsView</extends>
-   <header>QtCharts</header>
   </customwidget>
  </customwidgets>
  <resources/>

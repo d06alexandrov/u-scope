@@ -8,6 +8,12 @@ on:
     branches:
       - develop
   workflow_call:
+    inputs:
+      skip_linter:
+        description: 'Skip the C++ linter job'
+        required: false
+        type: boolean
+        default: false
 
 jobs:
   app-build-linux:
@@ -36,12 +42,15 @@ jobs:
           name: u-scope-linux
           path: build/source/u-scope
 
-      - name: Upload Compile Commands
-        if: github.event_name != 'workflow_call'
+      - name: Upload cpp-linter files
+        if: ${{ !inputs.skip_linter }}
         uses: actions/upload-artifact@v7
         with:
-          name: compile-commands
-          path: build/compile_commands.json
+          name: cpp-linter-files
+          path: |
+            build/compile_commands.json
+            build/**/*.h
+            build/**/*.hpp
 
   app-build-windows:
     runs-on: ubuntu-latest
@@ -76,7 +85,7 @@ jobs:
 
   cpp-linter:
     needs: app-build-linux
-    if: github.event_name != 'workflow_call'
+    if: ${{ !inputs.skip_linter }}
     runs-on: ubuntu-latest
     container:
       image: ghcr.io/d06alexandrov/u-scope:0.6
@@ -95,7 +104,7 @@ jobs:
       - name: Download Compile Commands
         uses: actions/download-artifact@v7
         with:
-          name: compile-commands
+          name: cpp-linter-files
           path: build
 
       - name: Install required packages
@@ -112,6 +121,7 @@ jobs:
           style: ''
           tidy-checks: ''
           database: 'build'
+          ignore: 'build'
           thread-comments: ${{ github.event_name == 'pull_request' }}
           step-summary: true
           lines-changed-only: ${{ github.event_name == 'pull_request' }}

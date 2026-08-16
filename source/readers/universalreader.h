@@ -22,7 +22,7 @@ struct UniversalReaderConfig
      *
      * @return pointer to the copy of the config
      */
-    virtual std::shared_ptr<UniversalReaderConfig> clone() const = 0;
+    [[nodiscard]] virtual std::shared_ptr<UniversalReaderConfig> clone() const = 0;
     uint32_t update_period_ms; /**< Period in ms of sending data to data processor */
 };
 

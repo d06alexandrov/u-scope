@@ -79,14 +79,14 @@ public:
      *
      * @return The channel id of the data.
      */
-    const ChannelId get_id() const { return m_id; }
+    [[nodiscard]] const ChannelId get_id() const { return m_id; }
 
     /**
      * @brief Gets the list of values.
      *
      * @return A reference to the values.
      */
-    const QList<QPointF> &get_values() const { return m_values; }
+    [[nodiscard]] const QList<QPointF> &get_values() const { return m_values; }
 
 private:
     ChannelId m_id; /**< Channel ID of the data. */

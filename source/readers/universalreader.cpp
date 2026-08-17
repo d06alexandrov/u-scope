@@ -129,7 +129,7 @@ bool UniversalReader::store_data(const VariableId &id, UData::Point &&data)
     return true;
 }
 
-UniversalReaderConfig *UniversalReader::get_universal_config() const
+const UniversalReaderConfig *UniversalReader::get_universal_config() const
 {
     return m_config.get();
 }

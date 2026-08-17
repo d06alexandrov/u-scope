@@ -144,7 +144,7 @@ protected:
      *
      * @return Pointer to the configuration of the reader.
      */
-    UniversalReaderConfig *get_universal_config() const;
+    [[nodiscard]] const UniversalReaderConfig *get_universal_config() const;
 
 private slots:
     void reader_process(); /**< Periodic function that calls process method and sends data to the

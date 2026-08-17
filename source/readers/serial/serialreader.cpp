@@ -36,9 +36,9 @@ void SerialReader::data_received()
     }
 }
 
-SerialReaderConfig *SerialReader::get_config()
+const SerialReaderConfig *SerialReader::get_config()
 {
-    return dynamic_cast<SerialReaderConfig *>(get_universal_config());
+    return dynamic_cast<const SerialReaderConfig *>(get_universal_config());
 }
 
 void SerialReader::setup()

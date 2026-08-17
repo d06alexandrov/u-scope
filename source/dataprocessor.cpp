@@ -30,13 +30,10 @@ DataProcessor::~DataProcessor()
             if (info.thread->isRunning()) {
                 info.thread->quit();
 
-                if (!info.thread->wait(1000)) {
-                    info.thread->terminate();
-                    info.thread->wait();
-                }
+                info.thread->wait();
             }
 
-            delete info.thread;
+            std::unique_ptr<QThread>(info.thread);
         }
     }
 }
@@ -86,19 +83,19 @@ void DataProcessor::configure_reader(ReaderId id,
     } else {
         auto reader_config = config->to_reader_config();
 
-        reader_config->update_period_ms = 20;
+        reader_config->update_period_ms = default_reader_update_period_ms;
 
-        UniversalReader *reader = nullptr;
+        std::unique_ptr<UniversalReader> reader = nullptr;
 
         if (auto sim_config = std::dynamic_pointer_cast<SimulatedReaderConfig>(reader_config)) {
-            reader = new SimulatedReader(id, sim_config);
+            reader = std::make_unique<SimulatedReader>(id, sim_config);
         } else if (auto serial_config =
                            std::dynamic_pointer_cast<SerialReaderConfig>(reader_config)) {
-            reader = new SerialReader(id, serial_config);
+            reader = std::make_unique<SerialReader>(id, serial_config);
         }
 
         if (reader != nullptr) {
-            DataSenderInfo new_sender{ new QThread(), reader };
+            DataSenderInfo new_sender{ new QThread(), reader.release() };
 
             new_sender.sender->moveToThread(new_sender.thread);
 
@@ -128,7 +125,7 @@ void DataProcessor::remove_reader(ReaderId id)
     if (m_senders.contains(id)) {
         emit reader_stop(id);
 
-        auto sender_info = m_senders.at(id);
+        auto &sender_info = m_senders.at(id);
         sender_info.thread->quit();
 
         m_senders.erase(id);
@@ -401,7 +398,7 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
                           : ((left_it != channel_data.begin() ? 1 : 0)
                              + (right_it != channel_data.end() ? 1 : 0)));
 
-        processed_values.reserve(points_to_return);
+        processed_values.reserve(static_cast<qsizetype>(points_to_return));
 
         if (!strict && (left_it != channel_data.begin())) {
             const auto &[timestamp, raw_val] = *std::prev(left_it);

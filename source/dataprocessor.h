@@ -38,43 +38,6 @@ public:
     }
 
     /**
-     * @brief Copy constructor for GraphData.
-     *
-     * @param other The source object to copy from.
-     */
-    GraphData(const GraphData &other)
-        : m_id(other.m_id)
-        , m_values(other.m_values)
-    {
-    }
-
-    /**
-     * @brief Move constructor for GraphData.
-     *
-     * @param other The rvalue reference of the object to move from.
-     */
-    GraphData(GraphData &&other) noexcept
-        : m_id(other.m_id)
-        , m_values(std::move(other.m_values))
-    {
-    }
-
-    /**
-     * @brief Move assignment operator for GraphData.
-     *
-     * @param other The rvalue reference of the object to move.
-     * @return A reference to this object.
-     */
-    GraphData &operator=(GraphData &&other) noexcept
-    {
-        if (this != &other) {
-            m_id = other.m_id;
-            m_values = std::move(other.m_values);
-        }
-        return *this;
-    }
-
-    /**
      * @brief Gets the channel id.
      *
      * @return The channel id of the data.
@@ -110,10 +73,16 @@ public:
      */
     explicit DataProcessor(QObject *parent = nullptr);
 
+    DataProcessor(const DataProcessor &other) = delete;
+    DataProcessor(DataProcessor &&other) = delete;
+
     /**
      * @brief Data Processor destructor.
      */
     ~DataProcessor() override;
+
+    DataProcessor &operator=(const DataProcessor &other) = delete;
+    DataProcessor &operator=(DataProcessor &&other) = delete;
 
 public slots:
     /**
@@ -265,6 +234,8 @@ signals:
 private:
     static constexpr size_t default_max_sample_points =
             10000000; /**< Default amount of sample points. */
+    static constexpr uint32_t default_reader_update_period_ms =
+            20; /** Default update period of readers. */
 
     /**
      * @brief Structure to store information regarding Senders (Readers)

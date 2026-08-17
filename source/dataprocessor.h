@@ -242,7 +242,7 @@ private:
      */
     struct DataSenderInfo
     {
-        QThread *thread = nullptr; /**< Pointer to the sender's thread. */
+        std::unique_ptr<QThread> thread = nullptr; /**< Pointer to the sender's thread. */
         UniversalReader *sender = nullptr; /**< Pointer to the sender. */
 
         UniversalReader::Status latest_status =

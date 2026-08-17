@@ -32,8 +32,6 @@ DataProcessor::~DataProcessor()
 
                 info.thread->wait();
             }
-
-            std::unique_ptr<QThread>(info.thread);
         }
     }
 }
@@ -95,13 +93,13 @@ void DataProcessor::configure_reader(ReaderId id,
         }
 
         if (reader != nullptr) {
-            DataSenderInfo new_sender{ new QThread(), reader.release() };
+            DataSenderInfo new_sender{ std::make_unique<QThread>(), reader.release() };
 
-            new_sender.sender->moveToThread(new_sender.thread);
+            new_sender.sender->moveToThread(new_sender.thread.get());
 
-            connect(new_sender.thread, &QThread::started, new_sender.sender,
+            connect(new_sender.thread.get(), &QThread::started, new_sender.sender,
                     &UniversalReader::reader_setup);
-            connect(new_sender.thread, &QThread::finished, new_sender.sender,
+            connect(new_sender.thread.get(), &QThread::finished, new_sender.sender,
                     &QObject::deleteLater);
 
             connect(new_sender.sender, &UniversalReader::report_status, this,
@@ -113,9 +111,9 @@ void DataProcessor::configure_reader(ReaderId id,
             connect(this, &DataProcessor::reader_stop, new_sender.sender,
                     &UniversalReader::reader_stop);
 
-            m_senders.emplace(id, std::move(new_sender));
-
             new_sender.thread->start();
+
+            m_senders.emplace(id, std::move(new_sender));
         }
     }
 }

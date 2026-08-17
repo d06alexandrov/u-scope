@@ -9,7 +9,7 @@ SimulatedReader::SimulatedReader(ReaderId id, std::shared_ptr<SimulatedReaderCon
 
 const SimulatedReaderConfig *SimulatedReader::get_config() const
 {
-    return dynamic_cast<const SimulatedReaderConfig *>(m_config.get());
+    return dynamic_cast<const SimulatedReaderConfig *>(get_universal_config());
 }
 
 void SimulatedReader::setup()

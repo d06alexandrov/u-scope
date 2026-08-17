@@ -125,6 +125,7 @@ void DataProcessor::remove_reader(ReaderId id)
 
         auto &sender_info = m_senders.at(id);
         sender_info.thread->quit();
+        sender_info.thread->wait();
 
         m_senders.erase(id);
 

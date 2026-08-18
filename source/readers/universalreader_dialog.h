@@ -12,16 +12,21 @@
  */
 struct UniversalReaderDialogConfig
 {
+    QMap<VariableId, QString> variable_names; /**< Names of the variables. */
+
+    UniversalReaderDialogConfig() = default;
+    UniversalReaderDialogConfig(const UniversalReaderDialogConfig &other) = default;
+    UniversalReaderDialogConfig(UniversalReaderDialogConfig &&other) = default;
     virtual ~UniversalReaderDialogConfig() = default;
+    UniversalReaderDialogConfig &operator=(const UniversalReaderDialogConfig &other) = default;
+    UniversalReaderDialogConfig &operator=(UniversalReaderDialogConfig &&other) = default;
+
     /**
      * @brief Convert into Reader Config
      *
      * @return pointer to the copy of the config
      */
     [[nodiscard]] virtual std::shared_ptr<UniversalReaderConfig> to_reader_config() const = 0;
-
-public:
-    QMap<VariableId, QString> variable_names; /**< Names of the variables. */
 
     /**
      * @brief Get an available variable ID that is not already in use.

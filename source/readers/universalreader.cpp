@@ -19,8 +19,7 @@ void UniversalReader::reader_setup()
     try {
         setup();
 
-        m_timer = new QTimer(this);
-        connect(m_timer, &QTimer::timeout, this, &UniversalReader::reader_process);
+        connect(&m_timer, &QTimer::timeout, this, &UniversalReader::reader_process);
 
         set_status(Initialized);
     } catch (const std::exception &e) {
@@ -44,7 +43,7 @@ void UniversalReader::reader_start(ReaderId id)
     try {
         start();
 
-        m_timer->start(m_config->update_period_ms);
+        m_timer.start(static_cast<int>(m_config->update_period_ms));
         set_status(Running);
     } catch (const std::exception &e) {
         qDebug() << tr("Caught error:") << e.what();
@@ -62,7 +61,7 @@ void UniversalReader::reader_stop(ReaderId id)
         return;
     }
 
-    m_timer->stop();
+    m_timer.stop();
 
     stop();
 
@@ -86,7 +85,7 @@ void UniversalReader::release_buffer(UniversalReaderBufferMap buffer_map)
 
 void UniversalReader::reader_process()
 {
-    if ((m_status == Running) && (m_timer->isActive())) {
+    if ((m_status == Running) && (m_timer.isActive())) {
         process();
 
         if (!m_buffer_map.isEmpty()) {

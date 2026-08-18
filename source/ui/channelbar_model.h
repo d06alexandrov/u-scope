@@ -14,6 +14,10 @@ class ChannelBarModel : public QAbstractListModel
 {
     Q_OBJECT
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    Q_PROPERTY(int selectedChannel READ selectedChannel NOTIFY selectedChannelChanged)
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+
 public:
     /**
      * @brief Roles for the channel bar model.
@@ -72,6 +76,13 @@ public:
      * @return Hash of role names.
      */
     [[nodiscard]] QHash<int, QByteArray> roleNames() const override;
+
+    /**
+     * @brief Returns the currently selected channel ID.
+     *
+     * @return ID of the selected channel, or -1 if no channel is selected.
+     */
+    [[nodiscard]] int selectedChannel() const;
 
     /**
      * @brief Connects a channel to the source.
@@ -140,6 +151,15 @@ public:
      * otherwise.
      */
     [[nodiscard]] std::optional<ChannelId> get_selected() const;
+
+signals:
+
+    /**
+     * @brief Signal emitted when the selected channel changes.
+     *
+     * @param channel_id The ID of the newly selected channel or -1 if no channel is selected.
+     */
+    void selectedChannelChanged(int channel_id);
 
 private:
     std::vector<ChannelState> m_channels; /**< List of channels. */

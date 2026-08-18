@@ -38,21 +38,43 @@ Rectangle {
             }
         }
 
-        GroupBox {
-            id: outputScreenBox
-            title: "Screen"
-
-            SplitView.minimumWidth: 400
+        RowLayout {
+            SplitView.minimumWidth: 600
             SplitView.fillWidth: true
 
-            label: Text {
-                x: outputScreenBox.leftPadding
-                text: outputScreenBox.title
-                font.bold: true
+            GroupBox {
+                id: outputScreenBox
+                title: "Screen"
+
+                Layout.fillWidth: true
+                Layout.fillHeight: true
+
+                label: Text {
+                    x: outputScreenBox.leftPadding
+                    text: outputScreenBox.title
+                    font.bold: true
+                }
+
+                ScreenRoot {
+                    anchors.fill: parent
+                }
             }
 
-            ScreenRoot {
-                anchors.fill: parent
+            GroupBox {
+                id: controlPanelBox
+                title: "Control panel"
+
+                Layout.alignment: Qt.AlignTop
+
+                label: Text {
+                    x: controlPanelBox.leftPadding
+                    text: controlPanelBox.title
+                    font.bold: true
+                }
+
+                ControlPanel {
+                    anchors.fill: parent
+                }
             }
         }
     }

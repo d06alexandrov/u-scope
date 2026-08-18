@@ -26,8 +26,13 @@ qt_add_qml_module(
     RESOURCE_PREFIX "/qt/qml"
     OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/UI"
     QML_FILES # cmake-format: sortable
-              MainWindow.qml ChannelBar.qml ScreenRoot.qml MainChart.qml
-              OverviewChart.qml SourceList.qml
+              MainWindow.qml
+              ChannelBar.qml
+              ScreenRoot.qml
+              MainChart.qml
+              OverviewChart.qml
+              SourceList.qml
+              ControlPanel.qml
 )
 
 set_source_files_properties(

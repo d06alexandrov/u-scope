@@ -6,7 +6,9 @@ UniversalReader::UniversalReader(ReaderId id, std::shared_ptr<UniversalReaderCon
     : QObject{ nullptr }
     , m_id(id)
     , m_config(std::move(config))
+    , m_timer(this)
 {
+    connect(&m_timer, &QTimer::timeout, this, &UniversalReader::reader_process);
 }
 
 void UniversalReader::reader_setup()
@@ -18,8 +20,6 @@ void UniversalReader::reader_setup()
 
     try {
         setup();
-
-        connect(&m_timer, &QTimer::timeout, this, &UniversalReader::reader_process);
 
         set_status(Initialized);
     } catch (const std::exception &e) {

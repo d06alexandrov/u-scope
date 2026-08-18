@@ -43,13 +43,12 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
+    // m_data_processor_thread will destroy underlying object
+    m_data_processor.release();
+
     if (m_data_processor_thread.isRunning()) {
         m_data_processor_thread.quit();
-
-        if (!m_data_processor_thread.wait(1000)) {
-            m_data_processor_thread.terminate();
-            m_data_processor_thread.wait();
-        }
+        m_data_processor_thread.wait();
     }
     delete ui;
 }
@@ -114,24 +113,31 @@ void MainWindow::channel_toggled(int channel_id)
 
 void MainWindow::init_data_processor()
 {
-    m_data_processor = new DataProcessor;
+    m_data_processor = std::make_unique<DataProcessor>();
+
+    if (!m_data_processor) {
+        qFatal() << tr("Failed to initialize Data Processor.");
+    }
 
     m_data_processor->moveToThread(&m_data_processor_thread);
 
-    connect(&m_data_processor_thread, &QThread::started, m_data_processor, &DataProcessor::setup);
+    connect(&m_data_processor_thread, &QThread::started, m_data_processor.get(),
+            &DataProcessor::setup);
 
     // Data Processor commands
-    connect(this, &MainWindow::enable_channel, m_data_processor, &DataProcessor::enable_channel);
-    connect(this, &MainWindow::disable_channel, m_data_processor, &DataProcessor::disable_channel);
-    connect(this, &MainWindow::update_channel_vertical_scale, m_data_processor,
+    connect(this, &MainWindow::enable_channel, m_data_processor.get(),
+            &DataProcessor::enable_channel);
+    connect(this, &MainWindow::disable_channel, m_data_processor.get(),
+            &DataProcessor::disable_channel);
+    connect(this, &MainWindow::update_channel_vertical_scale, m_data_processor.get(),
             &DataProcessor::update_channel_vertical_scale);
 
-    connect(&m_data_processor_thread, &QThread::finished, m_data_processor,
+    connect(&m_data_processor_thread, &QThread::finished, m_data_processor.get(),
             &DataProcessor::deleteLater);
 
-    connect(this, &MainWindow::start_data_processing, m_data_processor,
+    connect(this, &MainWindow::start_data_processing, m_data_processor.get(),
             &DataProcessor::start_data_processing);
-    connect(this, &MainWindow::stop_data_processing, m_data_processor,
+    connect(this, &MainWindow::stop_data_processing, m_data_processor.get(),
             &DataProcessor::stop_data_processing);
 
     // Register Meta Type which will be used in a communication with Data Processor
@@ -208,22 +214,22 @@ void MainWindow::init_graph()
             &MainChartController::switch_continuous_mode);
     connect(this, &MainWindow::force_graph_refresh, &m_mainchart_controller,
             &MainChartController::force_graph_refresh);
-    connect(m_data_processor, &DataProcessor::send_new_data, &m_mainchart_controller,
+    connect(m_data_processor.get(), &DataProcessor::send_new_data, &m_mainchart_controller,
             &MainChartController::receive_stored_data);
     connect(&m_mainchart_controller, &MainChartController::request_recent_stored_data,
-            m_data_processor, &DataProcessor::handle_recent_data_request);
-    connect(&m_mainchart_controller, &MainChartController::request_stored_data, m_data_processor,
-            &DataProcessor::handle_data_request);
+            m_data_processor.get(), &DataProcessor::handle_recent_data_request);
+    connect(&m_mainchart_controller, &MainChartController::request_stored_data,
+            m_data_processor.get(), &DataProcessor::handle_data_request);
 
     // Overview Chart Controller
     connect(this, &MainWindow::switch_continuous_mode, &m_overviewchart_controller,
             &OverviewChartController::switch_continuous_mode);
     connect(this, &MainWindow::force_graph_refresh, &m_overviewchart_controller,
             &OverviewChartController::force_graph_refresh);
-    connect(m_data_processor, &DataProcessor::send_full_history, &m_overviewchart_controller,
+    connect(m_data_processor.get(), &DataProcessor::send_full_history, &m_overviewchart_controller,
             &OverviewChartController::receive_full_history);
     connect(&m_overviewchart_controller, &OverviewChartController::request_full_history,
-            m_data_processor, &DataProcessor::handle_full_history_request);
+            m_data_processor.get(), &DataProcessor::handle_full_history_request);
     connect(&m_overviewchart_controller, &OverviewChartController::selected_time_frame,
             &m_mainchart_controller, &MainChartController::set_time_frame);
 }
@@ -303,10 +309,10 @@ void MainWindow::init_menu()
 
 void MainWindow::init_source_list()
 {
-    connect(&m_sourcelist_controller, &SourceListController::configure_reader, m_data_processor,
-            &DataProcessor::configure_reader);
+    connect(&m_sourcelist_controller, &SourceListController::configure_reader,
+            m_data_processor.get(), &DataProcessor::configure_reader);
     connect(&m_sourcelist_controller, &SourceListController::request_channel_assignment,
-            m_data_processor, &DataProcessor::assign_channel);
+            m_data_processor.get(), &DataProcessor::assign_channel);
     connect(&m_sourcelist_controller, &SourceListController::request_channel_assignment, this,
             [this](ReaderId reader_id, VariableId variable_id, ChannelId channel_id) {
                 m_verticalscale_model.reset_channel(channel_id);
@@ -315,7 +321,7 @@ void MainWindow::init_source_list()
                                                   m_verticalscale_model.vScaleText(channel_id));
             });
     connect(&m_sourcelist_controller, &SourceListController::request_reader_remove,
-            m_data_processor, &DataProcessor::remove_reader);
+            m_data_processor.get(), &DataProcessor::remove_reader);
 }
 
 namespace {

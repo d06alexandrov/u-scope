@@ -10,6 +10,7 @@
 
 #include <QMainWindow>
 #include <QPropertyChangeHandler>
+#include <memory>
 
 QT_BEGIN_NAMESPACE
 namespace Ui {
@@ -30,10 +31,16 @@ public:
      */
     MainWindow();
 
+    MainWindow(const MainWindow &other) = delete;
+    MainWindow(MainWindow &&other) = delete;
+
     /**
      * @brief Destructor of MainWindow class.
      */
     ~MainWindow() override;
+
+    MainWindow &operator=(const MainWindow &other) = delete;
+    MainWindow &operator=(MainWindow &&other) = delete;
 
 public slots:
 
@@ -130,7 +137,7 @@ private:
 
     Ui::MainWindow *ui = nullptr; /**< Pointer to the Main Window user interface. */
 
-    DataProcessor *m_data_processor = nullptr; /**< Main Data Processor. */
+    std::unique_ptr<DataProcessor> m_data_processor{ }; /**< Main Data Processor. */
     QThread m_data_processor_thread; /**< Thread with a running Data Processor. */
 
     ScopeMode m_current_mode = ScopeMode::Stopped; /**< Current display mode. */

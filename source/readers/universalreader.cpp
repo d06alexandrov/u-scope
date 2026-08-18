@@ -4,8 +4,8 @@
 
 UniversalReader::UniversalReader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config)
     : QObject{ nullptr }
-    , m_id(id)
     , m_config(std::move(config))
+    , m_id(id)
     , m_timer(this)
 {
     connect(&m_timer, &QTimer::timeout, this, &UniversalReader::reader_process);

@@ -130,7 +130,7 @@ void ChannelBarModel::select_channel(ChannelId id)
 
         m_channels[id].selected = true;
         m_selected_channel = id;
-        emit selectedChannelChanged(id);
+        emit selectedChannelChanged(selectedChannel());
 
         QModelIndex idx = createIndex(id, 0);
         emit dataChanged(idx, idx, { ChannelSelectedRole });

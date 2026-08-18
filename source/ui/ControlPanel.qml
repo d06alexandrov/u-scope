@@ -132,7 +132,7 @@ ColumnLayout {
 
                     onMoved: {
                         if (verticalScaleModel && channelModel && channelModel.selectedChannel >= 0) {
-                            verticalScaleModel.dial_value_updated(channelModel.selectedChannel, value);
+                            verticalScaleModel.qDialValueUpdate(channelModel.selectedChannel, value);
                         }
                     }
 

@@ -16,11 +16,39 @@
  */
 struct UniversalReaderConfig
 {
+    /**
+     * @brief Default constructor.
+     */
     UniversalReaderConfig() = default;
+    /**
+     * @brief Copy constructor.
+     *
+     * @param other The other UniversalReaderConfig to copy from.
+     */
     UniversalReaderConfig(const UniversalReaderConfig &other) = default;
+    /**
+     * @brief Move constructor.
+     *
+     * @param other The other UniversalReaderConfig to move from.
+     */
     UniversalReaderConfig(UniversalReaderConfig &&other) = default;
+    /**
+     * @brief Destructor.
+     */
     virtual ~UniversalReaderConfig() = default;
+    /**
+     * @brief Copy assignment operator.
+     *
+     * @param other The other UniversalReaderConfig to copy from.
+     * @return Reference to this UniversalReaderConfig.
+     */
     UniversalReaderConfig &operator=(const UniversalReaderConfig &other) = default;
+    /**
+     * @brief Move assignment operator.
+     *
+     * @param other The other UniversalReaderConfig to move from.
+     * @return Reference to this UniversalReaderConfig.
+     */
     UniversalReaderConfig &operator=(UniversalReaderConfig &&other) = default;
 
     /**

@@ -14,6 +14,7 @@ class TimebaseModel : public QObject
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     Q_PROPERTY(QString hScaleText READ hScaleText NOTIFY hScaleTextChanged)
     Q_PROPERTY(int hGridCells READ hGridCells NOTIFY hGridCellsChanged)
+    Q_PROPERTY(int qDialValue READ qDialValue WRITE qDialValueUpdate NOTIFY qDialValueChanged)
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 public:
@@ -65,6 +66,13 @@ public:
     int qDialValue() const;
 
     /**
+     * @brief Update horizontal division from dial value.
+     *
+     * @param dial_value The new value from the dial.
+     */
+    void qDialValueUpdate(int dial_value);
+
+    /**
      * @brief Returns the width of the frame in microseconds.
      *
      * @return The width of the frame in microseconds.
@@ -72,13 +80,6 @@ public:
     int64_t frameWidthUs() const;
 
 public slots:
-
-    /**
-     * @brief Update horizontal division from dial value.
-     *
-     * @param dial_value The new value from the dial.
-     */
-    void dial_value_updated(int dial_value);
 
 signals:
 
@@ -96,6 +97,11 @@ signals:
      * @brief Signal emitted when the horizontal division changes.
      */
     void hDivisionChanged();
+
+    /**
+     * @brief Signal emitted when the dial value changes.
+     */
+    void qDialValueChanged();
 
 protected:
 private slots:

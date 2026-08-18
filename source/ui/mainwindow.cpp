@@ -80,11 +80,6 @@ void MainWindow::channel_selected(int channel_id)
     auto id = static_cast<ChannelId>(channel_id);
 
     m_channelbar_model.select_channel(id);
-
-    if (m_channelbar_model.is_selected(id)) {
-        ui->verticalScale->setEnabled(true);
-        ui->verticalScale->setValue(m_verticalscale_model.qDialValue(id));
-    }
 }
 
 void MainWindow::channel_toggled(int channel_id)
@@ -237,28 +232,14 @@ void MainWindow::init_graph()
 void MainWindow::init_input()
 {
     // Initialize timebase model (horizontal scaler)
-    connect(ui->horizontalScale, &QDial::valueChanged, &m_timebase_model,
-            &TimebaseModel::dial_value_updated);
-
     m_timebase_sync_division =
             m_timebase_model.bindableDivisionUs().subscribe(std::function<void()>([this]() {
                 m_mainchart_controller.set_horizontal_div(m_timebase_model.divisionUs());
                 m_overviewchart_controller.set_sliding_window_width(
                         m_timebase_model.frameWidthUs());
-
-                QSignalBlocker blocker(ui->horizontalScale);
-                ui->horizontalScale->setValue(m_timebase_model.qDialValue());
             }));
 
     // Initialize vertical scaler model
-    connect(ui->verticalScale, &QDial::valueChanged, this, [this](int new_value) {
-        const auto selected_channel = m_channelbar_model.get_selected();
-
-        if (selected_channel.has_value()) {
-            m_verticalscale_model.dial_value_updated(selected_channel.value(), new_value);
-        }
-    });
-
     connect(&m_verticalscale_model, &VerticalScaleModel::vDivisionChanged, this, [this]() {
         const auto selected_channel = m_channelbar_model.get_selected();
 
@@ -276,11 +257,6 @@ void MainWindow::init_input()
             }
         }
     });
-
-    // Connect start and stop buttons
-    connect(ui->pushButton_StartAll, &QPushButton::clicked, this,
-            &MainWindow::handle_start_clicked);
-    connect(ui->pushButton_StopAll, &QPushButton::clicked, this, &MainWindow::handle_stop_clicked);
 }
 
 void MainWindow::init_menu()

@@ -55,6 +55,11 @@ QHash<int, QByteArray> ChannelBarModel::roleNames() const
     };
 }
 
+int ChannelBarModel::selectedChannel() const
+{
+    return m_selected_channel.has_value() ? static_cast<int>(m_selected_channel.value()) : -1;
+}
+
 void ChannelBarModel::connect_channel(ChannelId id)
 {
     if (id >= m_channels.size()) {
@@ -73,6 +78,8 @@ void ChannelBarModel::connect_channel(ChannelId id)
         if (m_channels[id].selected) {
             m_channels[id].selected = false;
             m_selected_channel.reset();
+
+            emit selectedChannelChanged(selectedChannel());
         }
 
         QModelIndex idx = createIndex(id, 0);
@@ -93,6 +100,8 @@ void ChannelBarModel::disconnect_channel(ChannelId id)
         if (m_channels[id].selected) {
             m_channels[id].selected = false;
             m_selected_channel.reset();
+
+            emit selectedChannelChanged(selectedChannel());
         }
 
         QModelIndex idx = createIndex(id, 0);
@@ -121,6 +130,7 @@ void ChannelBarModel::select_channel(ChannelId id)
 
         m_channels[id].selected = true;
         m_selected_channel = id;
+        emit selectedChannelChanged(selectedChannel());
 
         QModelIndex idx = createIndex(id, 0);
         emit dataChanged(idx, idx, { ChannelSelectedRole });

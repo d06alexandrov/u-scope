@@ -43,7 +43,7 @@ public:
      * @param id The channel ID for which to get the dial value.
      * @return The value of the dial.
      */
-    [[nodiscard]] int qDialValue(ChannelId id) const;
+    [[nodiscard]] Q_INVOKABLE int qDialValue(int id) const;
 
     /**
      * @brief Returns the vertical scale factor for a given channel.
@@ -64,10 +64,10 @@ public:
     /**
      * @brief Update vertical division from dial value.
      *
-     * @param id The channel ID for which to update the vertical division.
+     * @param channel_id The channel ID for which to update the vertical division.
      * @param dial_value The new value from the dial.
      */
-    void dial_value_updated(ChannelId id, int dial_value);
+    Q_INVOKABLE void qDialValueUpdate(int channel_id, int dial_value);
 
     /**
      * @brief Reset the vertical division of a channel to the default value.

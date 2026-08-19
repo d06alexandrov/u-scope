@@ -21,6 +21,10 @@ void MainChartController::registerXAxis(QValueAxis *x_axis)
 
 void MainChartController::registerSeries(int id, QXYSeries *series)
 {
+    if (id < 0) {
+        return;
+    }
+
     if (id >= m_series.size()) {
         m_series.resize(id + 1, nullptr);
     }

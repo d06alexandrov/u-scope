@@ -30,12 +30,19 @@ public:
     explicit OverviewChartController(QObject *parent = nullptr);
 
     /**
-     * @brief Attach actual ui to the controller.
+     * @brief Register the x-axis of the chart.
      *
-     * @param x_axis The x-axis of the chart.
-     * @param series_array An array of series to be displayed on the chart.
+     * @param x_axis Pointer to the QValueAxis representing the x-axis of the chart.
      */
-    void attach_ui(QValueAxis *x_axis, std::span<QXYSeries *> series_array);
+    Q_INVOKABLE void registerXAxis(QValueAxis *x_axis);
+
+    /**
+     * @brief Register a data series for the chart.
+     *
+     * @param id The identifier for the series.
+     * @param series Pointer to the QXYSeries to be registered.
+     */
+    Q_INVOKABLE void registerSeries(int id, QXYSeries *series);
 
     /**
      * @brief Get the current x position of the sliding window.

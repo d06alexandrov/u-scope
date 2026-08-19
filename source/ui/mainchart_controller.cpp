@@ -8,15 +8,24 @@ MainChartController::MainChartController(QObject *parent)
     connect(&m_render_timer, &QTimer::timeout, this, &MainChartController::render_timer_trigger);
 }
 
-void MainChartController::attach_ui(QValueAxis *x_axis, std::span<QXYSeries *> series_array)
+void MainChartController::registerXAxis(QValueAxis *x_axis)
 {
-    if (x_axis == nullptr) {
+    if (!x_axis) {
         return;
     }
 
     m_axis_x = x_axis;
+
     m_axis_div_count = std::max(1, x_axis->tickCount() - 1);
-    m_series.assign(series_array.begin(), series_array.end());
+}
+
+void MainChartController::registerSeries(int id, QXYSeries *series)
+{
+    if (id >= m_series.size()) {
+        m_series.resize(id + 1, nullptr);
+    }
+
+    m_series.at(id) = series;
 }
 
 void MainChartController::set_horizontal_div(int64_t div_us)
@@ -57,7 +66,9 @@ void MainChartController::receive_stored_data(const QList<GraphData> &new_data,
         ChannelId channel_id = channel_data.get_id();
 
         if (channel_id < m_series.size()) {
-            m_series.at(channel_id)->replace(channel_data.get_values());
+            if (auto series = m_series.at(channel_id)) {
+                series->replace(channel_data.get_values());
+            }
         }
     }
 }

@@ -21,6 +21,8 @@ ChartView {
         labelsVisible: false
         lineVisible: false
         tickCount: timebaseModel ? timebaseModel.hGridCells + 1 : 2
+
+        Component.onCompleted: mainChartController.registerXAxis(plotAxisX)
     }
 
     ValueAxis {
@@ -50,6 +52,8 @@ ChartView {
             series.objectName = "plot_series_" + i;
             series.color = (cppChannelColors.length > i) ? cppChannelColors[i] : "white";
             series.pointsVisible = true;
+
+            mainChartController.registerSeries(i, series);
         }
     }
 }

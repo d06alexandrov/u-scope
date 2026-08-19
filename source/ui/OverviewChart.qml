@@ -26,6 +26,8 @@ ChartView {
         gridVisible: false
         labelsVisible: false
         lineVisible: false
+
+        Component.onCompleted: overviewChartController.registerXAxis(plotAxisX)
     }
 
     ValueAxis {
@@ -53,6 +55,8 @@ ChartView {
             series.objectName = "overview_series_" + i;
             series.color = (cppChannelColors.length > i) ? cppChannelColors[i] : "white";
             series.pointsVisible = false;
+
+            overviewChartController.registerSeries(i, series);
         }
     }
 

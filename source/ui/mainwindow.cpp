@@ -13,21 +13,6 @@
 #include <QtCharts/QValueAxis>
 #include <QtCharts/QXYSeries>
 
-namespace {
-
-/**
- * @brief Extracts QValueAxis and QXYSeries from a QQuickItem representing a graph.
- *
- * @param root The root QQuickItem containing the graph.
- * @param graph_name The name of the graph to extract.
- * @param channels_amount The expected number of QXYSeries in the graph.
- * @return The QValueAxis and a vector of QXYSeries if successful, or std::nullopt if fails.
- */
-std::optional<std::tuple<QValueAxis *, std::vector<QXYSeries *>>>
-extract_graph_series(QQuickItem *root, QStringView graph_name, size_t channels_amount);
-
-} // namespace
-
 MainWindow::MainWindow()
     : QMainWindow(nullptr)
     , ui(new Ui::MainWindow)
@@ -178,32 +163,6 @@ void MainWindow::init_qml()
 
 void MainWindow::init_graph()
 {
-    QQuickItem *root = ui->qmlScreenView->rootObject();
-
-    if (root != nullptr) {
-        if (auto extract_result = extract_graph_series(root, u"mainChart", channels_amount);
-            extract_result.has_value()) {
-            auto [extracted_axis, extracted_series] = extract_result.value();
-
-            m_mainchart_controller.attach_ui(extracted_axis, extracted_series);
-        } else {
-            qFatal() << tr("Failed to extract Main Chart series.");
-        }
-
-        if (auto extract_result = extract_graph_series(root, u"overviewChart", channels_amount);
-            extract_result.has_value()) {
-            auto [extracted_axis, extracted_series] = extract_result.value();
-
-            m_overviewchart_controller.attach_ui(extracted_axis, extracted_series);
-
-        } else {
-            qFatal() << tr("Failed to extract Overview Chart series.");
-        }
-
-    } else {
-        qFatal() << tr("Failed to get an access to Screen Root qml.");
-    }
-
     // Main Chart Controller
     connect(this, &MainWindow::switch_continuous_mode, &m_mainchart_controller,
             &MainChartController::switch_continuous_mode);
@@ -299,50 +258,3 @@ void MainWindow::init_source_list()
     connect(&m_sourcelist_controller, &SourceListController::request_reader_remove,
             m_data_processor.get(), &DataProcessor::remove_reader);
 }
-
-namespace {
-
-std::optional<std::tuple<QValueAxis *, std::vector<QXYSeries *>>>
-extract_graph_series(QQuickItem *root, QStringView graph_name, size_t channels_amount)
-{
-    if (root == nullptr) {
-        return std::nullopt;
-    }
-
-    auto graph_item = root->findChild<QQuickItem *>(graph_name);
-
-    if (graph_item == nullptr) {
-        return std::nullopt;
-    }
-
-    QValueAxis *extracted_axis = nullptr;
-
-    QMetaObject::invokeMethod(graph_item, "getAxisX", Qt::DirectConnection,
-                              Q_RETURN_ARG(QValueAxis *, extracted_axis));
-
-    if (extracted_axis == nullptr) {
-        return std::nullopt;
-    }
-
-    std::vector<QXYSeries *> extracted_series;
-    extracted_series.reserve(channels_amount);
-
-    for (size_t i = 0; i < channels_amount; ++i) {
-        QAbstractSeries *absSeries = nullptr;
-        QMetaObject::invokeMethod(graph_item, "getSeries", Qt::DirectConnection,
-                                  Q_RETURN_ARG(QAbstractSeries *, absSeries),
-                                  Q_ARG(int, static_cast<int>(i)));
-
-        auto *xy_series = qobject_cast<QXYSeries *>(absSeries);
-
-        if (xy_series == nullptr) {
-            return std::nullopt;
-        }
-
-        extracted_series.push_back(xy_series);
-    }
-
-    return std::tuple{ extracted_axis, extracted_series };
-}
-
-} // namespace

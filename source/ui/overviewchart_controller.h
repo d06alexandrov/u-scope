@@ -5,6 +5,7 @@
 
 #include <QList>
 #include <QObject>
+#include <QPointer>
 #include <QValueAxis>
 #include <QXYSeries>
 #include <vector>
@@ -133,8 +134,8 @@ private slots:
 private:
     static constexpr int minimum_graph_points = 100; /**< Minimum graph points to be drawn. */
 
-    QValueAxis *m_axis_x = nullptr; /**< X axis of the graph. */
-    std::vector<QXYSeries *> m_series; /**< Data series of the graph. */
+    QPointer<QValueAxis> m_axis_x{ }; /**< X axis of the graph. */
+    std::vector<QPointer<QXYSeries>> m_series{ }; /**< Data series of the graph. */
 
     bool m_continuous_mode = false; /**< Continuous or stopped mode. */
 

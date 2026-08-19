@@ -4,6 +4,7 @@
 
 #include <QList>
 #include <QObject>
+#include <QPointer>
 #include <QValueAxis>
 #include <QXYSeries>
 
@@ -124,14 +125,14 @@ private:
     static constexpr int default_frame_period_ms =
             33; /**< Default graph frame update period in ms. */
 
+    QPointer<QValueAxis> m_axis_x{ }; /**< X axis of the graph. */
+    std::vector<QPointer<QXYSeries>> m_series{ }; /**< Data series of the graph. */
+
     bool m_continuous_mode = false; /**< Continuous or stopped mode. */
     QTimer m_render_timer; /**< Timer to trigger an update of the graph data. */
 
-    QValueAxis *m_axis_x = nullptr; /**< X axis of the graph. */
-    int m_axis_div_count{ }; /**< AMount of divisions. */
+    int m_axis_div_count{ }; /**< Amount of divisions. */
     int64_t m_div_horizontal_us{ }; /**< Size of one horizontal division in us. */
-
-    std::vector<QXYSeries *> m_series; /**< Data series of the graph. */
 
     UData::Time m_graph_min_time{ }; /**< Min graph time. */
     UData::Time m_graph_max_time{ }; /**< Max graph time. */

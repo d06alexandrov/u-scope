@@ -30,18 +30,13 @@ DataProcessor::~DataProcessor()
             if (info.thread->isRunning()) {
                 info.thread->quit();
 
-                if (!info.thread->wait(1000)) {
-                    info.thread->terminate();
-                    info.thread->wait();
-                }
+                info.thread->wait();
             }
-
-            delete info.thread;
         }
     }
 }
 
-void DataProcessor::setup(void) { }
+void DataProcessor::setup() { }
 
 void DataProcessor::reported_reader_status(ReaderId reader_id, UniversalReader::Status status)
 {
@@ -86,25 +81,26 @@ void DataProcessor::configure_reader(ReaderId id,
     } else {
         auto reader_config = config->to_reader_config();
 
-        reader_config->update_period_ms = 20;
+        reader_config->update_period_ms = default_reader_update_period_ms;
 
-        UniversalReader *reader = nullptr;
+        auto new_thread = std::make_unique<QThread>();
+        std::unique_ptr<UniversalReader> new_reader = nullptr;
 
         if (auto sim_config = std::dynamic_pointer_cast<SimulatedReaderConfig>(reader_config)) {
-            reader = new SimulatedReader(id, sim_config);
+            new_reader = std::make_unique<SimulatedReader>(id, sim_config);
         } else if (auto serial_config =
                            std::dynamic_pointer_cast<SerialReaderConfig>(reader_config)) {
-            reader = new SerialReader(id, serial_config);
+            new_reader = std::make_unique<SerialReader>(id, serial_config);
         }
 
-        if (reader != nullptr) {
-            DataSenderInfo new_sender{ new QThread(), reader };
+        if (new_reader && new_thread) {
+            DataSenderInfo new_sender{ std::move(new_thread), new_reader.release() };
 
-            new_sender.sender->moveToThread(new_sender.thread);
+            new_sender.sender->moveToThread(new_sender.thread.get());
 
-            connect(new_sender.thread, &QThread::started, new_sender.sender,
+            connect(new_sender.thread.get(), &QThread::started, new_sender.sender,
                     &UniversalReader::reader_setup);
-            connect(new_sender.thread, &QThread::finished, new_sender.sender,
+            connect(new_sender.thread.get(), &QThread::finished, new_sender.sender,
                     &QObject::deleteLater);
 
             connect(new_sender.sender, &UniversalReader::report_status, this,
@@ -116,9 +112,9 @@ void DataProcessor::configure_reader(ReaderId id,
             connect(this, &DataProcessor::reader_stop, new_sender.sender,
                     &UniversalReader::reader_stop);
 
-            m_senders.emplace(id, std::move(new_sender));
-
             new_sender.thread->start();
+
+            m_senders.emplace(id, std::move(new_sender));
         }
     }
 }
@@ -128,8 +124,9 @@ void DataProcessor::remove_reader(ReaderId id)
     if (m_senders.contains(id)) {
         emit reader_stop(id);
 
-        auto sender_info = m_senders.at(id);
+        auto &sender_info = m_senders.at(id);
         sender_info.thread->quit();
+        sender_info.thread->wait();
 
         m_senders.erase(id);
 
@@ -218,7 +215,8 @@ void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap da
             const size_t new_data_size = new_data->size();
 
             if (new_data_size >= m_max_sample_points) {
-                auto start_it = new_data->end() - m_max_sample_points;
+                auto start_it = std::prev(new_data->end(),
+                                          static_cast<std::ptrdiff_t>(m_max_sample_points));
 
                 destination_buffer.assign(std::make_move_iterator(start_it),
                                           std::make_move_iterator(new_data->end()));
@@ -228,8 +226,10 @@ void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap da
                 if (combined_size > m_max_sample_points) {
                     const size_t overflow_count = combined_size - m_max_sample_points;
 
-                    destination_buffer.erase(destination_buffer.begin(),
-                                             destination_buffer.begin() + overflow_count);
+                    destination_buffer.erase(
+                            destination_buffer.begin(),
+                            std::next(destination_buffer.begin(),
+                                      static_cast<std::ptrdiff_t>(overflow_count)));
                 }
 
                 destination_buffer.insert(destination_buffer.end(),
@@ -348,8 +348,8 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
 {
     QList<GraphData> new_data;
 
-    UData::Time start_time_actual;
-    UData::Time end_time_actual;
+    UData::Time start_time_actual{ };
+    UData::Time end_time_actual{ };
 
     if (start_time.has_value()) {
         start_time_actual = start_time.value();
@@ -398,7 +398,7 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
                           : ((left_it != channel_data.begin() ? 1 : 0)
                              + (right_it != channel_data.end() ? 1 : 0)));
 
-        processed_values.reserve(points_to_return);
+        processed_values.reserve(static_cast<qsizetype>(points_to_return));
 
         if (!strict && (left_it != channel_data.begin())) {
             const auto &[timestamp, raw_val] = *std::prev(left_it);

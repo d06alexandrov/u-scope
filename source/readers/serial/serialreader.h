@@ -13,7 +13,7 @@ class DataProcessor;
  */
 struct SerialReaderConfig : UniversalReaderConfig
 {
-    std::shared_ptr<UniversalReaderConfig> clone() const override
+    [[nodiscard]] std::shared_ptr<UniversalReaderConfig> clone() const override
     {
         return std::make_shared<SerialReaderConfig>(*this);
     }
@@ -54,7 +54,12 @@ private:
         0
     }; /**< Transmission duration for a single byte over the wire. */
 
-    SerialReaderConfig *get_config();
+    /**
+     * @brief Get the configuration.
+     *
+     * @return A pointer to the configuration.
+     */
+    [[nodiscard]] const SerialReaderConfig *get_config();
 
 protected:
     void setup() override; /**< Initialization of a particular type of the reader. */

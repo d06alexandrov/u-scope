@@ -38,55 +38,18 @@ public:
     }
 
     /**
-     * @brief Copy constructor for GraphData.
-     *
-     * @param other The source object to copy from.
-     */
-    GraphData(const GraphData &other)
-        : m_id(other.m_id)
-        , m_values(other.m_values)
-    {
-    }
-
-    /**
-     * @brief Move constructor for GraphData.
-     *
-     * @param other The rvalue reference of the object to move from.
-     */
-    GraphData(GraphData &&other) noexcept
-        : m_id(other.m_id)
-        , m_values(std::move(other.m_values))
-    {
-    }
-
-    /**
-     * @brief Move assignment operator for GraphData.
-     *
-     * @param other The rvalue reference of the object to move.
-     * @return A reference to this object.
-     */
-    GraphData &operator=(GraphData &&other) noexcept
-    {
-        if (this != &other) {
-            m_id = other.m_id;
-            m_values = std::move(other.m_values);
-        }
-        return *this;
-    }
-
-    /**
      * @brief Gets the channel id.
      *
      * @return The channel id of the data.
      */
-    const ChannelId get_id() const { return m_id; }
+    [[nodiscard]] const ChannelId get_id() const { return m_id; }
 
     /**
      * @brief Gets the list of values.
      *
      * @return A reference to the values.
      */
-    const QList<QPointF> &get_values() const { return m_values; }
+    [[nodiscard]] const QList<QPointF> &get_values() const { return m_values; }
 
 private:
     ChannelId m_id; /**< Channel ID of the data. */
@@ -109,13 +72,23 @@ public:
      * @param parent QObject parent of the DataProcessor.
      */
     explicit DataProcessor(QObject *parent = nullptr);
-    ~DataProcessor();
+
+    DataProcessor(const DataProcessor &other) = delete;
+    DataProcessor(DataProcessor &&other) = delete;
+
+    /**
+     * @brief Data Processor destructor.
+     */
+    ~DataProcessor() override;
+
+    DataProcessor &operator=(const DataProcessor &other) = delete;
+    DataProcessor &operator=(DataProcessor &&other) = delete;
 
 public slots:
     /**
      * @brief Initialize DataProcessor.
      */
-    void setup(void);
+    void setup();
 
     /**
      * @brief Handle reader status report.
@@ -192,7 +165,7 @@ public slots:
     void receive_data(ReaderId reader_id, UniversalReaderBufferMap data);
 
     /**
-     * @brief Handle data request from MainWindow to display stored data.
+     * @brief Handle data request to display stored data.
      *
      * @param start_time Start time of the requested data.
      * @param end_time End time of the requested data.
@@ -201,7 +174,7 @@ public slots:
     void handle_data_request(UData::Time start_time, UData::Time end_time, int points_limit);
 
     /**
-     * @brief Handle request for recent data from MainWindow.
+     * @brief Handle request for recent data.
      *
      * @param end_time Expected end time of the requested data.
      * @param data_window_us Time window in microseconds for the requested data.
@@ -212,7 +185,7 @@ public slots:
                                     int64_t max_drift_us, int points_limit);
 
     /**
-     * @brief Handle request for full history of data from MainWindow.
+     * @brief Handle request for full history of data.
      *
      * @param points_limit Maximum number of points to return for the full history.
      */
@@ -242,7 +215,7 @@ signals:
     /**
      * @brief Report finish of the Data Processor.
      */
-    void finished(void);
+    void finished();
 
     /**
      * @brief Start specific reader.
@@ -261,13 +234,15 @@ signals:
 private:
     static constexpr size_t default_max_sample_points =
             10000000; /**< Default amount of sample points. */
+    static constexpr uint32_t default_reader_update_period_ms =
+            20; /** Default update period of readers. */
 
     /**
      * @brief Structure to store information regarding Senders (Readers)
      */
     struct DataSenderInfo
     {
-        QThread *thread = nullptr; /**< Pointer to the sender's thread. */
+        std::unique_ptr<QThread> thread = nullptr; /**< Pointer to the sender's thread. */
         UniversalReader *sender = nullptr; /**< Pointer to the sender. */
 
         UniversalReader::Status latest_status =
@@ -279,6 +254,8 @@ private:
      */
     struct ReaderVariableHash
     {
+        static constexpr int hash_bit_shift =
+                32; /**< Bit shift value used to combine ReaderId and VariableId. */
         /**
          * @brief Calculate the hash value for a pair of ReaderId and VariableId.
          *
@@ -287,8 +264,8 @@ private:
          */
         size_t operator()(const std::pair<ReaderId, VariableId> &p) const noexcept
         {
-            uint64_t combined =
-                    (static_cast<uint64_t>(p.first) << 32) ^ static_cast<uint64_t>(p.second);
+            uint64_t combined = (static_cast<uint64_t>(p.first) << hash_bit_shift)
+                    ^ static_cast<uint64_t>(p.second);
 
             return static_cast<size_t>(combined);
         }

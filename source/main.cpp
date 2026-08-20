@@ -1,13 +1,15 @@
-#include "mainwindow.h"
+#include "appcontroller.h"
 #include "version.hpp"
 
 #include <QApplication>
+#include <QCoreApplication>
 #include <QLocale>
+#include <QQmlApplicationEngine>
 #include <QTranslator>
 
 int main(int argc, char *argv[])
 {
-    QApplication a(argc, argv);
+    QApplication app(argc, argv);
 
     QCoreApplication::setApplicationName(
             QString::fromUtf8(app_info::app_name.data(), app_info::app_name.size()));
@@ -19,11 +21,22 @@ int main(int argc, char *argv[])
     for (const QString &locale : uiLanguages) {
         const QString baseName = "u-scope_" + QLocale(locale).name();
         if (translator.load(baseName, ":/i18n/")) {
-            a.installTranslator(&translator);
+            app.installTranslator(&translator);
             break;
         }
     }
-    MainWindow w;
-    w.show();
-    return a.exec();
+
+    AppController app_controller;
+
+    QQmlApplicationEngine engine;
+
+    app_controller.init_qml(&engine);
+
+    engine.loadFromModule("UI", "MainWindow");
+
+    if (engine.rootObjects().isEmpty()) {
+        return -1;
+    }
+
+    return app.exec();
 }

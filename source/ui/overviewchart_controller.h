@@ -5,6 +5,7 @@
 
 #include <QList>
 #include <QObject>
+#include <QPointer>
 #include <QValueAxis>
 #include <QXYSeries>
 #include <vector>
@@ -30,26 +31,33 @@ public:
     explicit OverviewChartController(QObject *parent = nullptr);
 
     /**
-     * @brief Attach actual ui to the controller.
+     * @brief Register the x-axis of the chart.
      *
-     * @param x_axis The x-axis of the chart.
-     * @param series_array An array of series to be displayed on the chart.
+     * @param x_axis Pointer to the QValueAxis representing the x-axis of the chart.
      */
-    void attach_ui(QValueAxis *x_axis, std::span<QXYSeries *> series_array);
+    Q_INVOKABLE void registerXAxis(QValueAxis *x_axis);
+
+    /**
+     * @brief Register a data series for the chart.
+     *
+     * @param id The identifier for the series.
+     * @param series Pointer to the QXYSeries to be registered.
+     */
+    Q_INVOKABLE void registerSeries(int id, QXYSeries *series);
 
     /**
      * @brief Get the current x position of the sliding window.
      *
      * @return The x position of the sliding window in pixels.
      */
-    qreal xPos() const;
+    [[nodiscard]] qreal xPos() const;
 
     /**
      * @brief Get the current width of the sliding window in pixels.
      *
      * @return The width of the sliding window in pixels.
      */
-    qreal rectWidth() const;
+    [[nodiscard]] qreal rectWidth() const;
 
 public slots:
 
@@ -126,8 +134,8 @@ private slots:
 private:
     static constexpr int minimum_graph_points = 100; /**< Minimum graph points to be drawn. */
 
-    QValueAxis *m_axis_x = nullptr; /**< X axis of the graph. */
-    std::vector<QXYSeries *> m_series; /**< Data series of the graph. */
+    QPointer<QValueAxis> m_axis_x{ }; /**< X axis of the graph. */
+    std::vector<QPointer<QXYSeries>> m_series{ }; /**< Data series of the graph. */
 
     bool m_continuous_mode = false; /**< Continuous or stopped mode. */
 

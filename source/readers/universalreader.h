@@ -16,14 +16,48 @@
  */
 struct UniversalReaderConfig
 {
+    /**
+     * @brief Default constructor.
+     */
+    UniversalReaderConfig() = default;
+    /**
+     * @brief Copy constructor.
+     *
+     * @param other The other UniversalReaderConfig to copy from.
+     */
+    UniversalReaderConfig(const UniversalReaderConfig &other) = default;
+    /**
+     * @brief Move constructor.
+     *
+     * @param other The other UniversalReaderConfig to move from.
+     */
+    UniversalReaderConfig(UniversalReaderConfig &&other) = default;
+    /**
+     * @brief Destructor.
+     */
     virtual ~UniversalReaderConfig() = default;
+    /**
+     * @brief Copy assignment operator.
+     *
+     * @param other The other UniversalReaderConfig to copy from.
+     * @return Reference to this UniversalReaderConfig.
+     */
+    UniversalReaderConfig &operator=(const UniversalReaderConfig &other) = default;
+    /**
+     * @brief Move assignment operator.
+     *
+     * @param other The other UniversalReaderConfig to move from.
+     * @return Reference to this UniversalReaderConfig.
+     */
+    UniversalReaderConfig &operator=(UniversalReaderConfig &&other) = default;
+
     /**
      * @brief Clone Reader Config
      *
      * @return pointer to the copy of the config
      */
-    virtual std::shared_ptr<UniversalReaderConfig> clone() const = 0;
-    uint32_t update_period_ms; /**< Period in ms of sending data to data processor */
+    [[nodiscard]] virtual std::shared_ptr<UniversalReaderConfig> clone() const = 0;
+    uint32_t update_period_ms{ }; /**< Period in ms of sending data to data processor */
 };
 
 Q_DECLARE_METATYPE(std::shared_ptr<UniversalReaderConfig>)
@@ -65,12 +99,13 @@ public:
     UniversalReader(const UniversalReader &processor) = delete;
     UniversalReader(UniversalReader &&processor) = delete;
 
-    virtual ~UniversalReader() = default;
+    ~UniversalReader() override = default;
 
     UniversalReader &operator=(const UniversalReader &other) = delete;
     UniversalReader &operator=(UniversalReader &&other) = delete;
 
 public slots:
+
     void reader_setup(); /**< Initialize common part of a reader and call setup method to initialize
                             specific readers. */
     /**
@@ -79,12 +114,14 @@ public slots:
      * @param id ID of the reader.
      */
     void reader_start(ReaderId id);
+
     /**
      * @brief Stop the reader with its periodic timer.
      *
      * @param id ID of the reader.
      */
     void reader_stop(ReaderId id);
+
     /**
      * @brief Return memory buffer to the reader.
      *
@@ -92,11 +129,8 @@ public slots:
      */
     void release_buffer(UniversalReaderBufferMap buffer);
 
-private slots:
-    void reader_process(); /**< Periodic function that calls process method and sends data to the
-                              data processor. Triggered by timer. */
-
 signals:
+
     /**
      * @brief Report reader status change.
      *
@@ -104,6 +138,7 @@ signals:
      * @param status New status of the reader.
      */
     void report_status(ReaderId id, Status status);
+
     /**
      * @brief Send data to the data processor when it is ready.
      *
@@ -112,19 +147,7 @@ signals:
      */
     void data_ready(ReaderId reader_id, UniversalReaderBufferMap data);
 
-private:
-    UniversalReaderBufferMap m_buffer_map; /**< Buffer to store received data before it is sent to
-                                              the data processor. */
-    std::stack<std::shared_ptr<std::vector<UData::Point>>>
-            m_buffer_pool; /**< Pool of variable buffers that can be reused. */
-
 protected:
-    ReaderId m_id = 0; /**< ID of the reader. */
-    Status m_status = Uninitialized; /**< Status of the reader. */
-    std::shared_ptr<UniversalReaderConfig> m_config; /**< Reader configuration */
-    QTimer *m_timer = nullptr; /**< Pointer to the timer for the periodical call of the
-                                  reader_process method. */
-
     virtual void setup() = 0; /**< Initialization of a particular type of the reader. Called
                                  from reader_setup method. */
     virtual void start() = 0; /**< Start reading. */
@@ -138,13 +161,15 @@ protected:
      * @param new_status New status of the reader.
      */
     void set_status(Status new_status);
+
     /**
      * @brief Allocate pool of buffers to store data from the reader.
      *
      * @param amount Number of buffers to allocate.
      * @param reserved_size Number of points to reserve in each buffer.
      */
-    void allocate_buffer_pool(int amount, size_t reserved_size);
+    void allocate_buffer_pool(size_t amount, size_t reserved_size);
+
     /**
      * @brief Store one data point in the buffer.
      *
@@ -153,4 +178,27 @@ protected:
      * @return True if data was stored successfully, false otherwise.
      */
     bool store_data(const VariableId &id, UData::Point &&data);
+
+    /**
+     * @brief Get the configuration of the reader.
+     *
+     * @return Pointer to the configuration of the reader.
+     */
+    [[nodiscard]] const UniversalReaderConfig *get_universal_config() const;
+
+private slots:
+
+    void reader_process(); /**< Periodic function that calls process method and sends data to the
+                              data processor. Triggered by timer. */
+
+private:
+    std::shared_ptr<UniversalReaderConfig> m_config{ }; /**< Reader configuration */
+    ReaderId m_id{ 0 }; /**< ID of the reader. */
+    Status m_status{ Status::Uninitialized }; /**< Status of the reader. */
+    QTimer m_timer{ }; /**< The timer for the periodical call of the reader_process method. */
+
+    UniversalReaderBufferMap m_buffer_map{ }; /**< Buffer to store received data before it is sent
+                                                to the data processor. */
+    std::stack<std::shared_ptr<std::vector<UData::Point>>>
+            m_buffer_pool{ }; /**< Pool of variable buffers that can be reused. */
 };

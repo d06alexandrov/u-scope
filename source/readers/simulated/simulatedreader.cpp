@@ -9,17 +9,18 @@ SimulatedReader::SimulatedReader(ReaderId id, std::shared_ptr<SimulatedReaderCon
 
 const SimulatedReaderConfig *SimulatedReader::get_config() const
 {
-    return static_cast<const SimulatedReaderConfig *>(m_config.get());
+    return dynamic_cast<const SimulatedReaderConfig *>(get_universal_config());
 }
 
 void SimulatedReader::setup()
 {
     const auto config = get_config();
 
-    if (config->sample_rate > 1000000) {
-        throw std::range_error("Sample rate is limited to 1MHz");
-    } else if (config->sample_rate < 1) {
-        throw std::range_error("Sample rate must be at least 1");
+    if ((config->sample_rate < min_frequency) || (config->sample_rate > max_frequency)) {
+        throw std::range_error(tr("Allowed sample rate is within the range [%1;%2]")
+                                       .arg(min_frequency)
+                                       .arg(max_frequency)
+                                       .toStdString());
     }
 
     m_setup_timestamp = UData::get_timestamp();

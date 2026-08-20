@@ -6,39 +6,47 @@
 #include "overviewchart_controller.h"
 #include "sourcelist_controller.h"
 #include "timebase_model.h"
-#include "universalreader.h"
-#include "universalreader_dialog.h"
 #include "verticalscale_model.h"
 
-#include <QMainWindow>
 #include <QPropertyChangeHandler>
-
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
-QT_END_NAMESPACE
-
-class SlidingWindow;
-class QQuickItem;
+#include <QQmlApplicationEngine>
+#include <memory>
 
 /**
- * @brief Class that implements main window of the application
+ * @brief Class that implements main controller
  */
-class MainWindow : public QMainWindow
+class AppController : public QObject
 {
     Q_OBJECT
 
 public:
     /**
-     * @brief Constructor of MainWindow class.
+     * @brief Constructor of AppController class.
      */
-    MainWindow();
+    AppController();
+
+    AppController(const AppController &other) = delete;
+    AppController(AppController &&other) = delete;
 
     /**
-     * @brief Destructor of MainWindow class.
+     * @brief Destructor of AppController class.
      */
-    ~MainWindow() override;
+    ~AppController() override;
+
+    AppController &operator=(const AppController &other) = delete;
+    AppController &operator=(AppController &&other) = delete;
+
+    /**
+     * @brief Initialize qml elements.
+     *
+     * @param engine Pointer to QQmlApplicationEngine.
+     */
+    void init_qml(QQmlApplicationEngine *engine);
+
+    /**
+     * @brief Show about dialog with information about the application.
+     */
+    Q_INVOKABLE void about_menu();
 
 public slots:
 
@@ -67,24 +75,6 @@ public slots:
     void channel_toggled(int channel_id);
 
 signals:
-
-    /**
-     * @brief Send reader configuration to the Data Processor
-     *
-     * If the reader exists, it changes the config of it.
-     *
-     * @param id reader id
-     * @param config configuration of the reader
-     */
-    void configure_reader(ReaderId id, std::shared_ptr<UniversalReaderDialogConfig> config);
-
-    /**
-     * @brief Send correspondence between a variable and a channel to the Data Processor
-     *
-     * @param variable uniq identificator of a variable
-     * @param channel_id id of the channel
-     */
-    void assign_channel(QPair<ReaderId, VariableId> variable, ChannelId channel_id);
 
     /**
      * @brief Enable channel in the Data Processor
@@ -119,25 +109,11 @@ signals:
     void stop_data_processing();
 
     /**
-     * @brief Update sliding window width on the overview chart.
-     *
-     * @param window_width_us New width of the sliding window in microseconds.
-     */
-    void window_width_updated(int64_t window_width_us);
-
-    /**
      * @brief Switch between continuous and stopped mode of the chart.
      *
      * @param on True to switch to continuous mode, false to switch to stopped mode.
      */
     void switch_continuous_mode(bool on);
-
-    /**
-     * @brief Set the horizontal division of the main chart.
-     *
-     * @param div_us Size of one horizontal division in microseconds.
-     */
-    void set_horizontal_div(int64_t div_us);
 
     /**
      * @brief Force refresh of the chart data.
@@ -148,10 +124,6 @@ private slots:
 
 private:
     static constexpr size_t channels_amount = 12; /**< Amount of channels. */
-    static constexpr int64_t default_div_vertical_uval =
-            1000000; /**< Default Size of one vertical division in 10^-6. */
-    static constexpr int maximum_overview_points =
-            2000; /**< Maximum amount of points of the overview chart. */
 
     /**
      * @brief Current state of the scope.
@@ -169,9 +141,7 @@ private:
         QColor("#A060FF"), QColor("#FFD700"), QColor("#00F5FF"), QColor("#FF4500"),
     };
 
-    Ui::MainWindow *ui = nullptr; /**< Pointer to the Main Window user interface. */
-
-    DataProcessor *m_data_processor = nullptr; /**< Main Data Processor. */
+    std::unique_ptr<DataProcessor> m_data_processor{ }; /**< Main Data Processor. */
     QThread m_data_processor_thread; /**< Thread with a running Data Processor. */
 
     ScopeMode m_current_mode = ScopeMode::Stopped; /**< Current display mode. */
@@ -197,11 +167,6 @@ private:
     void init_ui_elements();
 
     /**
-     * @brief Initialize qml elements.
-     */
-    void init_qml();
-
-    /**
      * @brief Initialize graph.
      */
     void init_graph();
@@ -210,11 +175,6 @@ private:
      * @brief Initialize ui input elements.
      */
     void init_input();
-
-    /**
-     * @brief Initialize menu.
-     */
-    void init_menu();
 
     /**
      * @brief Initialize source list.

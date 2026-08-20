@@ -35,7 +35,7 @@ public:
      *
      * @return The number of vertical grid cells.
      */
-    int vGridCells() const;
+    [[nodiscard]] int vGridCells() const;
 
     /**
      * @brief Returns the value of the dial corresponding to the vertical division.
@@ -43,7 +43,7 @@ public:
      * @param id The channel ID for which to get the dial value.
      * @return The value of the dial.
      */
-    int qDialValue(ChannelId id) const;
+    [[nodiscard]] Q_INVOKABLE int qDialValue(int id) const;
 
     /**
      * @brief Returns the vertical scale factor for a given channel.
@@ -51,7 +51,7 @@ public:
      * @param id The channel ID for which to get the vertical scale factor.
      * @return The vertical scale factor.
      */
-    qreal vScaleFactor(ChannelId id) const;
+    [[nodiscard]] qreal vScaleFactor(ChannelId id) const;
 
     /**
      * @brief Returns the text representation of the vertical scale.
@@ -59,15 +59,15 @@ public:
      * @param id The channel ID for which to get the vertical scale text.
      * @return The text representation of the vertical scale.
      */
-    QString vScaleText(ChannelId id) const;
+    [[nodiscard]] QString vScaleText(ChannelId id) const;
 
     /**
      * @brief Update vertical division from dial value.
      *
-     * @param id The channel ID for which to update the vertical division.
+     * @param channel_id The channel ID for which to update the vertical division.
      * @param dial_value The new value from the dial.
      */
-    void dial_value_updated(ChannelId id, int dial_value);
+    Q_INVOKABLE void qDialValueUpdate(int channel_id, int dial_value);
 
     /**
      * @brief Reset the vertical division of a channel to the default value.

@@ -14,6 +14,10 @@ class ChannelBarModel : public QAbstractListModel
 {
     Q_OBJECT
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    Q_PROPERTY(int selectedChannel READ selectedChannel NOTIFY selectedChannelChanged)
+#endif // DOXYGEN_SHOULD_SKIP_THIS
+
 public:
     /**
      * @brief Roles for the channel bar model.
@@ -54,7 +58,7 @@ public:
      * @param parent Parent index.
      * @return Number of channels.
      */
-    int rowCount(const QModelIndex &parent = QModelIndex()) const override;
+    [[nodiscard]] int rowCount(const QModelIndex &parent = QModelIndex()) const override;
 
     /**
      * @brief Returns the data for the given index and role.
@@ -63,14 +67,22 @@ public:
      * @param role Role for which data is requested.
      * @return Data for the given index and role.
      */
-    QVariant data(const QModelIndex &index, int role = Qt::DisplayRole) const override;
+    [[nodiscard]] QVariant data(const QModelIndex &index,
+                                int role = Qt::DisplayRole) const override;
 
     /**
      * @brief Returns the role names for the model.
      *
      * @return Hash of role names.
      */
-    QHash<int, QByteArray> roleNames() const override;
+    [[nodiscard]] QHash<int, QByteArray> roleNames() const override;
+
+    /**
+     * @brief Returns the currently selected channel ID.
+     *
+     * @return ID of the selected channel, or -1 if no channel is selected.
+     */
+    [[nodiscard]] int selectedChannel() const;
 
     /**
      * @brief Connects a channel to the source.
@@ -122,7 +134,7 @@ public:
      * @param id Index of the channel to check.
      * @return True if the channel is enabled, false otherwise.
      */
-    bool is_enabled(ChannelId id) const;
+    [[nodiscard]] bool is_enabled(ChannelId id) const;
 
     /**
      * @brief Checks if a channel is selected.
@@ -130,7 +142,7 @@ public:
      * @param id Index of the channel to check.
      * @return True if the channel is selected, false otherwise.
      */
-    bool is_selected(ChannelId id) const;
+    [[nodiscard]] bool is_selected(ChannelId id) const;
 
     /**
      * @brief Gets the currently selected channel.
@@ -138,7 +150,16 @@ public:
      * @return Optional containing the selected channel ID if one is selected, std::nullopt
      * otherwise.
      */
-    std::optional<ChannelId> get_selected() const;
+    [[nodiscard]] std::optional<ChannelId> get_selected() const;
+
+signals:
+
+    /**
+     * @brief Signal emitted when the selected channel changes.
+     *
+     * @param channel_id The ID of the newly selected channel or -1 if no channel is selected.
+     */
+    void selectedChannelChanged(int channel_id);
 
 private:
     std::vector<ChannelState> m_channels; /**< List of channels. */

@@ -34,7 +34,7 @@ struct SimulatedReaderConfig : UniversalReaderConfig
      */
     using Config = std::variant<ConstConfig, SinConfig>;
 
-    std::shared_ptr<UniversalReaderConfig> clone() const override
+    [[nodiscard]] std::shared_ptr<UniversalReaderConfig> clone() const override
     {
         return std::make_shared<SimulatedReaderConfig>(*this);
     }
@@ -54,6 +54,9 @@ class SimulatedReader : public UniversalReader
     Q_OBJECT
 
 public:
+    static constexpr int32_t min_frequency = 1; /**< Minimum allowed frequency. */
+    static constexpr int32_t max_frequency = 1000000; /**< Maximum allowed frequency. */
+
     /**
      * @brief Constructor.
      *
@@ -73,7 +76,7 @@ private:
      *
      * @return A pointer to the configuration.
      */
-    const SimulatedReaderConfig *get_config() const;
+    [[nodiscard]] const SimulatedReaderConfig *get_config() const;
 
 protected:
     void setup() override; /**< Initialization of a particular type of the reader. */

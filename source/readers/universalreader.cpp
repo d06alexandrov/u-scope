@@ -4,9 +4,11 @@
 
 UniversalReader::UniversalReader(ReaderId id, std::shared_ptr<UniversalReaderConfig> config)
     : QObject{ nullptr }
-    , m_id(id)
     , m_config(std::move(config))
+    , m_id(id)
+    , m_timer(this)
 {
+    connect(&m_timer, &QTimer::timeout, this, &UniversalReader::reader_process);
 }
 
 void UniversalReader::reader_setup()
@@ -18,9 +20,6 @@ void UniversalReader::reader_setup()
 
     try {
         setup();
-
-        m_timer = new QTimer(this);
-        connect(m_timer, &QTimer::timeout, this, &UniversalReader::reader_process);
 
         set_status(Initialized);
     } catch (const std::exception &e) {
@@ -44,7 +43,7 @@ void UniversalReader::reader_start(ReaderId id)
     try {
         start();
 
-        m_timer->start(m_config->update_period_ms);
+        m_timer.start(static_cast<int>(m_config->update_period_ms));
         set_status(Running);
     } catch (const std::exception &e) {
         qDebug() << tr("Caught error:") << e.what();
@@ -62,7 +61,7 @@ void UniversalReader::reader_stop(ReaderId id)
         return;
     }
 
-    m_timer->stop();
+    m_timer.stop();
 
     stop();
 
@@ -86,7 +85,7 @@ void UniversalReader::release_buffer(UniversalReaderBufferMap buffer_map)
 
 void UniversalReader::reader_process()
 {
-    if ((m_status == Running) && (m_timer->isActive())) {
+    if ((m_status == Running) && (m_timer.isActive())) {
         process();
 
         if (!m_buffer_map.isEmpty()) {
@@ -104,9 +103,9 @@ void UniversalReader::set_status(Status new_status)
     }
 }
 
-void UniversalReader::allocate_buffer_pool(int amount, size_t reserved_size)
+void UniversalReader::allocate_buffer_pool(size_t amount, size_t reserved_size)
 {
-    for (int i = 0; i < amount; i++) {
+    for (size_t i = 0; i < amount; i++) {
         auto new_buffer = std::make_shared<std::vector<UData::Point>>();
         new_buffer->reserve(reserved_size);
         m_buffer_pool.emplace(std::move(new_buffer));
@@ -127,4 +126,9 @@ bool UniversalReader::store_data(const VariableId &id, UData::Point &&data)
     m_buffer_map[id]->emplace_back(std::move(data));
 
     return true;
+}
+
+const UniversalReaderConfig *UniversalReader::get_universal_config() const
+{
+    return m_config.get();
 }

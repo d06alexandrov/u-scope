@@ -4,6 +4,7 @@
 
 #include <QList>
 #include <QObject>
+#include <QPointer>
 #include <QValueAxis>
 #include <QXYSeries>
 
@@ -23,12 +24,19 @@ public:
     explicit MainChartController(QObject *parent = nullptr);
 
     /**
-     * @brief Attach actual ui to the controller.
+     * @brief Register the x-axis of the chart.
      *
-     * @param x_axis The x-axis of the chart.
-     * @param series_array An array of series to be displayed on the chart.
+     * @param x_axis Pointer to the QValueAxis representing the x-axis of the chart.
      */
-    void attach_ui(QValueAxis *x_axis, std::span<QXYSeries *> series_array);
+    Q_INVOKABLE void registerXAxis(QValueAxis *x_axis);
+
+    /**
+     * @brief Register a data series for the chart.
+     *
+     * @param id The identifier for the series.
+     * @param series Pointer to the QXYSeries to be registered.
+     */
+    Q_INVOKABLE void registerSeries(int id, QXYSeries *series);
 
 public slots:
 
@@ -117,14 +125,14 @@ private:
     static constexpr int default_frame_period_ms =
             33; /**< Default graph frame update period in ms. */
 
+    QPointer<QValueAxis> m_axis_x{ }; /**< X axis of the graph. */
+    std::vector<QPointer<QXYSeries>> m_series{ }; /**< Data series of the graph. */
+
     bool m_continuous_mode = false; /**< Continuous or stopped mode. */
     QTimer m_render_timer; /**< Timer to trigger an update of the graph data. */
 
-    QValueAxis *m_axis_x = nullptr; /**< X axis of the graph. */
-    int m_axis_div_count{ }; /**< AMount of divisions. */
+    int m_axis_div_count{ }; /**< Amount of divisions. */
     int64_t m_div_horizontal_us{ }; /**< Size of one horizontal division in us. */
-
-    std::vector<QXYSeries *> m_series; /**< Data series of the graph. */
 
     UData::Time m_graph_min_time{ }; /**< Min graph time. */
     UData::Time m_graph_max_time{ }; /**< Max graph time. */

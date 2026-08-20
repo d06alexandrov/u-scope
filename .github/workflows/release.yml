@@ -20,8 +20,8 @@ jobs:
         id: release
         uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
         with:
-          release-type: simple
           target-branch: 'main'
+          config-file: '.release-please-config.json'
 
   build-app:
     needs: release-please
@@ -43,13 +43,13 @@ jobs:
       contents: write
     steps:
       - name: Download Linux Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: u-scope-linux
           path: release-assets/linux/u-scope
 
       - name: Download Windows Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: u-scope-win64
           path: release-assets/win64/u-scope
@@ -65,6 +65,7 @@ jobs:
       - name: Upload to GitHub Release
         uses: softprops/action-gh-release@b4309332981a82ec1c5618f44dd2e27cc8bfbfda # v3.0.0
         with:
+          draft: true
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: |
             u-scope-linux.tar.gz

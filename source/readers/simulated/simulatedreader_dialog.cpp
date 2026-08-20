@@ -99,8 +99,8 @@ std::shared_ptr<UniversalReaderDialogConfig> SimulatedReaderDialog::get_config()
 void SimulatedReaderDialog::add_element_to_list(VariableId variable_id,
                                                 SimulatedReaderConfig::Config form_conf)
 {
-    auto new_item = new QListWidgetItem();
-    auto row_widget = new SimulatedReaderDialogRow();
+    auto new_item = std::make_unique<QListWidgetItem>();
+    auto row_widget = std::make_unique<SimulatedReaderDialogRow>();
 
     new_item->setSizeHint(row_widget->sizeHint());
 
@@ -108,25 +108,29 @@ void SimulatedReaderDialog::add_element_to_list(VariableId variable_id,
 
     row_widget->set_text(SimulatedReaderDialogConfig::get_form_config_short_name(form_conf));
 
-    connect(row_widget, &SimulatedReaderDialogRow::deleteRequested, this,
+    connect(row_widget.get(), &SimulatedReaderDialogRow::deleteRequested, this,
             [this, variable_id]() { this->remove_element_from_list(variable_id); });
 
-    connect(row_widget, &SimulatedReaderDialogRow::editRequested, this, [this, variable_id]() {
-        if (!this->m_form_configs.contains(variable_id)) {
-            return;
-        }
+    connect(row_widget.get(), &SimulatedReaderDialogRow::editRequested, this,
+            [this, variable_id]() {
+                if (!this->m_form_configs.contains(variable_id)) {
+                    return;
+                }
 
-        const auto current_config = this->m_form_configs.value(variable_id);
+                const auto current_config = this->m_form_configs.value(variable_id);
 
-        SimulatedReaderDialogForm dialog(this, &current_config);
+                SimulatedReaderDialogForm dialog(this, &current_config);
 
-        if (dialog.exec() == QDialog::Accepted) {
-            modify_element_in_list(variable_id, dialog.get_config());
-        }
-    });
+                if (dialog.exec() == QDialog::Accepted) {
+                    modify_element_in_list(variable_id, dialog.get_config());
+                }
+            });
 
-    this->ui->simulationForms->insertItem(this->ui->simulationForms->count() - 1, new_item);
-    this->ui->simulationForms->setItemWidget(new_item, row_widget);
+    int target_row = this->ui->simulationForms->count() - 1;
+    auto new_item_ptr = new_item.get();
+
+    this->ui->simulationForms->insertItem(target_row, new_item.release());
+    this->ui->simulationForms->setItemWidget(new_item_ptr, row_widget.release());
 
     this->m_reserved_variable_ids.insert(variable_id);
     this->m_form_configs[variable_id] = std::move(form_conf);
@@ -142,7 +146,7 @@ void SimulatedReaderDialog::remove_element_from_list(VariableId variable_id)
                 this->ui->simulationForms->item(i)->data(ItemRoles::VariableIdRole);
 
         if (element_data.isValid() && (element_data.value<VariableId>() == variable_id)) {
-            delete this->ui->simulationForms->takeItem(i);
+            std::unique_ptr<QListWidgetItem> item_to_delete(this->ui->simulationForms->takeItem(i));
             break;
         }
     }

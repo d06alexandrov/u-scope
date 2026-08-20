@@ -81,8 +81,8 @@ Rectangle {
             Layout.margins: 5
             channelBarModel: channelModel
 
-            onChannelSelected: channelId => mainWindow.channel_selected(channelId)
-            onChannelToggled: channelId => mainWindow.channel_toggled(channelId)
+            onChannelSelected: channelId => appController.channel_selected(channelId)
+            onChannelToggled: channelId => appController.channel_toggled(channelId)
         }
     }
 }

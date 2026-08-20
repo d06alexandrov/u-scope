@@ -1,10 +1,25 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import QtQuick.Window
 
-Rectangle {
+ApplicationWindow {
     id: mainWindowRoot
-    color: "transparent"
+    title: qsTr("U-Scope")
+
+    width: 1200
+    height: 600
+    visible: true
+
+    menuBar: MenuBar {
+        Menu {
+            title: qsTr("&Help")
+            Action {
+                text: qsTr("&About")
+                onTriggered: Qt.callLater(() => appController.about_menu())
+            }
+        }
+    }
 
     SplitView {
         anchors.fill: parent

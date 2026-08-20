@@ -9,10 +9,9 @@ target_include_directories(
 target_sources(
     user_interface
     PRIVATE # cmake-format: sortable
+            appcontroller.cpp
             channelbar_model.cpp
             mainchart_controller.cpp
-            mainwindow.cpp
-            mainwindow.ui
             overviewchart_controller.cpp
             sourcelist_controller.cpp
             timebase_model.cpp

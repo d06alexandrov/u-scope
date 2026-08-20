@@ -165,7 +165,7 @@ public slots:
     void receive_data(ReaderId reader_id, UniversalReaderBufferMap data);
 
     /**
-     * @brief Handle data request from MainWindow to display stored data.
+     * @brief Handle data request to display stored data.
      *
      * @param start_time Start time of the requested data.
      * @param end_time End time of the requested data.
@@ -174,7 +174,7 @@ public slots:
     void handle_data_request(UData::Time start_time, UData::Time end_time, int points_limit);
 
     /**
-     * @brief Handle request for recent data from MainWindow.
+     * @brief Handle request for recent data.
      *
      * @param end_time Expected end time of the requested data.
      * @param data_window_us Time window in microseconds for the requested data.
@@ -185,7 +185,7 @@ public slots:
                                     int64_t max_drift_us, int points_limit);
 
     /**
-     * @brief Handle request for full history of data from MainWindow.
+     * @brief Handle request for full history of data.
      *
      * @param points_limit Maximum number of points to return for the full history.
      */

@@ -8,39 +8,45 @@
 #include "timebase_model.h"
 #include "verticalscale_model.h"
 
-#include <QMainWindow>
 #include <QPropertyChangeHandler>
+#include <QQmlApplicationEngine>
 #include <memory>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class MainWindow;
-}
-QT_END_NAMESPACE
-
 /**
- * @brief Class that implements main window of the application
+ * @brief Class that implements main controller
  */
-class MainWindow : public QMainWindow
+class AppController : public QObject
 {
     Q_OBJECT
 
 public:
     /**
-     * @brief Constructor of MainWindow class.
+     * @brief Constructor of AppController class.
      */
-    MainWindow();
+    AppController();
 
-    MainWindow(const MainWindow &other) = delete;
-    MainWindow(MainWindow &&other) = delete;
+    AppController(const AppController &other) = delete;
+    AppController(AppController &&other) = delete;
 
     /**
-     * @brief Destructor of MainWindow class.
+     * @brief Destructor of AppController class.
      */
-    ~MainWindow() override;
+    ~AppController() override;
 
-    MainWindow &operator=(const MainWindow &other) = delete;
-    MainWindow &operator=(MainWindow &&other) = delete;
+    AppController &operator=(const AppController &other) = delete;
+    AppController &operator=(AppController &&other) = delete;
+
+    /**
+     * @brief Initialize qml elements.
+     *
+     * @param engine Pointer to QQmlApplicationEngine.
+     */
+    void init_qml(QQmlApplicationEngine *engine);
+
+    /**
+     * @brief Show about dialog with information about the application.
+     */
+    Q_INVOKABLE void about_menu();
 
 public slots:
 
@@ -135,8 +141,6 @@ private:
         QColor("#A060FF"), QColor("#FFD700"), QColor("#00F5FF"), QColor("#FF4500"),
     };
 
-    Ui::MainWindow *ui = nullptr; /**< Pointer to the Main Window user interface. */
-
     std::unique_ptr<DataProcessor> m_data_processor{ }; /**< Main Data Processor. */
     QThread m_data_processor_thread; /**< Thread with a running Data Processor. */
 
@@ -163,11 +167,6 @@ private:
     void init_ui_elements();
 
     /**
-     * @brief Initialize qml elements.
-     */
-    void init_qml();
-
-    /**
      * @brief Initialize graph.
      */
     void init_graph();
@@ -176,11 +175,6 @@ private:
      * @brief Initialize ui input elements.
      */
     void init_input();
-
-    /**
-     * @brief Initialize menu.
-     */
-    void init_menu();
 
     /**
      * @brief Initialize source list.

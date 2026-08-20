@@ -1,32 +1,22 @@
-#include "mainwindow.h"
+#include "appcontroller.h"
 
-#include "ui_mainwindow.h"
-
-#include <QAction>
+#include <QCoreApplication>
 #include <QFile>
 #include <QMessageBox>
-#include <QObject>
 #include <QQmlContext>
-#include <QQuickItem>
-#include <QSignalBlocker>
 #include <QThread>
-#include <QtCharts/QValueAxis>
-#include <QtCharts/QXYSeries>
 
-MainWindow::MainWindow()
-    : QMainWindow(nullptr)
-    , ui(new Ui::MainWindow)
+AppController::AppController()
+    : QObject(nullptr)
     , m_channelbar_model(channel_colors)
     , m_verticalscale_model(channels_amount)
 {
-    ui->setupUi(this);
-
     init_data_processor();
 
     init_ui_elements();
 }
 
-MainWindow::~MainWindow()
+AppController::~AppController()
 {
     // m_data_processor_thread will destroy underlying object
     m_data_processor.release();
@@ -35,10 +25,51 @@ MainWindow::~MainWindow()
         m_data_processor_thread.quit();
         m_data_processor_thread.wait();
     }
-    delete ui;
 }
 
-void MainWindow::handle_start_clicked()
+void AppController::init_qml(QQmlApplicationEngine *engine)
+{
+    QVariantList color_list;
+    for (const QColor &color : channel_colors) {
+        color_list.append(color);
+    }
+
+    if (engine) {
+        engine->rootContext()->setContextProperties({
+                { "appController", QVariant::fromValue(this) },
+                { "sourceListController", QVariant::fromValue(&m_sourcelist_controller) },
+                { "mainChartController", QVariant::fromValue(&m_mainchart_controller) },
+                { "overviewChartController", QVariant::fromValue(&m_overviewchart_controller) },
+                { "channelModel", QVariant::fromValue(&m_channelbar_model) },
+                { "timebaseModel", QVariant::fromValue(&m_timebase_model) },
+                { "verticalScaleModel", QVariant::fromValue(&m_verticalscale_model) },
+                { "cppChannelColors", color_list },
+        });
+    }
+}
+
+void AppController::about_menu()
+{
+    QMessageBox about_box;
+    about_box.setWindowTitle(tr("About %1").arg(QCoreApplication::applicationName()));
+    about_box.setText(tr("<h3>%1</h3>"
+                         "<p>Version %2</p>"
+                         "<p>Built with Qt %3</p>"
+                         "This program is free software released under the GNU General "
+                         "Public License.")
+                              .arg(QCoreApplication::applicationName())
+                              .arg(QCoreApplication::applicationVersion())
+                              .arg(QT_VERSION_STR));
+
+    QFile license_file(QStringLiteral(":/ui/LICENSE"));
+    if (license_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
+        about_box.setDetailedText(QString::fromUtf8(license_file.readAll()));
+    }
+
+    about_box.exec();
+}
+
+void AppController::handle_start_clicked()
 {
     m_current_mode = ScopeMode::Roll;
 
@@ -47,7 +78,7 @@ void MainWindow::handle_start_clicked()
     emit start_data_processing();
 }
 
-void MainWindow::handle_stop_clicked()
+void AppController::handle_stop_clicked()
 {
     emit switch_continuous_mode(false);
 
@@ -56,7 +87,7 @@ void MainWindow::handle_stop_clicked()
     m_current_mode = ScopeMode::Stopped;
 }
 
-void MainWindow::channel_selected(int channel_id)
+void AppController::channel_selected(int channel_id)
 {
     if (channel_id < 0 || channel_id >= this->channels_amount) {
         return;
@@ -67,7 +98,7 @@ void MainWindow::channel_selected(int channel_id)
     m_channelbar_model.select_channel(id);
 }
 
-void MainWindow::channel_toggled(int channel_id)
+void AppController::channel_toggled(int channel_id)
 {
     if (channel_id < 0 || channel_id >= this->channels_amount) {
         return;
@@ -91,7 +122,7 @@ void MainWindow::channel_toggled(int channel_id)
     }
 }
 
-void MainWindow::init_data_processor()
+void AppController::init_data_processor()
 {
     m_data_processor = std::make_unique<DataProcessor>();
 
@@ -105,19 +136,19 @@ void MainWindow::init_data_processor()
             &DataProcessor::setup);
 
     // Data Processor commands
-    connect(this, &MainWindow::enable_channel, m_data_processor.get(),
+    connect(this, &AppController::enable_channel, m_data_processor.get(),
             &DataProcessor::enable_channel);
-    connect(this, &MainWindow::disable_channel, m_data_processor.get(),
+    connect(this, &AppController::disable_channel, m_data_processor.get(),
             &DataProcessor::disable_channel);
-    connect(this, &MainWindow::update_channel_vertical_scale, m_data_processor.get(),
+    connect(this, &AppController::update_channel_vertical_scale, m_data_processor.get(),
             &DataProcessor::update_channel_vertical_scale);
 
     connect(&m_data_processor_thread, &QThread::finished, m_data_processor.get(),
             &DataProcessor::deleteLater);
 
-    connect(this, &MainWindow::start_data_processing, m_data_processor.get(),
+    connect(this, &AppController::start_data_processing, m_data_processor.get(),
             &DataProcessor::start_data_processing);
-    connect(this, &MainWindow::stop_data_processing, m_data_processor.get(),
+    connect(this, &AppController::stop_data_processing, m_data_processor.get(),
             &DataProcessor::stop_data_processing);
 
     // Register Meta Type which will be used in a communication with Data Processor
@@ -127,46 +158,21 @@ void MainWindow::init_data_processor()
     m_data_processor_thread.start();
 }
 
-void MainWindow::init_ui_elements()
+void AppController::init_ui_elements()
 {
-    init_qml();
-
     init_source_list();
 
     init_graph();
 
     init_input();
-
-    init_menu();
 }
 
-void MainWindow::init_qml()
-{
-    QVariantList color_list;
-    for (const QColor &color : channel_colors) {
-        color_list.append(color);
-    }
-
-    ui->qmlScreenView->setResizeMode(QQuickWidget::SizeRootObjectToView);
-    ui->qmlScreenView->rootContext()->setContextProperties({
-            { "mainWindow", QVariant::fromValue(this) },
-            { "sourceListController", QVariant::fromValue(&m_sourcelist_controller) },
-            { "mainChartController", QVariant::fromValue(&m_mainchart_controller) },
-            { "overviewChartController", QVariant::fromValue(&m_overviewchart_controller) },
-            { "channelModel", QVariant::fromValue(&m_channelbar_model) },
-            { "timebaseModel", QVariant::fromValue(&m_timebase_model) },
-            { "verticalScaleModel", QVariant::fromValue(&m_verticalscale_model) },
-            { "cppChannelColors", color_list },
-    });
-    ui->qmlScreenView->setSource(QUrl(QStringLiteral("qrc:/qt/qml/UI/MainWindow.qml")));
-}
-
-void MainWindow::init_graph()
+void AppController::init_graph()
 {
     // Main Chart Controller
-    connect(this, &MainWindow::switch_continuous_mode, &m_mainchart_controller,
+    connect(this, &AppController::switch_continuous_mode, &m_mainchart_controller,
             &MainChartController::switch_continuous_mode);
-    connect(this, &MainWindow::force_graph_refresh, &m_mainchart_controller,
+    connect(this, &AppController::force_graph_refresh, &m_mainchart_controller,
             &MainChartController::force_graph_refresh);
     connect(m_data_processor.get(), &DataProcessor::send_new_data, &m_mainchart_controller,
             &MainChartController::receive_stored_data);
@@ -176,9 +182,9 @@ void MainWindow::init_graph()
             m_data_processor.get(), &DataProcessor::handle_data_request);
 
     // Overview Chart Controller
-    connect(this, &MainWindow::switch_continuous_mode, &m_overviewchart_controller,
+    connect(this, &AppController::switch_continuous_mode, &m_overviewchart_controller,
             &OverviewChartController::switch_continuous_mode);
-    connect(this, &MainWindow::force_graph_refresh, &m_overviewchart_controller,
+    connect(this, &AppController::force_graph_refresh, &m_overviewchart_controller,
             &OverviewChartController::force_graph_refresh);
     connect(m_data_processor.get(), &DataProcessor::send_full_history, &m_overviewchart_controller,
             &OverviewChartController::receive_full_history);
@@ -188,7 +194,7 @@ void MainWindow::init_graph()
             &m_mainchart_controller, &MainChartController::set_time_frame);
 }
 
-void MainWindow::init_input()
+void AppController::init_input()
 {
     // Initialize timebase model (horizontal scaler)
     m_timebase_sync_division =
@@ -218,31 +224,7 @@ void MainWindow::init_input()
     });
 }
 
-void MainWindow::init_menu()
-{
-    // Initialize elements of the menu
-    connect(ui->actionAbout, &QAction::triggered, this, [this](bool checked) {
-        QMessageBox about_box(this);
-        about_box.setWindowTitle(tr("About %1").arg(QCoreApplication::applicationName()));
-        about_box.setText(tr("<h3>%1</h3>"
-                             "<p>Version %2</p>"
-                             "<p>Built with Qt %3</p>"
-                             "This program is free software released under the GNU General "
-                             "Public License.")
-                                  .arg(QCoreApplication::applicationName())
-                                  .arg(QCoreApplication::applicationVersion())
-                                  .arg(QT_VERSION_STR));
-
-        QFile license_file(QStringLiteral(":/ui/LICENSE"));
-        if (license_file.open(QIODevice::ReadOnly | QIODevice::Text)) {
-            about_box.setDetailedText(QString::fromUtf8(license_file.readAll()));
-        }
-
-        about_box.exec();
-    });
-}
-
-void MainWindow::init_source_list()
+void AppController::init_source_list()
 {
     connect(&m_sourcelist_controller, &SourceListController::configure_reader,
             m_data_processor.get(), &DataProcessor::configure_reader);

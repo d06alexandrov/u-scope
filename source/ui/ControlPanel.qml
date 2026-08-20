@@ -21,14 +21,14 @@ ColumnLayout {
                 id: pushButton_StartAll
                 text: "Start"
                 Layout.fillWidth: true
-                onClicked: mainWindow.handle_start_clicked()
+                onClicked: appController.handle_start_clicked()
             }
 
             Button {
                 id: pushButton_StopAll
                 text: "Stop"
                 Layout.fillWidth: true
-                onClicked: mainWindow.handle_stop_clicked()
+                onClicked: appController.handle_stop_clicked()
             }
         }
     }

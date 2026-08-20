@@ -6,6 +6,9 @@ ColumnLayout {
     id: root
     spacing: 12
 
+    property int dialPreferredSize: 80
+    property int dialMaximumSize: 100
+
     GroupBox {
         id: triggerConfig
         title: "Trigger"
@@ -54,9 +57,15 @@ ColumnLayout {
 
                 Dial {
                     id: horizontalScale
+                    Layout.preferredWidth: dialPreferredSize
+                    Layout.preferredHeight: dialPreferredSize
+                    Layout.maximumWidth: dialMaximumSize
+                    Layout.maximumHeight: dialMaximumSize
                     Layout.alignment: Qt.AlignHCenter
+
                     from: -21
                     to: -4
+                    stepSize: 1.0
 
                     value: timebaseModel ? timebaseModel.qDialValue : -4
 
@@ -88,6 +97,11 @@ ColumnLayout {
 
                 Dial {
                     id: dial_2
+                    Layout.preferredWidth: dialPreferredSize
+                    Layout.preferredHeight: dialPreferredSize
+                    Layout.maximumWidth: dialMaximumSize
+                    Layout.maximumHeight: dialMaximumSize
+
                     enabled: false
                     Layout.alignment: Qt.AlignHCenter
                 }
@@ -117,10 +131,15 @@ ColumnLayout {
 
                 Dial {
                     id: verticalScale
-
+                    Layout.preferredWidth: dialPreferredSize
+                    Layout.preferredHeight: dialPreferredSize
+                    Layout.maximumWidth: dialMaximumSize
+                    Layout.maximumHeight: dialMaximumSize
                     Layout.alignment: Qt.AlignHCenter
+
                     from: -24
                     to: -4
+                    stepSize: 1.0
 
                     value: {
                         if (channelModel && (channelModel.selectedChannel >= 0) && verticalScaleModel) {
@@ -169,6 +188,10 @@ ColumnLayout {
 
                 Dial {
                     id: dial_4
+                    Layout.preferredWidth: dialPreferredSize
+                    Layout.preferredHeight: dialPreferredSize
+                    Layout.maximumWidth: dialMaximumSize
+                    Layout.maximumHeight: dialMaximumSize
                     Layout.alignment: Qt.AlignHCenter
                 }
             }

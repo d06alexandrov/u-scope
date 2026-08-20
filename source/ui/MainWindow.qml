@@ -23,6 +23,10 @@ ApplicationWindow {
 
     SplitView {
         anchors.fill: parent
+        anchors.topMargin: 8
+        anchors.leftMargin: 8
+        anchors.rightMargin: 8
+        anchors.bottomMargin: 8
         orientation: Qt.Horizontal
 
         GroupBox {

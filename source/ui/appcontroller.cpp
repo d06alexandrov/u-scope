@@ -1,15 +1,10 @@
 #include "appcontroller.h"
 
-#include <QAction>
+#include <QCoreApplication>
 #include <QFile>
 #include <QMessageBox>
-#include <QObject>
 #include <QQmlContext>
-#include <QQuickItem>
-#include <QSignalBlocker>
 #include <QThread>
-#include <QtCharts/QValueAxis>
-#include <QtCharts/QXYSeries>
 
 AppController::AppController()
     : QObject(nullptr)

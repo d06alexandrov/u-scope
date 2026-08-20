@@ -2,6 +2,7 @@
 #include "version.hpp"
 
 #include <QApplication>
+#include <QCoreApplication>
 #include <QLocale>
 #include <QQmlApplicationEngine>
 #include <QTranslator>
@@ -32,6 +33,10 @@ int main(int argc, char *argv[])
     app_controller.init_qml(&engine);
 
     engine.loadFromModule("UI", "MainWindow");
+
+    if (engine.rootObjects().isEmpty()) {
+        return -1;
+    }
 
     return app.exec();
 }

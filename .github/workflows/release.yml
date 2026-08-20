@@ -43,13 +43,13 @@ jobs:
       contents: write
     steps:
       - name: Download Linux Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: u-scope-linux
           path: release-assets/linux/u-scope
 
       - name: Download Windows Artifacts
-        uses: actions/download-artifact@v4
+        uses: actions/download-artifact@v7
         with:
           name: u-scope-win64
           path: release-assets/win64/u-scope

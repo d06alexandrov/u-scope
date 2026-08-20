@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.3](https://github.com/d06alexandrov/u-scope/compare/v0.2.2...v0.2.3) (2026-08-20)
+
+
+### Bug Fixes
+
+* **ui:** Limit knobs size. ([c315019](https://github.com/d06alexandrov/u-scope/commit/c315019d32be53a2261790660ef31c57c8490e6b))
+
 ## [0.2.2](https://github.com/d06alexandrov/u-scope/compare/v0.2.1...v0.2.2) (2026-08-16)
 
 

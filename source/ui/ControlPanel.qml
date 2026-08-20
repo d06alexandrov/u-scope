@@ -54,7 +54,12 @@ ColumnLayout {
 
                 Dial {
                     id: horizontalScale
+                    Layout.preferredWidth: 80
+                    Layout.preferredHeight: 80
+                    Layout.maximumWidth: 100
+                    Layout.maximumHeight: 100
                     Layout.alignment: Qt.AlignHCenter
+
                     from: -21
                     to: -4
 
@@ -88,6 +93,11 @@ ColumnLayout {
 
                 Dial {
                     id: dial_2
+                    Layout.preferredWidth: 80
+                    Layout.preferredHeight: 80
+                    Layout.maximumWidth: 100
+                    Layout.maximumHeight: 100
+
                     enabled: false
                     Layout.alignment: Qt.AlignHCenter
                 }
@@ -117,8 +127,12 @@ ColumnLayout {
 
                 Dial {
                     id: verticalScale
-
+                    Layout.preferredWidth: 80
+                    Layout.preferredHeight: 80
+                    Layout.maximumWidth: 100
+                    Layout.maximumHeight: 100
                     Layout.alignment: Qt.AlignHCenter
+
                     from: -24
                     to: -4
 
@@ -169,6 +183,10 @@ ColumnLayout {
 
                 Dial {
                     id: dial_4
+                    Layout.preferredWidth: 80
+                    Layout.preferredHeight: 80
+                    Layout.maximumWidth: 100
+                    Layout.maximumHeight: 100
                     Layout.alignment: Qt.AlignHCenter
                 }
             }

@@ -234,8 +234,9 @@ signals:
 private:
     static constexpr size_t default_max_sample_points =
             10000000; /**< Default amount of sample points. */
-    static constexpr uint32_t default_reader_update_period_ms =
-            20; /** Default update period of readers. */
+    static constexpr std::chrono::milliseconds default_reader_update_period{
+        20
+    }; /** Default update period of readers. */
 
     /**
      * @brief Structure to store information regarding Senders (Readers)

@@ -57,7 +57,8 @@ struct UniversalReaderConfig
      * @return pointer to the copy of the config
      */
     [[nodiscard]] virtual std::shared_ptr<UniversalReaderConfig> clone() const = 0;
-    uint32_t update_period_ms{ }; /**< Period in ms of sending data to data processor */
+
+    std::chrono::milliseconds update_period{ }; /**< Period of sending data to data processor. */
 };
 
 Q_DECLARE_METATYPE(std::shared_ptr<UniversalReaderConfig>)

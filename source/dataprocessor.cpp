@@ -81,7 +81,7 @@ void DataProcessor::configure_reader(ReaderId id,
     } else {
         auto reader_config = config->to_reader_config();
 
-        reader_config->update_period_ms = default_reader_update_period_ms;
+        reader_config->update_period = default_reader_update_period;
 
         auto new_thread = std::make_unique<QThread>();
         std::unique_ptr<UniversalReader> new_reader = nullptr;

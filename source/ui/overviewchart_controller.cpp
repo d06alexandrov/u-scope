@@ -68,11 +68,10 @@ void OverviewChartController::receive_full_history(const QList<GraphData> &new_d
     }
 
     // Put sliding window to the end
-    if (UData::get_timestamp_diff_us(m_graph_min_time, m_graph_max_time) <= m_sliding_window_us) {
+    if ((m_graph_max_time - m_graph_min_time) <= m_sliding_window) {
         m_sliding_window_start = m_graph_min_time;
     } else {
-        m_sliding_window_start =
-                UData::timestamp_sub_us_rounddown(m_graph_max_time, m_sliding_window_us);
+        m_sliding_window_start = m_graph_max_time - m_sliding_window;
     }
 
     update_sliding_window_on_graph();
@@ -94,28 +93,25 @@ void OverviewChartController::set_chart_width(qreal width)
     }
 }
 
-void OverviewChartController::set_sliding_window_width(int64_t window_width_us)
+void OverviewChartController::set_sliding_window_width(UData::Time::Duration window_width)
 {
-    if (m_sliding_window_us == window_width_us) {
+    if (m_sliding_window == window_width) {
         return;
     }
 
     if (m_continuous_mode) {
-        m_sliding_window_us = window_width_us;
+        m_sliding_window = window_width;
         return;
     }
 
     // Keep the center of the window in a fixed position
-    m_sliding_window_start = UData::timestamp_add_us_roundup(
-            m_sliding_window_start, (m_sliding_window_us - window_width_us) / 2);
+    m_sliding_window_start = m_sliding_window_start + (m_sliding_window - window_width) / 2;
 
-    m_sliding_window_us = window_width_us;
+    m_sliding_window = window_width;
 
     // Fix the position if it hits the border
-    if (UData::get_timestamp_diff_us(m_sliding_window_start, m_graph_max_time)
-        < m_sliding_window_us) {
-        m_sliding_window_start =
-                UData::timestamp_sub_us_rounddown(m_graph_max_time, m_sliding_window_us);
+    if ((m_graph_max_time - m_sliding_window_start) < m_sliding_window) {
+        m_sliding_window_start = m_graph_max_time - m_sliding_window;
     }
 
     if (m_sliding_window_start < m_graph_min_time) {
@@ -163,12 +159,12 @@ void OverviewChartController::updateDragPosition(qreal new_x)
         UData::Time new_sliding_window_start = m_graph_min_time;
 
         if (m_graph_width > std::numeric_limits<qreal>::epsilon()) {
-            auto new_window_offset = static_cast<int64_t>(
-                    UData::get_timestamp_diff_us(m_graph_min_time, m_graph_max_time) * m_x_pos
-                    / m_graph_width);
+            const double fraction = m_x_pos / m_graph_width;
+            const double offset_seconds =
+                    UData::to_double(m_graph_max_time - m_graph_min_time) * fraction;
+            const UData::Time::Duration offset = UData::duration_from_seconds(offset_seconds);
 
-            new_sliding_window_start =
-                    UData::timestamp_add_us_roundup(m_graph_min_time, new_window_offset);
+            new_sliding_window_start = m_graph_min_time + offset;
         }
 
         if (new_sliding_window_start != m_sliding_window_start) {
@@ -192,19 +188,17 @@ void OverviewChartController::update_sliding_window_on_graph()
     qreal x_pos = 0.0;
     qreal window_width = 0.0;
 
-    if (UData::get_timestamp_diff_us(m_graph_min_time, m_graph_max_time) <= 0) {
+    if (m_graph_min_time >= m_graph_max_time) {
         x_pos = 0.0;
         window_width = m_graph_width;
     } else {
-        x_pos = m_graph_width
-                * static_cast<qreal>(
-                        UData::get_timestamp_diff_us(m_graph_min_time, m_sliding_window_start))
-                / static_cast<qreal>(
-                        UData::get_timestamp_diff_us(m_graph_min_time, m_graph_max_time));
-        window_width = std::clamp(m_graph_width * static_cast<qreal>(m_sliding_window_us)
-                                          / static_cast<qreal>(UData::get_timestamp_diff_us(
-                                                  m_graph_min_time, m_graph_max_time)),
-                                  0.0, m_graph_width - x_pos);
+        double start_fraction = UData::to_double(m_sliding_window_start - m_graph_min_time)
+                / UData::to_double(m_graph_max_time - m_graph_min_time);
+        double window_fraction = UData::to_double(m_sliding_window)
+                / UData::to_double(m_graph_max_time - m_graph_min_time);
+
+        x_pos = m_graph_width * start_fraction;
+        window_width = std::clamp(m_graph_width * window_fraction, 0.0, m_graph_width - x_pos);
     }
 
     if ((x_pos != m_x_pos) || (window_width != m_window_pixel_width)) {
@@ -219,15 +213,13 @@ std::tuple<UData::Time, UData::Time> OverviewChartController::get_window_boundar
 {
     // Return the time frame aligned to the right, if the whole history is shorter than sliding
     // window.
-    if (UData::get_timestamp_diff_us(m_graph_min_time, m_graph_max_time) <= m_sliding_window_us) {
-        return std::tuple{ UData::timestamp_sub_us_rounddown(m_graph_max_time, m_sliding_window_us),
-                           m_graph_max_time };
+    if ((m_graph_max_time - m_graph_min_time) <= m_sliding_window) {
+        return std::tuple{ m_graph_max_time - m_sliding_window, m_graph_max_time };
     }
 
     UData::Time left_boundary = m_sliding_window_start;
-    UData::Time right_boundary =
-            std::clamp(UData::timestamp_add_us_roundup(m_sliding_window_start, m_sliding_window_us),
-                       m_graph_min_time, m_graph_max_time);
+    UData::Time right_boundary = std::clamp(m_sliding_window_start + m_sliding_window,
+                                            m_graph_min_time, m_graph_max_time);
 
     return std::tuple{ left_boundary, right_boundary };
 }

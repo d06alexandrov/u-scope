@@ -84,9 +84,9 @@ public slots:
     /**
      * @brief Sets the width of the sliding window in microseconds.
      *
-     * @param window_width_us The width of the sliding window in microseconds.
+     * @param window_width The width of the sliding window.
      */
-    void set_sliding_window_width(int64_t window_width_us);
+    void set_sliding_window_width(UData::Time::Duration window_width_us);
 
     /**
      * @brief Switch between continuous and stopped mode of the chart.
@@ -143,7 +143,7 @@ private:
     bool m_continuous_mode = false; /**< Continuous or stopped mode. */
 
     int m_axis_div_count{ }; /**< Amount of divisions. */
-    int64_t m_sliding_window_us{ }; /**< Size of one sliding window in us. */
+    UData::Time::Duration m_sliding_window{ }; /**< Size of one sliding window. */
     UData::Time m_sliding_window_start{ }; /**< Sliding window left position. */
     UData::Time m_graph_min_time{ }; /**< Min graph time. */
     UData::Time m_graph_max_time{ }; /**< Max graph time. */

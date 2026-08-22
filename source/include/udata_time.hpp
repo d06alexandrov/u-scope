@@ -175,6 +175,17 @@ private:
 }
 
 /**
+ * @brief Create a Time::Duration from a count of seconds.
+ *
+ * @param sec The duration in seconds.
+ * @return A Time::Duration representing the specified span.
+ */
+[[nodiscard]] constexpr Time::Duration duration_from_seconds(double sec) noexcept
+{
+    return std::chrono::duration_cast<Time::Duration>(std::chrono::duration<double>(sec));
+}
+
+/**
  * @brief Convert a Time::Duration to a double representing seconds.
  *
  * @param d The duration to convert.

@@ -55,6 +55,8 @@ protected:
     void process() override; /**< Prepare data before sending to the data processor. */
 
 private:
+    static constexpr int32_t minimum_baud_rate = 1200; /**< Minimum allowed baud rate. */
+
     QSerialPort *m_serial = nullptr; /**< Pointer to the serial port object. */
     std::chrono::duration<double>
             m_wire_byte_duration{ }; /**< Transmission duration for a single byte over the wire. */

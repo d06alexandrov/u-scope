@@ -41,11 +41,11 @@ public:
 public slots:
 
     /**
-     * @brief Set the horizontal division size in microseconds.
+     * @brief Set the horizontal division size.
      *
-     * @param div_us Size of one horizontal division in microseconds.
+     * @param div Size of one horizontal division.
      */
-    void set_horizontal_div(int64_t div_us);
+    void set_horizontal_div(UData::Time::Duration div);
 
     /**
      * @brief Set the time frame of the chart.
@@ -93,8 +93,8 @@ signals:
     /**
      * @brief Request most recent stored data from Data Processor to display.
      *
-     * Request data, where the latest data is not less than end_time - max_drift_us. The returned
-     * range is [newest data - data_windows_us, newest data].
+     * Request data, where the latest data is not less than end_time - max_drift. The returned
+     * range is [newest data - data_windows, newest data].
      *
      * @param end_time Maximum time of the requested data.
      * @param data_window Time window of the requested data.
@@ -124,8 +124,8 @@ private slots:
 private:
     static constexpr int minimum_graph_width =
             100; /**< Minimum expected pixel width of the graph. */
-    static constexpr int default_frame_period_ms =
-            33; /**< Default graph frame update period in ms. */
+    static constexpr UData::Time::Duration default_frame_period =
+            std::chrono::milliseconds(33); /**< Default graph frame update period in ms. */
 
     QPointer<QValueAxis> m_axis_x{ }; /**< X axis of the graph. */
     std::vector<QPointer<QXYSeries>> m_series{ }; /**< Data series of the graph. */
@@ -134,7 +134,7 @@ private:
     QTimer m_render_timer; /**< Timer to trigger an update of the graph data. */
 
     int m_axis_div_count{ }; /**< Amount of divisions. */
-    int64_t m_div_horizontal_us{ }; /**< Size of one horizontal division in us. */
+    UData::Time::Duration m_div_horizontal{ }; /**< Size of one horizontal division. */
 
     UData::Time m_graph_min_time{ }; /**< Min graph time. */
     UData::Time m_graph_max_time{ }; /**< Max graph time. */

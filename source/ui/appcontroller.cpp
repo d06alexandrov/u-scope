@@ -199,7 +199,8 @@ void AppController::init_input()
     // Initialize timebase model (horizontal scaler)
     m_timebase_sync_division =
             m_timebase_model.bindableDivisionUs().subscribe(std::function<void()>([this]() {
-                m_mainchart_controller.set_horizontal_div(m_timebase_model.divisionUs());
+                m_mainchart_controller.set_horizontal_div(
+                        UData::duration_from_microseconds(m_timebase_model.divisionUs()));
                 m_overviewchart_controller.set_sliding_window_width(
                         m_timebase_model.frameWidthUs());
             }));

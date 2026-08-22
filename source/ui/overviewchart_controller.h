@@ -86,7 +86,7 @@ public slots:
      *
      * @param window_width The width of the sliding window.
      */
-    void set_sliding_window_width(UData::Time::Duration window_width_us);
+    void set_sliding_window_width(UData::Time::Duration window_width);
 
     /**
      * @brief Switch between continuous and stopped mode of the chart.

@@ -164,6 +164,17 @@ private:
 };
 
 /**
+ * @brief Create a Time::Duration from a count of microseconds.
+ *
+ * @param us The duration in microseconds.
+ * @return A Time::Duration representing the specified span.
+ */
+[[nodiscard]] constexpr Time::Duration duration_from_microseconds(int64_t us) noexcept
+{
+    return std::chrono::duration_cast<Time::Duration>(std::chrono::microseconds(us));
+}
+
+/**
  * @brief Convert a Time::Duration to a double representing seconds.
  *
  * @param d The duration to convert.

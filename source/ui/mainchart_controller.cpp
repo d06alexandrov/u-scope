@@ -115,7 +115,9 @@ void MainChartController::render_timer_trigger()
                                                 std::chrono::milliseconds(default_frame_period_ms))
                                                 .count();
 
-        emit request_recent_stored_data(end_time, time_width_us, frame_period_us, m_graph_width);
+        emit request_recent_stored_data(end_time, UData::duration_from_microseconds(time_width_us),
+                                        UData::duration_from_microseconds(frame_period_us),
+                                        m_graph_width);
     }
 }
 

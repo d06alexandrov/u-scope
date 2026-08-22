@@ -177,12 +177,12 @@ public slots:
      * @brief Handle request for recent data.
      *
      * @param end_time Expected end time of the requested data.
-     * @param data_window_us Time window in microseconds for the requested data.
-     * @param max_drift_us Maximum allowed drift in microseconds for the requested data.
+     * @param data_window Time window for the requested data.
+     * @param max_drift Maximum allowed drift for the requested data.
      * @param points_limit Maximum number of points to return for the recent data.
      */
-    void handle_recent_data_request(UData::Time end_time, int64_t data_window_us,
-                                    int64_t max_drift_us, int points_limit);
+    void handle_recent_data_request(UData::Time end_time, UData::Time::Duration data_window,
+                                    UData::Time::Duration max_drift, int points_limit);
 
     /**
      * @brief Handle request for full history of data.

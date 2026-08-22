@@ -97,12 +97,12 @@ signals:
      * range is [newest data - data_windows_us, newest data].
      *
      * @param end_time Maximum time of the requested data.
-     * @param data_window_us Time window of the requested data in microseconds.
-     * @param max_drift_us Maximum difference between requested and returned end time.
+     * @param data_window Time window of the requested data.
+     * @param max_drift Maximum difference between requested and returned end time.
      * @param points_limit Maximum amount of points to be displayed on the graph.
      */
-    void request_recent_stored_data(UData::Time end_time, int64_t data_window_us,
-                                    int64_t max_drift_us, int points_limit);
+    void request_recent_stored_data(UData::Time end_time, UData::Time::Duration data_window,
+                                    UData::Time::Duration max_drift, int points_limit);
 
     /**
      * @brief Request stored data from Data Processor to display.

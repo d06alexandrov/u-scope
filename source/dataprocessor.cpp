@@ -261,8 +261,9 @@ void DataProcessor::handle_data_request(UData::Time start_time, UData::Time end_
     }
 }
 
-void DataProcessor::handle_recent_data_request(UData::Time end_time, int64_t data_window_us,
-                                               int64_t max_drift_us, int points_limit)
+void DataProcessor::handle_recent_data_request(UData::Time end_time,
+                                               UData::Time::Duration data_window,
+                                               UData::Time::Duration max_drift, int points_limit)
 {
     if (points_limit < 1) {
         return;
@@ -270,16 +271,17 @@ void DataProcessor::handle_recent_data_request(UData::Time end_time, int64_t dat
 
     UData::Time end_time_actual = get_latest_stored_time().value_or(end_time);
 
-    if (UData::get_timestamp_diff_us(end_time_actual, end_time) > max_drift_us) {
-        // Latest received value can not be on the right border
-        end_time_actual = UData::timestamp_sub_us_rounddown(end_time, max_drift_us);
-    } else if (UData::get_timestamp_diff_us(end_time_actual, end_time) < 0) {
-        // Latest received value was received after end_time
+    if (end_time_actual < end_time - max_drift) {
+        // Latest received value can not be on the right border, so we are shifting the window to
+        // the left as far as allowed.
+        end_time_actual = end_time - max_drift;
+    } else if (end_time_actual > end_time) {
+        // Latest received value was received after end_time, so we are shifting the window to the
+        // right as far as possible.
         end_time_actual = end_time;
     }
 
-    UData::Time start_time_actual =
-            UData::timestamp_sub_us_rounddown(end_time_actual, data_window_us);
+    UData::Time start_time_actual = end_time_actual - data_window;
 
     auto prepared_data =
             prepare_graph_data(points_limit, start_time_actual, end_time_actual, false);
@@ -417,15 +419,13 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
             }
         } else {
             // Divide the range into equal pieces and provide an average value
-            const double time_per_point_us = static_cast<double>(UData::get_timestamp_diff_us(
-                                                     start_time_actual, end_time_actual))
-                    / points_limit;
+            const UData::Time::Duration piece_width =
+                    (end_time_actual - start_time_actual) / points_limit;
 
             auto next_point = left_it;
 
             for (int i = 0; (i < points_limit) && (next_point != right_it); i++) {
-                const UData::Time piece_end = UData::timestamp_add_us_roundup(
-                        start_time_actual, static_cast<int64_t>(time_per_point_us * (i + 1)));
+                const UData::Time piece_end = start_time_actual + piece_width * (i + 1);
 
                 UData::Time min_time = next_point->first;
                 UData::Time max_time = min_time;

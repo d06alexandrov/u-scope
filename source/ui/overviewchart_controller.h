@@ -64,6 +64,9 @@ public slots:
     /**
      * @brief Receive full data history from Data Processor.
      *
+     * Timestamps in the list of data history values are relative to the minimum timestamp of the
+     * data history.
+     *
      * @param new_data List of data history values.
      * @param min_time Minimum timestamp of the data history.
      * @param max_time Maximum timestamp of the data history.

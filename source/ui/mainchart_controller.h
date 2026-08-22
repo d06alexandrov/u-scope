@@ -58,6 +58,8 @@ public slots:
     /**
      * @brief Receive requested data from Data Processor and display it on the graph.
      *
+     * Timestamps in the list of data values are relative to the start time.
+     *
      * @param new_data List of new data to be displayed on the graph.
      * @param requested_start_time Start time of the requested data.
      * @param requested_end_time End time of the requested data.

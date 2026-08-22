@@ -49,7 +49,7 @@ void OverviewChartController::receive_full_history(const QList<GraphData> &new_d
         return;
     }
 
-    m_axis_x->setRange(min_time, max_time);
+    m_axis_x->setRange(0.0, max_time - min_time);
 
     m_graph_min_time = min_time;
     m_graph_max_time = max_time;

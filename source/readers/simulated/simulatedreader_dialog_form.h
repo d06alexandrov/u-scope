@@ -29,10 +29,16 @@ public:
     SimulatedReaderDialogForm(QWidget *parent = nullptr,
                               const SimulatedReaderConfig::Config *config = nullptr);
 
+    SimulatedReaderDialogForm(const SimulatedReaderDialogForm &other) = delete;
+    SimulatedReaderDialogForm(SimulatedReaderDialogForm &&other) = delete;
+
     /**
      * @brief Destructor of the dialog window.
      */
-    ~SimulatedReaderDialogForm();
+    ~SimulatedReaderDialogForm() override;
+
+    SimulatedReaderDialogForm &operator=(const SimulatedReaderDialogForm &other) = delete;
+    SimulatedReaderDialogForm &operator=(SimulatedReaderDialogForm &&other) = delete;
 
     /**
      * @brief Get configuration of the simulated reader form.

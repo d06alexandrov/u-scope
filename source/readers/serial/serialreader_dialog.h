@@ -17,8 +17,8 @@ QT_END_NAMESPACE
  */
 struct SerialReaderDialogConfig : UniversalReaderDialogConfig
 {
-    QString port_name; /**< Name of the port. */
-    int32_t baud_rate; /**< Baud rate of the interface. */
+    QString port_name{ }; /**< Name of the port. */
+    int32_t baud_rate{ }; /**< Baud rate of the interface. */
 
     [[nodiscard]] std::shared_ptr<UniversalReaderConfig> to_reader_config() const override;
 };
@@ -38,10 +38,16 @@ public:
      */
     SerialReaderDialog(QWidget *parent = nullptr);
 
+    SerialReaderDialog(const SerialReaderDialog &other) = delete;
+    SerialReaderDialog(SerialReaderDialog &&other) = delete;
+
     /**
      * @brief Constructor of the dialog window.
      */
-    ~SerialReaderDialog();
+    ~SerialReaderDialog() override;
+
+    SerialReaderDialog &operator=(const SerialReaderDialog &other) = delete;
+    SerialReaderDialog &operator=(SerialReaderDialog &&other) = delete;
 
     /**
      * @brief Get configuration of the serial reader.

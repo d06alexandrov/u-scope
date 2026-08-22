@@ -32,10 +32,10 @@ void MainChartController::registerSeries(int id, QXYSeries *series)
     m_series.at(id) = series;
 }
 
-void MainChartController::set_horizontal_div(int64_t div_us)
+void MainChartController::set_horizontal_div(UData::Time::Duration div)
 {
-    if (div_us > 0) {
-        m_div_horizontal_us = div_us;
+    if (div > UData::Time::Duration::zero()) {
+        m_div_horizontal = div;
     }
 }
 
@@ -89,7 +89,7 @@ void MainChartController::switch_continuous_mode(bool on)
     }
 
     if (on) {
-        m_render_timer.start(default_frame_period_ms);
+        m_render_timer.start(default_frame_period);
     } else {
         m_render_timer.stop();
     }
@@ -109,15 +109,11 @@ void MainChartController::force_graph_refresh()
 void MainChartController::render_timer_trigger()
 {
     if (m_continuous_mode) {
-        int64_t time_width_us = m_div_horizontal_us * m_axis_div_count;
-        const UData::Time end_time = UData::get_timestamp();
-        const int64_t frame_period_us = std::chrono::duration_cast<std::chrono::microseconds>(
-                                                std::chrono::milliseconds(default_frame_period_ms))
-                                                .count();
+        const UData::Time end_time = UData::Time::now();
+        const UData::Time::Duration time_width = m_div_horizontal * m_axis_div_count;
+        const UData::Time::Duration max_drift = default_frame_period;
 
-        emit request_recent_stored_data(end_time, UData::duration_from_microseconds(time_width_us),
-                                        UData::duration_from_microseconds(frame_period_us),
-                                        m_graph_width);
+        emit request_recent_stored_data(end_time, time_width, max_drift, m_graph_width);
     }
 }
 

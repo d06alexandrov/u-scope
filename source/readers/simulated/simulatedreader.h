@@ -68,6 +68,7 @@ public:
 public slots:
 
 private:
+    UData::Time::Duration m_sample_interval{ }; /**< Interval between samples. */
     UData::Time m_setup_timestamp{ }; /**< Setup timestamp. */
     UData::Time m_prev_sample_timestamp{ }; /**< Timestamp of a previous sample. */
 

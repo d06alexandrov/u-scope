@@ -23,14 +23,16 @@ void SimulatedReader::setup()
                                        .toStdString());
     }
 
-    m_setup_timestamp = UData::get_timestamp();
+    m_sample_interval = UData::duration_from_seconds(1.0 / config->sample_rate);
+
+    m_setup_timestamp = UData::Time::now();
 
     allocate_buffer_pool(config->form_configs.size() * 2, config->sample_rate);
 }
 
 void SimulatedReader::start()
 {
-    m_prev_sample_timestamp = UData::get_timestamp();
+    m_prev_sample_timestamp = UData::Time::now();
 }
 
 void SimulatedReader::stop() { }
@@ -38,8 +40,7 @@ void SimulatedReader::stop() { }
 void SimulatedReader::process()
 {
     const auto config = get_config();
-    const auto current_timestamp = UData::get_timestamp();
-    const auto sample_interval_us = 1000000UL / config->sample_rate;
+    const UData::Time current_timestamp = UData::Time::now();
 
     UData::Time prev_sample_timestamp = m_prev_sample_timestamp;
 
@@ -49,22 +50,17 @@ void SimulatedReader::process()
         prev_sample_timestamp = m_prev_sample_timestamp;
 
         std::visit(overloads{ [&](const SimulatedReaderConfig::ConstConfig &const_conf) {
-                                 for (UData::Time t = UData::timestamp_add_us_roundup(
-                                              prev_sample_timestamp, sample_interval_us);
-                                      t < current_timestamp;
-                                      t = UData::timestamp_add_us_roundup(t, sample_interval_us)) {
+                                 for (UData::Time t = prev_sample_timestamp + m_sample_interval;
+                                      t < current_timestamp; t += m_sample_interval) {
                                      store_data(variable_id, UData::Point(t, const_conf.value));
                                      prev_sample_timestamp = t;
                                  }
                              },
                               [&](const SimulatedReaderConfig::SinConfig &sin_conf) {
-                                  for (UData::Time t = UData::timestamp_add_us_roundup(
-                                               prev_sample_timestamp, sample_interval_us);
-                                       t < current_timestamp;
-                                       t = UData::timestamp_add_us_roundup(t, sample_interval_us)) {
-                                      const double x = UData::get_timestamp_diff_us(
-                                                               this->m_setup_timestamp, t)
-                                              * 2 * M_PI * sin_conf.frequency / 1000000;
+                                  for (UData::Time t = prev_sample_timestamp + m_sample_interval;
+                                       t < current_timestamp; t += m_sample_interval) {
+                                      const double x = UData::to_double(t - this->m_setup_timestamp)
+                                              * 2 * M_PI * sin_conf.frequency;
                                       store_data(variable_id,
                                                  UData::Point(t, sin(x) * sin_conf.amplitude));
                                       prev_sample_timestamp = t;

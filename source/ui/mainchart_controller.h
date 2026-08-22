@@ -124,8 +124,9 @@ private slots:
 private:
     static constexpr int minimum_graph_width =
             100; /**< Minimum expected pixel width of the graph. */
-    static constexpr UData::Time::Duration default_frame_period =
-            std::chrono::milliseconds(33); /**< Default graph frame update period in ms. */
+    static constexpr std::chrono::milliseconds default_frame_period{
+        33
+    }; /**< Default graph frame update period in ms. */
 
     QPointer<QValueAxis> m_axis_x{ }; /**< X axis of the graph. */
     std::vector<QPointer<QXYSeries>> m_series{ }; /**< Data series of the graph. */

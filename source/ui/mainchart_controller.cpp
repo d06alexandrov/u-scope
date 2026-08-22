@@ -89,8 +89,7 @@ void MainChartController::switch_continuous_mode(bool on)
     }
 
     if (on) {
-        m_render_timer.start(
-                std::chrono::duration_cast<std::chrono::milliseconds>(default_frame_period));
+        m_render_timer.start(default_frame_period);
     } else {
         m_render_timer.stop();
     }
@@ -110,10 +109,11 @@ void MainChartController::force_graph_refresh()
 void MainChartController::render_timer_trigger()
 {
     if (m_continuous_mode) {
-        const UData::Time::Duration time_width = m_div_horizontal * m_axis_div_count;
         const UData::Time end_time = UData::Time::now();
+        const UData::Time::Duration time_width = m_div_horizontal * m_axis_div_count;
+        const UData::Time::Duration max_drift = default_frame_period;
 
-        emit request_recent_stored_data(end_time, time_width, default_frame_period, m_graph_width);
+        emit request_recent_stored_data(end_time, time_width, max_drift, m_graph_width);
     }
 }
 

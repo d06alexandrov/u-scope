@@ -202,7 +202,7 @@ void AppController::init_input()
                 m_mainchart_controller.set_horizontal_div(
                         UData::duration_from_microseconds(m_timebase_model.divisionUs()));
                 m_overviewchart_controller.set_sliding_window_width(
-                        m_timebase_model.frameWidthUs());
+                        UData::duration_from_microseconds(m_timebase_model.frameWidthUs()));
             }));
 
     // Initialize vertical scaler model

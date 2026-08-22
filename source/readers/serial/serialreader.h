@@ -48,11 +48,16 @@ public slots:
      */
     void data_received();
 
+protected:
+    void setup() override; /**< Initialization of a particular type of the reader. */
+    void start() override; /**< Start reading. */
+    void stop() override; /**< Stop reading. */
+    void process() override; /**< Prepare data before sending to the data processor. */
+
 private:
-    QSerialPort *m_serial = nullptr;
-    std::chrono::nanoseconds m_wire_byte_duration{
-        0
-    }; /**< Transmission duration for a single byte over the wire. */
+    QSerialPort *m_serial = nullptr; /**< Pointer to the serial port object. */
+    std::chrono::duration<double>
+            m_wire_byte_duration{ }; /**< Transmission duration for a single byte over the wire. */
 
     /**
      * @brief Get the configuration.
@@ -60,10 +65,4 @@ private:
      * @return A pointer to the configuration.
      */
     [[nodiscard]] const SerialReaderConfig *get_config();
-
-protected:
-    void setup() override; /**< Initialization of a particular type of the reader. */
-    void start() override; /**< Start reading. */
-    void stop() override; /**< Stop reading. */
-    void process() override; /**< Prepare data before sending to the data processor. */
 };

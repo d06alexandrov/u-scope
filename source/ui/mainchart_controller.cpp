@@ -59,7 +59,7 @@ void MainChartController::receive_stored_data(const QList<GraphData> &new_data,
         return;
     }
 
-    m_axis_x->setRange(0.0, requested_end_time - requested_start_time);
+    m_axis_x->setRange(0.0, UData::to_double(requested_end_time - requested_start_time));
 
     m_graph_min_time = requested_start_time;
     m_graph_max_time = requested_end_time;

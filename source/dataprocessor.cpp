@@ -306,7 +306,7 @@ void DataProcessor::handle_full_history_request(int points_limit)
 
         emit send_full_history(std::move(new_data), start_time, end_time);
     } else {
-        emit send_full_history(QList<GraphData>(), -1, -1);
+        emit send_full_history(QList<GraphData>(), { }, { });
     }
 }
 
@@ -404,7 +404,7 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
             const auto &[timestamp, raw_val] = *std::prev(left_it);
             const auto val =
                     std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale;
-            processed_values.emplace_back(timestamp - start_time_actual, val);
+            processed_values.emplace_back(UData::to_double(timestamp - start_time_actual), val);
         }
 
         if (std::distance(left_it, right_it) <= points_limit) {
@@ -413,7 +413,7 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
                         std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val)
                         * scale;
 
-                processed_values.emplace_back(timestamp - start_time_actual, val);
+                processed_values.emplace_back(UData::to_double(timestamp - start_time_actual), val);
             }
         } else {
             // Divide the range into equal pieces and provide an average value
@@ -446,7 +446,8 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
                     const UData::Time average_time = min_time + (max_time - min_time) / 2;
                     const qreal average_value = sum / amount * scale;
 
-                    processed_values.emplace_back(average_time - start_time_actual, average_value);
+                    processed_values.emplace_back(
+                            UData::to_double(average_time - start_time_actual), average_value);
                 }
             }
         }
@@ -455,7 +456,7 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
             const auto &[timestamp, raw_val] = *right_it;
             const auto val =
                     std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale;
-            processed_values.emplace_back(timestamp - start_time_actual, val);
+            processed_values.emplace_back(UData::to_double(timestamp - start_time_actual), val);
         }
 
         new_data.emplace_back(channel_id, std::move(processed_values));

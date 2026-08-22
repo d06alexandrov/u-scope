@@ -25,10 +25,16 @@ public:
      */
     SimulatedReaderDialogRow(QWidget *parent = nullptr);
 
+    SimulatedReaderDialogRow(const SimulatedReaderDialogRow &other) = delete;
+    SimulatedReaderDialogRow(SimulatedReaderDialogRow &&other) = delete;
+
     /**
      * @brief Destructor of the dialog row.
      */
-    ~SimulatedReaderDialogRow();
+    ~SimulatedReaderDialogRow() override;
+
+    SimulatedReaderDialogRow &operator=(const SimulatedReaderDialogRow &other) = delete;
+    SimulatedReaderDialogRow &operator=(SimulatedReaderDialogRow &&other) = delete;
 
     /**
      * @brief Set the text of the label in the row.

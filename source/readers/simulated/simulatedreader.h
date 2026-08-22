@@ -39,9 +39,9 @@ struct SimulatedReaderConfig : UniversalReaderConfig
         return std::make_shared<SimulatedReaderConfig>(*this);
     }
 
-    QHash<VariableId, Config> form_configs; /**< Configurations of the simulated values. */
+    QHash<VariableId, Config> form_configs{ }; /**< Configurations of the simulated values. */
 
-    int32_t sample_rate; /**< Amount of samples per second. */
+    int32_t sample_rate{ }; /**< Amount of samples per second. */
 };
 
 Q_DECLARE_METATYPE(SimulatedReaderConfig::Config)

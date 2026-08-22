@@ -18,12 +18,12 @@ struct SerialReaderConfig : UniversalReaderConfig
         return std::make_shared<SerialReaderConfig>(*this);
     }
 
-    QString port_name; /**< Serial port reference. */
-    int32_t baud_rate; /**< Baud rate of the port. */
-    QSerialPort::DataBits data_bits; /**< Amount of the data bits. */
-    QSerialPort::Parity parity; /**< Parity bits type. */
-    QSerialPort::StopBits stop_bits; /**< Stop bits configuration. */
-    QSerialPort::FlowControl flow_control; /**< Type of the flow control. */
+    QString port_name{ }; /**< Serial port reference. */
+    int32_t baud_rate{ }; /**< Baud rate of the port. */
+    QSerialPort::DataBits data_bits{ }; /**< Amount of the data bits. */
+    QSerialPort::Parity parity{ }; /**< Parity bits type. */
+    QSerialPort::StopBits stop_bits{ }; /**< Stop bits configuration. */
+    QSerialPort::FlowControl flow_control{ }; /**< Type of the flow control. */
 };
 
 /**

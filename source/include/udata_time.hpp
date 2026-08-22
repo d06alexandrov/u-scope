@@ -196,57 +196,6 @@ private:
     return std::chrono::duration<double, std::ratio<1>>(d).count();
 }
 
-/**
- * @brief Get current timestamp.
- *
- * @note This function uses monotonic clock, so every new call returns a higher value.
- *
- * @return Current time timestamp.
- */
-[[deprecated("Use Time::now() instead")]] inline Time get_timestamp()
-{
-    return Time::now();
-}
-
-/**
- * @brief Get the difference between two timestamps.
- *
- * @param before Earlier timestamp.
- * @param after Timestamp after @p before.
- * @return Time in microseconds between @p before and @p after.
- */
-[[deprecated("Use operator- and to_microseconds instead")]] inline int64_t
-get_timestamp_diff_us(Time before, Time after)
-{
-    return std::chrono::duration_cast<std::chrono::microseconds>(after - before).count();
-}
-
-/**
- * @brief Increase timestamp by provided time.
- *
- * @param timestamp Original timestamp.
- * @param us Time in microseconds that should be added to original timestamp.
- * @return @p timestamp plus @p us round up to the nearest Data::Time.
- */
-[[deprecated("Use operator+ with a chrono duration instead")]] inline Time
-timestamp_add_us_roundup(Time timestamp, int64_t us)
-{
-    return timestamp + std::chrono::microseconds(us);
-}
-
-/**
- * @brief Decrease timestamp by provided time.
- *
- * @param timestamp Original timestamp.
- * @param us Time in microseconds that should be subtracted from original timestamp.
- * @return @p timestamp minus @p us round down to the nearest Data::Time.
- */
-[[deprecated("Use operator- with a chrono duration instead")]] inline Time
-timestamp_sub_us_rounddown(Time timestamp, int64_t us)
-{
-    return timestamp - std::chrono::microseconds(us);
-}
-
 } // namespace UData
 
 Q_DECLARE_METATYPE(UData::Time)

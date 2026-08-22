@@ -50,10 +50,16 @@ public:
     SimulatedReaderDialog(QWidget *parent = nullptr,
                           std::shared_ptr<const SimulatedReaderDialogConfig> config = nullptr);
 
+    SimulatedReaderDialog(const SimulatedReaderDialog &other) = delete;
+    SimulatedReaderDialog(SimulatedReaderDialog &&other) = delete;
+
     /**
      * @brief Destructor of the dialog window.
      */
-    ~SimulatedReaderDialog();
+    ~SimulatedReaderDialog() override;
+
+    SimulatedReaderDialog &operator=(const SimulatedReaderDialog &other) = delete;
+    SimulatedReaderDialog &operator=(SimulatedReaderDialog &&other) = delete;
 
     /**
      * @brief Get configuration of the simulated reader.

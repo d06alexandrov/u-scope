@@ -425,7 +425,9 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
             auto next_point = left_it;
 
             for (int i = 0; (i < points_limit) && (next_point != right_it); i++) {
-                const UData::Time piece_end = start_time_actual + piece_width * (i + 1);
+                const UData::Time piece_end = (i < points_limit - 1)
+                        ? start_time_actual + piece_width * (i + 1)
+                        : end_time_actual;
 
                 UData::Time min_time = next_point->first;
                 UData::Time max_time = min_time;

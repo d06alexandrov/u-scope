@@ -63,15 +63,9 @@ public:
      */
     [[nodiscard]] static Time now() noexcept
     {
-        return Time(std::chrono::steady_clock::now().time_since_epoch());
+        return Time(std::chrono::duration_cast<Duration>(
+                std::chrono::steady_clock::now().time_since_epoch()));
     }
-
-    /**
-     * @brief Get the duration since epoch.
-     *
-     * @return The duration since epoch as a Time::Duration object.
-     */
-    [[nodiscard]] constexpr Duration since_epoch() const noexcept { return m_since_epoch; }
 
     /**
      * @brief Get the timestamp in microseconds since epoch.
@@ -100,52 +94,7 @@ public:
      * @param rhs The right-hand side Time object.
      * @return True if the comparison holds, false otherwise.
      */
-    friend constexpr auto operator<(const Time &lhs, const Time &rhs) noexcept
-    {
-        return lhs.m_since_epoch < rhs.m_since_epoch;
-    }
-
-    /**
-     * @brief Comparison operator for Time objects.
-     *
-     * @param lhs The left-hand side Time object.
-     * @param rhs The right-hand side Time object.
-     * @return True if the comparison holds, false otherwise.
-     */
-    friend constexpr auto operator>(const Time &lhs, const Time &rhs) noexcept { return rhs < lhs; }
-
-    /**
-     * @brief Comparison operator for Time objects.
-     *
-     * @param lhs The left-hand side Time object.
-     * @param rhs The right-hand side Time object.
-     * @return True if the comparison holds, false otherwise.
-     */
-    friend constexpr auto operator<=(const Time &lhs, const Time &rhs) noexcept
-    {
-        return !(lhs > rhs);
-    }
-
-    /**
-     * @brief Comparison operator for Time objects.
-     *
-     * @param lhs The left-hand side Time object.
-     * @param rhs The right-hand side Time object.
-     * @return True if the comparison holds, false otherwise.
-     */
-    friend constexpr auto operator>=(const Time &lhs, const Time &rhs) noexcept
-    {
-        return !(lhs < rhs);
-    }
-
-    /**
-     * @brief Comparison operator for Time objects.
-     *
-     * @param lhs The left-hand side Time object.
-     * @param rhs The right-hand side Time object.
-     * @return True if the comparison holds, false otherwise.
-     */
-    friend constexpr bool operator==(const Time &lhs, const Time &rhs) noexcept = default;
+    friend constexpr auto operator<=>(const Time &lhs, const Time &rhs) noexcept = default;
 
     /**
      * @brief Increment the Time object by a specified duration.

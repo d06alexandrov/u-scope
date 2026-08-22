@@ -23,14 +23,14 @@ SerialReader::SerialReader(ReaderId id, std::shared_ptr<SerialReaderConfig> conf
 void SerialReader::data_received()
 {
     const QByteArray new_data = m_serial->readAll();
-    const auto timestamp = UData::get_timestamp();
+    const auto timestamp = UData::Time::now();
     const auto new_data_size = new_data.size();
 
     for (int i = 0; i < new_data_size; i++) {
-        auto ns_offset = (new_data_size - 1 - i) * m_wire_byte_duration;
-        auto us_offset = std::chrono::duration_cast<std::chrono::microseconds>(ns_offset).count();
+        const double offset_sec = ((new_data_size - 1 - i) * m_wire_byte_duration).count();
+        const UData::Time::Duration offset = UData::duration_from_seconds(offset_sec);
 
-        UData::Time byte_timestamp = UData::timestamp_sub_us_rounddown(timestamp, us_offset);
+        UData::Time byte_timestamp = timestamp - offset;
 
         store_data(0, UData::Point(byte_timestamp, new_data[i]));
     }
@@ -63,10 +63,8 @@ void SerialReader::setup()
     double bits_per_byte =
             calculate_bits_per_byte(m_serial->dataBits(), m_serial->parity(), m_serial->stopBits());
 
-    std::chrono::duration<double, std::ratio<1>> byte_duration_sec(
+    m_wire_byte_duration = std::chrono::duration<double>(
             bits_per_byte / static_cast<double>(get_config()->baud_rate));
-
-    m_wire_byte_duration = std::chrono::duration_cast<std::chrono::nanoseconds>(byte_duration_sec);
 }
 
 void SerialReader::start()

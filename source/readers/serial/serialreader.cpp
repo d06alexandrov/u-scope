@@ -1,6 +1,12 @@
 #include "serialreader.h"
 
 namespace {
+
+constexpr double stop_bits_one = 1.0; /**< Number of stop bits for the "one" configuration. */
+constexpr double stop_bits_one_and_half =
+        1.5; /**< Number of stop bits for the "one and a half" configuration. */
+constexpr double stop_bits_two = 2.0; /**< Number of stop bits for the "two" configuration. */
+
 /**
  * @brief Calculates the number of bits per byte based on the serial port configuration.
  *
@@ -43,8 +49,10 @@ const SerialReaderConfig *SerialReader::get_config()
 
 void SerialReader::setup()
 {
-    if (get_config()->baud_rate <= 0) {
-        throw std::range_error("Baud rate must be positive");
+    if (get_config()->baud_rate < minimum_baud_rate) {
+        throw std::range_error(tr("Baud rate must be equal or greater than %1")
+                                       .arg(minimum_baud_rate)
+                                       .toStdString());
     }
 
     m_serial->setPortName(get_config()->port_name);
@@ -56,15 +64,16 @@ void SerialReader::setup()
 
     connect(m_serial, &QSerialPort::readyRead, this, &SerialReader::data_received);
 
-    // Reserve more than enough space for the buffer
-    allocate_buffer_pool(2, (get_config()->baud_rate + 7) / 8);
-
     // Calculate one byte duration
-    double bits_per_byte =
+    const double bits_per_byte =
             calculate_bits_per_byte(m_serial->dataBits(), m_serial->parity(), m_serial->stopBits());
 
     m_wire_byte_duration = std::chrono::duration<double>(
             bits_per_byte / static_cast<double>(get_config()->baud_rate));
+
+    // Reserve more than enough space for the buffer
+    allocate_buffer_pool(2,
+                         static_cast<size_t>(std::ceil(get_config()->baud_rate / bits_per_byte)));
 }
 
 void SerialReader::start()
@@ -85,23 +94,17 @@ namespace {
 double calculate_bits_per_byte(QSerialPort::DataBits data_bits, QSerialPort::Parity parity,
                                QSerialPort::StopBits stop_bits)
 {
-    double bits_per_byte = 1.0;
+    double bits_per_byte = 1.0; // Start bit
 
     switch (data_bits) {
     case QSerialPort::Data5:
-        bits_per_byte += 5.0;
-        break;
     case QSerialPort::Data6:
-        bits_per_byte += 6.0;
-        break;
     case QSerialPort::Data7:
-        bits_per_byte += 7.0;
-        break;
     case QSerialPort::Data8:
-        bits_per_byte += 8.0;
+        bits_per_byte += static_cast<double>(data_bits);
         break;
     default:
-        bits_per_byte += 8.0;
+        bits_per_byte += static_cast<double>(QSerialPort::Data8);
         break;
     }
 
@@ -111,16 +114,16 @@ double calculate_bits_per_byte(QSerialPort::DataBits data_bits, QSerialPort::Par
 
     switch (stop_bits) {
     case QSerialPort::OneStop:
-        bits_per_byte += 1.0;
+        bits_per_byte += stop_bits_one;
         break;
     case QSerialPort::OneAndHalfStop:
-        bits_per_byte += 1.5;
+        bits_per_byte += stop_bits_one_and_half;
         break;
     case QSerialPort::TwoStop:
-        bits_per_byte += 2.0;
+        bits_per_byte += stop_bits_two;
         break;
     default:
-        bits_per_byte += 1.0;
+        bits_per_byte += stop_bits_one;
         break;
     }
 

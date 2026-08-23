@@ -27,7 +27,7 @@ jobs:
       contents: read
     steps:
       - name: PR Agent action step
-        uses: the-pr-agent/pr-agent@6ad7cf75d95cb3bbb54cf2ad92050eb03804964a # v0.40.0
+        uses: the-pr-agent/pr-agent@4ebd5c5333c6ef21509e7304d27969eb825e6f22 # v0.43.0
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           config.ai_timeout: ${{ vars.GEMINI_AI_TIMEOUT }}

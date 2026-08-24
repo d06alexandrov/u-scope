@@ -1,21 +1,26 @@
 # User Interface subsystem
 qt_add_library(user_interface STATIC)
 
+set(CONTROLLERS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/controllers)
+set(MODELS_DIR ${CMAKE_CURRENT_SOURCE_DIR}/models)
+set(SINGLETON_DIR ${CMAKE_CURRENT_SOURCE_DIR}/singleton)
+
 target_include_directories(
-    user_interface PUBLIC ${CMAKE_CURRENT_SOURCE_DIR}
-                          ${CMAKE_CURRENT_SOURCE_DIR}/..
+    user_interface
+    PUBLIC ${CMAKE_CURRENT_SOURCE_DIR} ${CMAKE_CURRENT_SOURCE_DIR}/..
+           ${MODELS_DIR} ${CONTROLLERS_DIR} ${SINGLETON_DIR}
 )
 
 target_sources(
     user_interface
     PRIVATE # cmake-format: sortable
-            appcontroller.cpp
-            channelbar_model.cpp
-            mainchart_controller.cpp
-            overviewchart_controller.cpp
-            sourcelist_controller.cpp
-            timebase_model.cpp
-            verticalscale_model.cpp
+            ${CONTROLLERS_DIR}/appcontroller.cpp
+            ${CONTROLLERS_DIR}/mainchart_controller.cpp
+            ${CONTROLLERS_DIR}/overviewchart_controller.cpp
+            ${CONTROLLERS_DIR}/sourcelist_controller.cpp
+            ${MODELS_DIR}/channelbar_model.cpp
+            ${MODELS_DIR}/timebase_model.cpp
+            ${MODELS_DIR}/verticalscale_model.cpp
 )
 
 qt_add_qml_module(
@@ -24,15 +29,16 @@ qt_add_qml_module(
     RESOURCE_PREFIX "/qt/qml"
     OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/UI"
     QML_FILES # cmake-format: sortable
-              MainWindow.qml
-              ChannelBar.qml
-              ScreenRoot.qml
-              MainChart.qml
-              OverviewChart.qml
-              SourceList.qml
-              ControlPanel.qml
+              qml/MainWindow.qml
+              qml/ChannelBar.qml
+              qml/ScreenRoot.qml
+              qml/MainChart.qml
+              qml/OverviewChart.qml
+              qml/SourceList.qml
+              qml/ControlPanel.qml
     SOURCES # cmake-format: sortable
-            appcontroller_singleton.hpp appcontroller_singleton.cpp
+            ${SINGLETON_DIR}/appcontroller_singleton.cpp
+            ${SINGLETON_DIR}/appcontroller_singleton.hpp
 )
 
 set_source_files_properties(
@@ -58,5 +64,6 @@ target_link_libraries(
            universal_reader
            serial_reader
            simulated_reader
+           core_logic
     INTERFACE user_interfaceplugin
 )

@@ -1,5 +1,3 @@
-cmake_minimum_required(VERSION 3.23)
-
 find_package(
     Qt6 REQUIRED COMPONENTS Widgets Quick QuickWidgets Qml Charts SerialPort
 )
@@ -26,6 +24,9 @@ target_sources(
 
 target_link_libraries(common_headers INTERFACE Qt${QT_VERSION_MAJOR}::Core)
 
+# Add directory with core processing logic
+add_subdirectory(core)
+
 # Add directory with readers library
 add_subdirectory(readers)
 
@@ -37,12 +38,11 @@ qt_add_executable(u-scope)
 
 target_sources(
     u-scope PRIVATE # cmake-format: sortable
-                    dataprocessor.cpp main.cpp
+                    main.cpp
 )
 
 target_link_libraries(
-    u-scope PRIVATE Qt${QT_VERSION_MAJOR}::Core common_headers universal_reader
-                    serial_reader simulated_reader user_interface
+    u-scope PRIVATE Qt${QT_VERSION_MAJOR}::Core user_interface core_logic
 )
 
 set_target_properties(

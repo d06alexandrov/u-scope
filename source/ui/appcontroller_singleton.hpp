@@ -15,7 +15,17 @@ struct AppControllerForeign
     QML_NAMED_ELEMENT(AppController)
 
 public:
-    inline static AppController *m_instance = nullptr; /**< AppController instance. */
+    /**
+     * @brief Sets the AppController singleton instance.
+     *
+     * @param instance Pointer to the AppController instance.
+     */
+    static void set_controller_instance(AppController *instance);
+
+    /**
+     * @brief Clears the AppController singleton instance.
+     */
+    static void clear_controller_instance();
 
     /**
      * @brief Creates (returns) the AppController singleton instance for QML.
@@ -25,4 +35,7 @@ public:
      * @return Pointer to the AppController singleton instance.
      */
     static AppController *create(QQmlEngine *engine, QJSEngine *js_engine);
+
+private:
+    inline static AppController *m_instance = nullptr; /**< AppController instance. */
 };

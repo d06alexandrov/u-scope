@@ -13,7 +13,7 @@ AppController::AppController()
     , m_channelbar_model(channel_colors)
     , m_verticalscale_model(channels_amount)
 {
-    AppControllerForeign::m_instance = this;
+    AppControllerForeign::set_controller_instance(this);
 
     init_data_processor();
 
@@ -29,6 +29,8 @@ AppController::~AppController()
         m_data_processor_thread.quit();
         m_data_processor_thread.wait();
     }
+
+    AppControllerForeign::clear_controller_instance();
 }
 
 void AppController::about_menu()

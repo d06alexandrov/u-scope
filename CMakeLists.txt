@@ -26,6 +26,6 @@ set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
 find_package(Qt6 REQUIRED Core)
 
-qt_standard_project_setup()
+qt_standard_project_setup(REQUIRES 6.8)
 
 add_subdirectory(source)

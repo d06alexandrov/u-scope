@@ -64,5 +64,6 @@ target_link_libraries(
            universal_reader
            serial_reader
            simulated_reader
+           core_logic
     INTERFACE user_interfaceplugin
 )

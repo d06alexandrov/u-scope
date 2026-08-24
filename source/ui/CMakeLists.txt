@@ -21,7 +21,6 @@ target_sources(
 qt_add_qml_module(
     user_interface
     URI UI
-    NO_PLUGIN
     RESOURCE_PREFIX "/qt/qml"
     OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/UI"
     QML_FILES # cmake-format: sortable
@@ -32,6 +31,8 @@ qt_add_qml_module(
               OverviewChart.qml
               SourceList.qml
               ControlPanel.qml
+    SOURCES # cmake-format: sortable
+            appcontroller_singleton.hpp appcontroller_singleton.cpp
 )
 
 set_source_files_properties(
@@ -57,4 +58,5 @@ target_link_libraries(
            universal_reader
            serial_reader
            simulated_reader
+    INTERFACE user_interfaceplugin
 )

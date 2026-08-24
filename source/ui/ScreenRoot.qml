@@ -1,5 +1,6 @@
 import QtQuick
 import QtQuick.Layouts
+import UI
 
 Rectangle {
     id: screenRoot
@@ -39,7 +40,7 @@ Rectangle {
                     Text {
                         id: hScaleValue
                         objectName: "hScaleValue"
-                        text: timebaseModel ? timebaseModel.hScaleText : ""
+                        text: AppController.timebaseModel.hScaleText
                         color: "white"
                         horizontalAlignment: Text.AlignHCenter
 
@@ -55,9 +56,7 @@ Rectangle {
                 Layout.fillWidth: true
 
                 onWidthChanged: {
-                    if (overviewChartController) {
-                        overviewChartController.set_chart_width(overviewChart.plotArea.width);
-                    }
+                    AppController.overviewChart.set_chart_width(overviewChart.plotArea.width);
                 }
             }
         }
@@ -69,9 +68,7 @@ Rectangle {
             Layout.fillHeight: true
 
             onWidthChanged: {
-                if (mainChartController) {
-                    mainChartController.set_chart_width(mainChart.width);
-                }
+                AppController.mainChart.set_chart_width(mainChart.width);
             }
         }
 
@@ -79,10 +76,10 @@ Rectangle {
             objectName: "channelBar"
             Layout.fillWidth: true
             Layout.margins: 5
-            channelBarModel: channelModel
+            channelBarModel: AppController.channelModel
 
-            onChannelSelected: channelId => appController.channel_selected(channelId)
-            onChannelToggled: channelId => appController.channel_toggled(channelId)
+            onChannelSelected: channelId => AppController.channel_selected(channelId)
+            onChannelToggled: channelId => AppController.channel_toggled(channelId)
         }
     }
 }

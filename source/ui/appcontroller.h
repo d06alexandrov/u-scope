@@ -10,6 +10,7 @@
 
 #include <QPropertyChangeHandler>
 #include <QQmlApplicationEngine>
+#include <QQmlEngine>
 #include <memory>
 
 /**
@@ -18,6 +19,16 @@
 class AppController : public QObject
 {
     Q_OBJECT
+
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
+    Q_PROPERTY(SourceListController *sourceList READ sourceList CONSTANT)
+    Q_PROPERTY(MainChartController *mainChart READ mainChart CONSTANT)
+    Q_PROPERTY(OverviewChartController *overviewChart READ overviewChart CONSTANT)
+    Q_PROPERTY(ChannelBarModel *channelModel READ channelModel CONSTANT)
+    Q_PROPERTY(TimebaseModel *timebaseModel READ timebaseModel CONSTANT)
+    Q_PROPERTY(VerticalScaleModel *verticalScaleModel READ verticalScaleModel CONSTANT)
+    Q_PROPERTY(QVariantList channelColors READ channelColors CONSTANT)
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 public:
     /**
@@ -37,16 +48,52 @@ public:
     AppController &operator=(AppController &&other) = delete;
 
     /**
-     * @brief Initialize qml elements.
-     *
-     * @param engine Pointer to QQmlApplicationEngine.
-     */
-    void init_qml(QQmlApplicationEngine *engine);
-
-    /**
      * @brief Show about dialog with information about the application.
      */
     Q_INVOKABLE void about_menu();
+
+    /**
+     * @brief Get pointer to the SourceListController.
+     *
+     * @return Pointer to the SourceListController.
+     */
+    [[nodiscard]] SourceListController *sourceList();
+    /**
+     * @brief Get pointer to the MainChartController.
+     *
+     * @return Pointer to the MainChartController.
+     */
+    [[nodiscard]] MainChartController *mainChart();
+    /**
+     * @brief Get pointer to the OverviewChartController.
+     *
+     * @return Pointer to the OverviewChartController.
+     */
+    [[nodiscard]] OverviewChartController *overviewChart();
+    /**
+     * @brief Get pointer to the ChannelBarModel.
+     *
+     * @return Pointer to the ChannelBarModel.
+     */
+    [[nodiscard]] ChannelBarModel *channelModel();
+    /**
+     * @brief Get pointer to the TimebaseModel.
+     *
+     * @return Pointer to the TimebaseModel.
+     */
+    [[nodiscard]] TimebaseModel *timebaseModel();
+    /**
+     * @brief Get pointer to the VerticalScaleModel.
+     *
+     * @return Pointer to the VerticalScaleModel.
+     */
+    [[nodiscard]] VerticalScaleModel *verticalScaleModel();
+    /**
+     * @brief Get list of channel colors.
+     *
+     * @return List of channel colors.
+     */
+    [[nodiscard]] QVariantList channelColors() const;
 
 public slots:
 

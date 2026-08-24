@@ -30,8 +30,6 @@ int main(int argc, char *argv[])
 
     QQmlApplicationEngine engine;
 
-    app_controller.init_qml(&engine);
-
     engine.loadFromModule("UI", "MainWindow");
 
     if (engine.rootObjects().isEmpty()) {

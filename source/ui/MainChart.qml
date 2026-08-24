@@ -1,5 +1,6 @@
 import QtQuick
 import QtCharts
+import UI
 
 ChartView {
     id: root
@@ -20,21 +21,21 @@ ChartView {
         gridLineColor: Qt.rgba(0, 1, 0, 100 / 255)
         labelsVisible: false
         lineVisible: false
-        tickCount: timebaseModel ? timebaseModel.hGridCells + 1 : 2
+        tickCount: AppController.timebaseModel.hGridCells + 1
 
-        Component.onCompleted: mainChartController.registerXAxis(plotAxisX)
+        Component.onCompleted: AppController.mainChart.registerXAxis(plotAxisX)
     }
 
     ValueAxis {
         id: plotAxisY
         objectName: "plotAxisY"
         min: -plotAxisY.max
-        max: verticalScaleModel ? verticalScaleModel.vGridCells / 2 : 1
+        max: AppController.verticalScaleModel.vGridCells / 2
         gridVisible: true
         gridLineColor: Qt.rgba(0, 1, 0, 100 / 255)
         labelsVisible: false
         lineVisible: false
-        tickCount: verticalScaleModel ? verticalScaleModel.vGridCells + 1 : 3
+        tickCount: AppController.verticalScaleModel.vGridCells + 1
     }
 
     function getAxisX(): ValueAxis {
@@ -50,10 +51,10 @@ ChartView {
             var series = root.createSeries(ChartView.SeriesTypeLine, "", plotAxisX, plotAxisY);
 
             series.objectName = "plot_series_" + i;
-            series.color = (cppChannelColors.length > i) ? cppChannelColors[i] : "white";
+            series.color = (AppController.channelColors.length > i) ? AppController.channelColors[i] : "white";
             series.pointsVisible = true;
 
-            mainChartController.registerSeries(i, series);
+            AppController.mainChart.registerSeries(i, series);
         }
     }
 }

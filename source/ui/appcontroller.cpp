@@ -1,5 +1,7 @@
 #include "appcontroller.h"
 
+#include "appcontroller_singleton.hpp"
+
 #include <QCoreApplication>
 #include <QFile>
 #include <QMessageBox>
@@ -11,6 +13,8 @@ AppController::AppController()
     , m_channelbar_model(channel_colors)
     , m_verticalscale_model(channels_amount)
 {
+    AppControllerForeign::m_instance = this;
+
     init_data_processor();
 
     init_ui_elements();
@@ -24,27 +28,6 @@ AppController::~AppController()
     if (m_data_processor_thread.isRunning()) {
         m_data_processor_thread.quit();
         m_data_processor_thread.wait();
-    }
-}
-
-void AppController::init_qml(QQmlApplicationEngine *engine)
-{
-    QVariantList color_list;
-    for (const QColor &color : channel_colors) {
-        color_list.append(color);
-    }
-
-    if (engine) {
-        engine->rootContext()->setContextProperties({
-                { "appController", QVariant::fromValue(this) },
-                { "sourceListController", QVariant::fromValue(&m_sourcelist_controller) },
-                { "mainChartController", QVariant::fromValue(&m_mainchart_controller) },
-                { "overviewChartController", QVariant::fromValue(&m_overviewchart_controller) },
-                { "channelModel", QVariant::fromValue(&m_channelbar_model) },
-                { "timebaseModel", QVariant::fromValue(&m_timebase_model) },
-                { "verticalScaleModel", QVariant::fromValue(&m_verticalscale_model) },
-                { "cppChannelColors", color_list },
-        });
     }
 }
 
@@ -67,6 +50,18 @@ void AppController::about_menu()
     }
 
     about_box.exec();
+}
+
+QVariantList AppController::channelColors() const
+{
+    QVariantList color_list;
+    color_list.reserve(static_cast<qsizetype>(channel_colors.size()));
+
+    for (const QColor &color : channel_colors) {
+        color_list.append(color);
+    }
+
+    return color_list;
 }
 
 void AppController::handle_start_clicked()

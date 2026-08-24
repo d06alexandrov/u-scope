@@ -1,11 +1,12 @@
 import QtQuick
 import QtQuick.Controls
+import UI
 
 TreeView {
     id: root
     anchors.fill: parent
 
-    model: sourceListController ? sourceListController.model : null
+    model: AppController.sourceList.model
 
     Menu {
         id: backgroundMenu
@@ -24,17 +25,13 @@ TreeView {
         MenuItem {
             text: "Configure new simulated source"
             onTriggered: {
-                if (sourceListController) {
-                    Qt.callLater(() => sourceListController.open_simulated_source_dialog(appController));
-                }
+                Qt.callLater(() => AppController.sourceList.open_simulated_source_dialog(AppController));
             }
         }
         MenuItem {
             text: "Configure new serial port source"
             onTriggered: {
-                if (sourceListController) {
-                    Qt.callLater(() => sourceListController.open_serial_source_dialog(appController));
-                }
+                Qt.callLater(() => AppController.sourceList.open_serial_source_dialog(AppController));
             }
         }
     }
@@ -54,9 +51,7 @@ TreeView {
             MenuItem {
                 text: "Delete existing source"
                 onTriggered: {
-                    if (sourceListController) {
-                        sourceListController.delete_source(readerId);
-                    }
+                    AppController.sourceList.delete_source(readerId);
                 }
             }
         }
@@ -73,9 +68,7 @@ TreeView {
                     MenuItem {
                         text: "Channel " + (index + 1)
                         onTriggered: {
-                            if (sourceListController) {
-                                sourceListController.assign_variable_to_channel(readerId, variableId, index);
-                            }
+                            AppController.sourceList.assign_variable_to_channel(readerId, variableId, index);
                         }
                     }
                 }

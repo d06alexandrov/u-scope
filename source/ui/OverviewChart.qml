@@ -27,14 +27,14 @@ ChartView {
         labelsVisible: false
         lineVisible: false
 
-        Component.onCompleted: overviewChartController.registerXAxis(plotAxisX)
+        Component.onCompleted: AppController.overviewChart.registerXAxis(plotAxisX)
     }
 
     ValueAxis {
         id: plotAxisY
         objectName: "overviewAxisY"
         min: -plotAxisY.max
-        max: verticalScaleModel ? verticalScaleModel.vGridCells / 2 : 1
+        max: AppController.verticalScaleModel.vGridCells / 2
         gridVisible: false
         labelsVisible: false
         lineVisible: false
@@ -53,10 +53,10 @@ ChartView {
             var series = root.createSeries(ChartView.SeriesTypeLine, "", plotAxisX, plotAxisY);
 
             series.objectName = "overview_series_" + i;
-            series.color = (cppChannelColors.length > i) ? cppChannelColors[i] : "white";
+            series.color = (AppController.channelColors.length > i) ? AppController.channelColors[i] : "white";
             series.pointsVisible = false;
 
-            overviewChartController.registerSeries(i, series);
+            AppController.overviewChart.registerSeries(i, series);
         }
     }
 
@@ -71,9 +71,9 @@ ChartView {
         border.width: 2
 
         onXChanged: {
-            if (dragHandler.active && overviewChartController) {
+            if (dragHandler.active) {
                 let relativeX = slidingRect.x - root.plotArea.x;
-                overviewChartController.updateDragPosition(relativeX);
+                AppController.overviewChart.updateDragPosition(relativeX);
             }
         }
 
@@ -91,12 +91,12 @@ ChartView {
         }
 
         Connections {
-            target: overviewChartController
+            target: AppController.overviewChart
 
             function onGeometryChanged() {
-                if (!dragHandler.active && overviewChartController) {
-                    slidingRect.x = root.plotArea.x + overviewChartController.xPos;
-                    slidingRect.width = overviewChartController.rectWidth;
+                if (!dragHandler.active) {
+                    slidingRect.x = root.plotArea.x + AppController.overviewChart.xPos;
+                    slidingRect.width = AppController.overviewChart.rectWidth;
                 }
             }
         }

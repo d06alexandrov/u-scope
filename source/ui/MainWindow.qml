@@ -2,6 +2,7 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
+import UI
 
 ApplicationWindow {
     id: mainWindowRoot
@@ -16,7 +17,7 @@ ApplicationWindow {
             title: qsTr("&Help")
             Action {
                 text: qsTr("&About")
-                onTriggered: Qt.callLater(() => appController.about_menu())
+                onTriggered: Qt.callLater(() => AppController.about_menu())
             }
         }
     }

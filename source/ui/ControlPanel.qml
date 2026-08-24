@@ -1,6 +1,7 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
+import UI
 
 ColumnLayout {
     id: root
@@ -24,14 +25,14 @@ ColumnLayout {
                 id: pushButton_StartAll
                 text: "Start"
                 Layout.fillWidth: true
-                onClicked: appController.handle_start_clicked()
+                onClicked: AppController.handle_start_clicked()
             }
 
             Button {
                 id: pushButton_StopAll
                 text: "Stop"
                 Layout.fillWidth: true
-                onClicked: appController.handle_stop_clicked()
+                onClicked: AppController.handle_stop_clicked()
             }
         }
     }
@@ -67,20 +68,16 @@ ColumnLayout {
                     to: -4
                     stepSize: 1.0
 
-                    value: timebaseModel ? timebaseModel.qDialValue : -4
+                    value: AppController.timebaseModel.qDialValue
 
                     onMoved: {
-                        if (timebaseModel) {
-                            timebaseModel.qDialValue = value;
-                        }
+                        AppController.timebaseModel.qDialValue = value;
                     }
 
                     Connections {
-                        target: timebaseModel
+                        target: AppController.timebaseModel
                         function onQDialValueChanged() {
-                            if (timebaseModel) {
-                                horizontalScale.value = timebaseModel.qDialValue;
-                            }
+                            AppController.horizontalScale.value = AppController.timebaseModel.qDialValue;
                         }
                     }
                 }
@@ -114,7 +111,7 @@ ColumnLayout {
         title: "Vertical"
         Layout.fillWidth: true
 
-        enabled: channelModel && (channelModel.selectedChannel >= 0)
+        enabled: AppController.channelModel.selectedChannel >= 0
 
         RowLayout {
             anchors.fill: parent
@@ -142,33 +139,33 @@ ColumnLayout {
                     stepSize: 1.0
 
                     value: {
-                        if (channelModel && (channelModel.selectedChannel >= 0) && verticalScaleModel) {
-                            return verticalScaleModel.qDialValue(channelModel.selectedChannel);
+                        if (AppController.channelModel.selectedChannel >= 0) {
+                            return AppController.verticalScaleModel.qDialValue(AppController.channelModel.selectedChannel);
                         } else {
                             return -4;
                         }
                     }
 
                     onMoved: {
-                        if (verticalScaleModel && channelModel && channelModel.selectedChannel >= 0) {
-                            verticalScaleModel.qDialValueUpdate(channelModel.selectedChannel, value);
+                        if (AppController.channelModel.selectedChannel >= 0) {
+                            AppController.verticalScaleModel.qDialValueUpdate(AppController.channelModel.selectedChannel, value);
                         }
                     }
 
                     Connections {
-                        target: verticalScaleModel
+                        target: AppController.verticalScaleModel
                         function onVDivisionChanged() {
-                            if (channelModel && channelModel.selectedChannel >= 0) {
-                                verticalScale.value = verticalScaleModel.qDialValue(channelModel.selectedChannel);
+                            if (AppController.channelModel.selectedChannel >= 0) {
+                                verticalScale.value = AppController.verticalScaleModel.qDialValue(AppController.channelModel.selectedChannel);
                             }
                         }
                     }
 
                     Connections {
-                        target: channelModel
+                        target: AppController.channelModel
                         function onSelectedChannelChanged() {
-                            if (channelModel && channelModel.selectedChannel >= 0 && verticalScaleModel) {
-                                verticalScale.value = verticalScaleModel.qDialValue(channelModel.selectedChannel);
+                            if (AppController.channelModel.selectedChannel >= 0) {
+                                verticalScale.value = AppController.verticalScaleModel.qDialValue(AppController.channelModel.selectedChannel);
                             }
                         }
                     }

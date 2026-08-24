@@ -20,6 +20,7 @@ class AppController : public QObject
 {
     Q_OBJECT
 
+#ifndef DOXYGEN_SHOULD_SKIP_THIS
     Q_PROPERTY(SourceListController *sourceList READ sourceList CONSTANT)
     Q_PROPERTY(MainChartController *mainChart READ mainChart CONSTANT)
     Q_PROPERTY(OverviewChartController *overviewChart READ overviewChart CONSTANT)
@@ -27,6 +28,7 @@ class AppController : public QObject
     Q_PROPERTY(TimebaseModel *timebaseModel READ timebaseModel CONSTANT)
     Q_PROPERTY(VerticalScaleModel *verticalScaleModel READ verticalScaleModel CONSTANT)
     Q_PROPERTY(QVariantList channelColors READ channelColors CONSTANT)
+#endif // DOXYGEN_SHOULD_SKIP_THIS
 
 public:
     /**
@@ -55,37 +57,37 @@ public:
      *
      * @return Pointer to the SourceListController.
      */
-    [[nodiscard]] SourceListController *sourceList() { return &m_sourcelist_controller; }
+    [[nodiscard]] SourceListController *sourceList();
     /**
      * @brief Get pointer to the MainChartController.
      *
      * @return Pointer to the MainChartController.
      */
-    [[nodiscard]] MainChartController *mainChart() { return &m_mainchart_controller; }
+    [[nodiscard]] MainChartController *mainChart();
     /**
      * @brief Get pointer to the OverviewChartController.
      *
      * @return Pointer to the OverviewChartController.
      */
-    [[nodiscard]] OverviewChartController *overviewChart() { return &m_overviewchart_controller; }
+    [[nodiscard]] OverviewChartController *overviewChart();
     /**
      * @brief Get pointer to the ChannelBarModel.
      *
      * @return Pointer to the ChannelBarModel.
      */
-    [[nodiscard]] ChannelBarModel *channelModel() { return &m_channelbar_model; }
+    [[nodiscard]] ChannelBarModel *channelModel();
     /**
      * @brief Get pointer to the TimebaseModel.
      *
      * @return Pointer to the TimebaseModel.
      */
-    [[nodiscard]] TimebaseModel *timebaseModel() { return &m_timebase_model; }
+    [[nodiscard]] TimebaseModel *timebaseModel();
     /**
      * @brief Get pointer to the VerticalScaleModel.
      *
      * @return Pointer to the VerticalScaleModel.
      */
-    [[nodiscard]] VerticalScaleModel *verticalScaleModel() { return &m_verticalscale_model; }
+    [[nodiscard]] VerticalScaleModel *verticalScaleModel();
     /**
      * @brief Get list of channel colors.
      *

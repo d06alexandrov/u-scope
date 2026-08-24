@@ -77,7 +77,7 @@ ColumnLayout {
                     Connections {
                         target: AppController.timebaseModel
                         function onQDialValueChanged() {
-                            AppController.horizontalScale.value = AppController.timebaseModel.qDialValue;
+                            horizontalScale.value = AppController.timebaseModel.qDialValue;
                         }
                     }
                 }

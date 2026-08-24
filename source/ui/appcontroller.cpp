@@ -52,6 +52,36 @@ void AppController::about_menu()
     about_box.exec();
 }
 
+SourceListController *AppController::sourceList()
+{
+    return &m_sourcelist_controller;
+}
+
+MainChartController *AppController::mainChart()
+{
+    return &m_mainchart_controller;
+}
+
+OverviewChartController *AppController::overviewChart()
+{
+    return &m_overviewchart_controller;
+}
+
+ChannelBarModel *AppController::channelModel()
+{
+    return &m_channelbar_model;
+}
+
+TimebaseModel *AppController::timebaseModel()
+{
+    return &m_timebase_model;
+}
+
+VerticalScaleModel *AppController::verticalScaleModel()
+{
+    return &m_verticalscale_model;
+}
+
 QVariantList AppController::channelColors() const
 {
     QVariantList color_list;

@@ -10,7 +10,6 @@ target_sources(
     user_interface
     PRIVATE # cmake-format: sortable
             appcontroller.cpp
-            appcontroller.h
             channelbar_model.cpp
             mainchart_controller.cpp
             overviewchart_controller.cpp
@@ -49,9 +48,9 @@ qt_add_resources(
 
 target_link_libraries(
     user_interface
-    PUBLIC Qt${QT_VERSION_MAJOR}::Charts
+    PUBLIC Qt${QT_VERSION_MAJOR}::Core
+           Qt${QT_VERSION_MAJOR}::Charts
            Qt${QT_VERSION_MAJOR}::Widgets
-           Qt${QT_VERSION_MAJOR}::Core
            Qt${QT_VERSION_MAJOR}::Qml
            Qt${QT_VERSION_MAJOR}::Quick
            Qt${QT_VERSION_MAJOR}::QuickWidgets

@@ -4,6 +4,7 @@
 
 #include <QObject>
 #include <QStandardItemModel>
+#include <QtQmlIntegration/qqmlintegration.h>
 
 struct UniversalReaderDialogConfig;
 
@@ -13,6 +14,7 @@ struct UniversalReaderDialogConfig;
 class SourceListController : public QObject
 {
     Q_OBJECT
+    QML_ANONYMOUS
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     Q_PROPERTY(QAbstractItemModel *model MEMBER m_source_model CONSTANT)

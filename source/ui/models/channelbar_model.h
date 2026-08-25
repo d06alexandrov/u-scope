@@ -4,6 +4,7 @@
 
 #include <QAbstractListModel>
 #include <QColor>
+#include <QtQmlIntegration/qqmlintegration.h>
 #include <optional>
 #include <vector>
 
@@ -13,6 +14,7 @@
 class ChannelBarModel : public QAbstractListModel
 {
     Q_OBJECT
+    QML_ANONYMOUS
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     Q_PROPERTY(int selectedChannel READ selectedChannel NOTIFY selectedChannelChanged)

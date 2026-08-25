@@ -7,6 +7,7 @@
 #include <QPointer>
 #include <QValueAxis>
 #include <QXYSeries>
+#include <QtQmlIntegration/qqmlintegration.h>
 
 /**
  * @brief The class responsible for controlling the main chart in the application.
@@ -14,6 +15,7 @@
 class MainChartController : public QObject
 {
     Q_OBJECT
+    QML_ANONYMOUS
 
 public:
     /**

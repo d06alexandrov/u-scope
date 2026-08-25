@@ -3,6 +3,7 @@
 #include <QBindable>
 #include <QObject>
 #include <QProperty>
+#include <QtQmlIntegration/qqmlintegration.h>
 
 /**
  * @brief The model class for the horizontal timebase.
@@ -10,6 +11,7 @@
 class TimebaseModel : public QObject
 {
     Q_OBJECT
+    QML_ANONYMOUS
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     Q_PROPERTY(QString hScaleText READ hScaleText NOTIFY hScaleTextChanged)

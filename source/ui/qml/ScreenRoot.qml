@@ -1,6 +1,5 @@
 import QtQuick
 import QtQuick.Layouts
-import UI
 
 Rectangle {
     id: screenRoot

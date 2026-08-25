@@ -1,6 +1,5 @@
 import QtQuick
-import QtCharts
-import UI
+import QtCharts // qmllint disable import
 
 ChartView {
     id: root

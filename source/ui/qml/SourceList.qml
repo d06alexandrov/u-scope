@@ -1,6 +1,7 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Controls
-import UI
 
 TreeView {
     id: root
@@ -14,7 +15,7 @@ TreeView {
         width: {
             var maxWidth = 0;
             for (var i = 0; i < count; ++i) {
-                var item = itemAt(i);
+                var item = itemAt(i) as MenuItem;
                 if (item && item.contentItem) {
                     maxWidth = Math.max(maxWidth, item.contentItem.implicitWidth);
                 }
@@ -42,7 +43,11 @@ TreeView {
     }
 
     delegate: TreeViewDelegate {
+        id: sourceDelegate
         implicitWidth: root.width
+
+        required property int readerId
+        required property int variableId
 
         Menu {
             // Menu for reader nodes
@@ -51,7 +56,7 @@ TreeView {
             MenuItem {
                 text: "Delete existing source"
                 onTriggered: {
-                    AppController.sourceList.delete_source(readerId);
+                    AppController.sourceList.delete_source(sourceDelegate.readerId);
                 }
             }
         }
@@ -66,9 +71,13 @@ TreeView {
                 Repeater {
                     model: 12
                     MenuItem {
-                        text: "Channel " + (index + 1)
+                        id: channelMenuItem
+
+                        required property int index
+
+                        text: "Channel " + (channelMenuItem.index + 1)
                         onTriggered: {
-                            AppController.sourceList.assign_variable_to_channel(readerId, variableId, index);
+                            AppController.sourceList.assign_variable_to_channel(sourceDelegate.readerId, sourceDelegate.variableId, channelMenuItem.index);
                         }
                     }
                 }
@@ -79,7 +88,7 @@ TreeView {
             acceptedButtons: Qt.RightButton
             gesturePolicy: TapHandler.WithinBounds
             onTapped: {
-                if (depth == 0) {
+                if (parent.depth == 0) {
                     readerMenu.popup();
                 } else {
                     variableMenu.popup();

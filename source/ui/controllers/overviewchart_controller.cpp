@@ -38,6 +38,11 @@ qreal OverviewChartController::rectWidth() const
     return m_window_pixel_width;
 }
 
+QBindable<bool> OverviewChartController::bindableVisible()
+{
+    return &m_visible;
+}
+
 void OverviewChartController::receive_full_history(const QList<GraphData> &new_data,
                                                    UData::Time min_time, UData::Time max_time)
 {
@@ -46,6 +51,12 @@ void OverviewChartController::receive_full_history(const QList<GraphData> &new_d
     }
 
     if (m_continuous_mode) {
+        return;
+    }
+
+    if (min_time >= max_time) {
+        // History is empty, chart must be hidden
+        m_visible = false;
         return;
     }
 
@@ -66,6 +77,8 @@ void OverviewChartController::receive_full_history(const QList<GraphData> &new_d
             }
         }
     }
+
+    m_visible = true;
 
     // Put sliding window to the end
     if ((m_graph_max_time - m_graph_min_time) <= m_sliding_window) {
@@ -132,7 +145,10 @@ void OverviewChartController::switch_continuous_mode(bool on)
 
     // TODO: hide graph in continuous mode
 
-    if (!on) {
+    if (on) {
+        m_visible = false;
+        clear_all_series();
+    } else {
         emit request_full_history(std::max(minimum_graph_points, static_cast<int>(m_graph_width)));
     }
 

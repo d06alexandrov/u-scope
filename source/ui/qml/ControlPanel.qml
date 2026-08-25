@@ -1,7 +1,6 @@
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
-import UI
 
 ColumnLayout {
     id: root
@@ -58,10 +57,10 @@ ColumnLayout {
 
                 Dial {
                     id: horizontalScale
-                    Layout.preferredWidth: dialPreferredSize
-                    Layout.preferredHeight: dialPreferredSize
-                    Layout.maximumWidth: dialMaximumSize
-                    Layout.maximumHeight: dialMaximumSize
+                    Layout.preferredWidth: root.dialPreferredSize
+                    Layout.preferredHeight: root.dialPreferredSize
+                    Layout.maximumWidth: root.dialMaximumSize
+                    Layout.maximumHeight: root.dialMaximumSize
                     Layout.alignment: Qt.AlignHCenter
 
                     from: -21
@@ -94,10 +93,10 @@ ColumnLayout {
 
                 Dial {
                     id: dial_2
-                    Layout.preferredWidth: dialPreferredSize
-                    Layout.preferredHeight: dialPreferredSize
-                    Layout.maximumWidth: dialMaximumSize
-                    Layout.maximumHeight: dialMaximumSize
+                    Layout.preferredWidth: root.dialPreferredSize
+                    Layout.preferredHeight: root.dialPreferredSize
+                    Layout.maximumWidth: root.dialMaximumSize
+                    Layout.maximumHeight: root.dialMaximumSize
 
                     enabled: false
                     Layout.alignment: Qt.AlignHCenter
@@ -128,10 +127,10 @@ ColumnLayout {
 
                 Dial {
                     id: verticalScale
-                    Layout.preferredWidth: dialPreferredSize
-                    Layout.preferredHeight: dialPreferredSize
-                    Layout.maximumWidth: dialMaximumSize
-                    Layout.maximumHeight: dialMaximumSize
+                    Layout.preferredWidth: root.dialPreferredSize
+                    Layout.preferredHeight: root.dialPreferredSize
+                    Layout.maximumWidth: root.dialMaximumSize
+                    Layout.maximumHeight: root.dialMaximumSize
                     Layout.alignment: Qt.AlignHCenter
 
                     from: -24
@@ -185,10 +184,10 @@ ColumnLayout {
 
                 Dial {
                     id: dial_4
-                    Layout.preferredWidth: dialPreferredSize
-                    Layout.preferredHeight: dialPreferredSize
-                    Layout.maximumWidth: dialMaximumSize
-                    Layout.maximumHeight: dialMaximumSize
+                    Layout.preferredWidth: root.dialPreferredSize
+                    Layout.preferredHeight: root.dialPreferredSize
+                    Layout.maximumWidth: root.dialMaximumSize
+                    Layout.maximumHeight: root.dialMaximumSize
                     Layout.alignment: Qt.AlignHCenter
                 }
             }

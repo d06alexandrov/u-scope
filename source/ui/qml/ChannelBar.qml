@@ -1,3 +1,5 @@
+pragma ComponentBehavior: Bound
+
 import QtQuick
 import QtQuick.Layouts
 import QtQuick.Shapes
@@ -59,7 +61,11 @@ Flow {
 
         Timer {
             id: clickTimer
+
+            // qmllint disable missing-property
             interval: Qt.styleHints.mouseDoubleClickInterval
+            // qmllint enable missing-property
+
             repeat: false
             onTriggered: {
                 badgeRoot.badgeClicked(badgeRoot.channelId);

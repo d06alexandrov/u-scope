@@ -1,6 +1,6 @@
 import QtQuick
-import QtCharts
 import QtQuick.Layouts
+import QtCharts // qmllint disable import
 
 ChartView {
     id: root

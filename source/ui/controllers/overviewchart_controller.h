@@ -3,6 +3,7 @@
 #include "commontypes.hpp"
 #include "dataprocessor.h"
 
+#include <QBindable>
 #include <QList>
 #include <QObject>
 #include <QPointer>
@@ -22,6 +23,7 @@ class OverviewChartController : public QObject
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     Q_PROPERTY(qreal xPos READ xPos NOTIFY geometryChanged)
     Q_PROPERTY(qreal rectWidth READ rectWidth NOTIFY geometryChanged)
+    Q_PROPERTY(bool visible READ default NOTIFY visibleChanged BINDABLE bindableVisible)
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 public:
@@ -60,6 +62,13 @@ public:
      * @return The width of the sliding window in pixels.
      */
     [[nodiscard]] qreal rectWidth() const;
+
+    /**
+     * @brief Get the bindable property for visibility of the chart.
+     *
+     * @return A QBindable<bool> representing the visibility of the chart.
+     */
+    [[nodiscard]] QBindable<bool> bindableVisible();
 
 public slots:
 
@@ -119,6 +128,11 @@ signals:
     void geometryChanged();
 
     /**
+     * @brief Signal emitted when the visibility of the chart changes.
+     */
+    void visibleChanged();
+
+    /**
      * @brief Request full history data from Data Processor to display.
      *
      * @param points_limit Maximum amount of points to be returned.
@@ -153,6 +167,11 @@ private:
     qreal m_graph_width{ }; /**< Graph width in pixels. */
     qreal m_x_pos{ }; /**< Sliding window position in pixels. */
     qreal m_window_pixel_width{ }; /**< Sliding window size in pixels. */
+
+    Q_OBJECT_BINDABLE_PROPERTY(
+            OverviewChartController, bool, m_visible,
+            &OverviewChartController::visibleChanged); /**< Bindable property for visibility of the
+                                                          chart. */
 
     /**
      * @brief Reset all series in the graph.

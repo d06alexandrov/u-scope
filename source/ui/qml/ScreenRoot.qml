@@ -53,10 +53,6 @@ Rectangle {
                 id: overviewChart
                 objectName: "overviewChart"
                 Layout.fillWidth: true
-
-                onWidthChanged: {
-                    AppController.overviewChart.set_chart_width(overviewChart.plotArea.width);
-                }
             }
         }
 

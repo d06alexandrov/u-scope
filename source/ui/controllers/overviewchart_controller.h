@@ -8,6 +8,7 @@
 #include <QPointer>
 #include <QValueAxis>
 #include <QXYSeries>
+#include <QtQmlIntegration/qqmlintegration.h>
 #include <vector>
 
 /**
@@ -16,6 +17,7 @@
 class OverviewChartController : public QObject
 {
     Q_OBJECT
+    QML_ANONYMOUS
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     Q_PROPERTY(qreal xPos READ xPos NOTIFY geometryChanged)

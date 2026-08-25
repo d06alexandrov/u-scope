@@ -3,6 +3,7 @@
 #include "commontypes.hpp"
 
 #include <QObject>
+#include <QtQmlIntegration/qqmlintegration.h>
 #include <vector>
 
 /**
@@ -11,6 +12,7 @@
 class VerticalScaleModel : public QObject
 {
     Q_OBJECT
+    QML_ANONYMOUS
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
     Q_PROPERTY(int vGridCells READ vGridCells NOTIFY vGridCellsChanged)

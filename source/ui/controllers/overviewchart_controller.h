@@ -84,6 +84,11 @@ public:
      */
     Q_INVOKABLE void updateDragPosition(qreal new_x);
 
+    /**
+     * @brief Move the sliding window by a specified number of horizontal division steps.
+     *
+     * @param division_steps The number of horizontal division steps to move the sliding window.
+     */
     Q_INVOKABLE void moveSlidingWindow(int division_steps);
 
     /**

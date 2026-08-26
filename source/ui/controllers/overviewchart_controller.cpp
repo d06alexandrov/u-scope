@@ -90,11 +90,9 @@ void OverviewChartController::moveSlidingWindow(int division_steps)
 
     UData::Time new_start = m_sliding_window_start + m_div_horizontal * division_steps;
 
-    if (new_start < m_graph_min_time) {
-        new_start = m_graph_min_time;
-    } else if (new_start > m_graph_max_time - m_sliding_window_width) {
-        new_start = m_graph_max_time - m_sliding_window_width;
-    }
+    const UData::Time max_start =
+            std::max(m_graph_min_time, m_graph_max_time - m_sliding_window_width);
+    new_start = std::clamp(new_start, m_graph_min_time, max_start);
 
     if (new_start != m_sliding_window_start) {
         m_sliding_window_start = new_start;

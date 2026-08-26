@@ -174,9 +174,8 @@ void OverviewChartController::receive_full_history(const QList<GraphData> &new_d
 
     if (m_visible) {
         // Overview graph was refreshed
-        if (m_sliding_window_start < min_time) {
-            m_sliding_window_start = min_time;
-        }
+        const UData::Time max_start = std::max(min_time, max_time - m_sliding_window_width);
+        m_sliding_window_start = std::clamp(m_sliding_window_start, min_time, max_start);
     } else {
         // Put sliding window to the end
         if ((max_time - min_time) <= m_sliding_window_width) {

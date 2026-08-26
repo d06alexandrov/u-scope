@@ -1,3 +1,4 @@
+import QtQuick.Controls.Fusion // Use Fusion style by default
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts

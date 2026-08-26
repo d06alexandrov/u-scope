@@ -92,14 +92,40 @@ ColumnLayout {
                 }
 
                 Dial {
-                    id: dial_2
+                    id: horizontalPosition
                     Layout.preferredWidth: root.dialPreferredSize
                     Layout.preferredHeight: root.dialPreferredSize
                     Layout.maximumWidth: root.dialMaximumSize
                     Layout.maximumHeight: root.dialMaximumSize
-
-                    enabled: false
                     Layout.alignment: Qt.AlignHCenter
+
+                    enabled: AppController.overviewChart.visible
+
+                    startAngle: -180
+                    endAngle: 180
+
+                    from: 0.0
+                    to: 29.0
+                    value: 15.0
+                    stepSize: 1.0
+                    wrap: true
+
+                    property real previousValue: value
+
+                    onMoved: {
+                        let delta = value - previousValue;
+                        let range = to - from + 1.0;
+
+                        if (delta > range / 2.0) {
+                            delta -= range;
+                        } else if (delta < -range / 2.0) {
+                            delta += range;
+                        }
+
+                        previousValue = value;
+
+                        AppController.overviewChart.moveSlidingWindow(Math.round(delta));
+                    }
                 }
             }
         }

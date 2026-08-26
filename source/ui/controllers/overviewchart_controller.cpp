@@ -151,16 +151,13 @@ void OverviewChartController::receive_full_history(const QList<GraphData> &new_d
         return;
     }
 
-    if (min_time >= max_time) {
+    if ((min_time >= max_time) || (new_data.empty())) {
         // History is empty, chart must be hidden
         m_visible = false;
         return;
     }
 
     m_axis_x->setRange(0.0, UData::to_double(max_time - min_time));
-
-    m_graph_min_time = min_time;
-    m_graph_max_time = max_time;
 
     // TODO: clear channels that are not present in the new_data list and update sliding window
     // accordingly.
@@ -175,19 +172,29 @@ void OverviewChartController::receive_full_history(const QList<GraphData> &new_d
         }
     }
 
-    m_visible = true;
-
-    // Put sliding window to the end
-    if ((m_graph_max_time - m_graph_min_time) <= m_sliding_window_width) {
-        m_sliding_window_start = m_graph_min_time;
+    if (m_visible) {
+        // Overview graph was refreshed
+        if (m_sliding_window_start < min_time) {
+            m_sliding_window_start = min_time;
+        }
     } else {
-        m_sliding_window_start = m_graph_max_time - m_sliding_window_width;
+        // Put sliding window to the end
+        if ((max_time - min_time) <= m_sliding_window_width) {
+            m_sliding_window_start = min_time;
+        } else {
+            m_sliding_window_start = max_time - m_sliding_window_width;
+        }
     }
+
+    m_graph_min_time = min_time;
+    m_graph_max_time = max_time;
 
     update_sliding_window_on_graph();
 
     auto [window_min_time, window_max_time] = get_window_boundaries();
     emit selected_time_frame(window_min_time, window_max_time);
+
+    m_visible = true;
 }
 
 void OverviewChartController::switch_continuous_mode(bool on)

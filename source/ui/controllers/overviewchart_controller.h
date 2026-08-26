@@ -70,6 +70,41 @@ public:
      */
     [[nodiscard]] QBindable<bool> bindableVisible();
 
+    /**
+     * @brief Set the width of the chart in pixels.
+     *
+     * @param width Width of the chart in pixels.
+     */
+    Q_INVOKABLE void set_chart_width(qreal width);
+
+    /**
+     * @brief Update the position of the sliding window on the overview chart.
+     *
+     * @param new_x The new x position of the sliding window in pixels.
+     */
+    Q_INVOKABLE void updateDragPosition(qreal new_x);
+
+    /**
+     * @brief Move the sliding window by a specified number of horizontal division steps.
+     *
+     * @param division_steps The number of horizontal division steps to move the sliding window.
+     */
+    Q_INVOKABLE void moveSlidingWindow(int division_steps);
+
+    /**
+     * @brief Sets the width of the sliding window in microseconds.
+     *
+     * @param window_width The width of the sliding window.
+     */
+    void set_sliding_window_width(UData::Time::Duration window_width);
+
+    /**
+     * @brief Set the horizontal division size.
+     *
+     * @param div Size of one horizontal division.
+     */
+    void set_horizontal_div(UData::Time::Duration div);
+
 public slots:
 
     /**
@@ -86,20 +121,6 @@ public slots:
                               UData::Time max_time);
 
     /**
-     * @brief Set the width of the chart in pixels.
-     *
-     * @param width Width of the chart in pixels.
-     */
-    void set_chart_width(qreal width);
-
-    /**
-     * @brief Sets the width of the sliding window in microseconds.
-     *
-     * @param window_width The width of the sliding window.
-     */
-    void set_sliding_window_width(UData::Time::Duration window_width);
-
-    /**
      * @brief Switch between continuous and stopped mode of the chart.
      *
      * @param on True to switch to continuous mode, false to switch to stopped mode.
@@ -112,13 +133,6 @@ public slots:
      * Refresh data of the current view in a stopped mode.
      */
     void force_graph_refresh();
-
-    /**
-     * @brief Update the position of the sliding window on the overview chart.
-     *
-     * @param new_x The new x position of the sliding window in pixels.
-     */
-    void updateDragPosition(qreal new_x);
 
 signals:
 
@@ -158,8 +172,8 @@ private:
 
     bool m_continuous_mode = false; /**< Continuous or stopped mode. */
 
-    int m_axis_div_count{ }; /**< Amount of divisions. */
-    UData::Time::Duration m_sliding_window{ }; /**< Size of one sliding window. */
+    UData::Time::Duration m_div_horizontal{ }; /**< Size of one horizontal division. */
+    UData::Time::Duration m_sliding_window_width{ }; /**< Size of one sliding window. */
     UData::Time m_sliding_window_start{ }; /**< Sliding window left position. */
     UData::Time m_graph_min_time{ }; /**< Min graph time. */
     UData::Time m_graph_max_time{ }; /**< Max graph time. */

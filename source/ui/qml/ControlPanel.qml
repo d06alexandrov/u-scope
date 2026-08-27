@@ -86,6 +86,8 @@ ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 4
 
+                enabled: AppController.overviewChart.visible
+
                 Label {
                     text: "Position"
                     Layout.alignment: Qt.AlignHCenter
@@ -98,8 +100,6 @@ ColumnLayout {
                     Layout.maximumWidth: root.dialMaximumSize
                     Layout.maximumHeight: root.dialMaximumSize
                     Layout.alignment: Qt.AlignHCenter
-
-                    enabled: AppController.overviewChart.visible
 
                     startAngle: -180
                     endAngle: 180

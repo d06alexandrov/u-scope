@@ -45,14 +45,6 @@ ApplicationWindow {
                 }
             }
 
-            label: Text {
-                x: sourceListBox.leftPadding
-                text: sourceListBox.title
-                font.bold: true
-
-                visible: parent.width > 100
-            }
-
             SourceList {
                 anchors.fill: parent
             }
@@ -69,12 +61,6 @@ ApplicationWindow {
                 Layout.fillWidth: true
                 Layout.fillHeight: true
 
-                label: Text {
-                    x: outputScreenBox.leftPadding
-                    text: outputScreenBox.title
-                    font.bold: true
-                }
-
                 ScreenRoot {
                     anchors.fill: parent
                 }
@@ -85,12 +71,6 @@ ApplicationWindow {
                 title: "Control panel"
 
                 Layout.alignment: Qt.AlignTop
-
-                label: Text {
-                    x: controlPanelBox.leftPadding
-                    text: controlPanelBox.title
-                    font.bold: true
-                }
 
                 ControlPanel {
                     anchors.fill: parent

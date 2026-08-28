@@ -1,7 +1,5 @@
 #include "dataprocessor.h"
 
-#include "serialreader.h"
-#include "simulatedreader.h"
 #include "universalreader.h"
 
 #include <QDebug>
@@ -84,14 +82,8 @@ void DataProcessor::configure_reader(ReaderId id,
         reader_config->update_period = default_reader_update_period;
 
         auto new_thread = std::make_unique<QThread>();
-        std::unique_ptr<UniversalReader> new_reader = nullptr;
-
-        if (auto sim_config = std::dynamic_pointer_cast<SimulatedReaderConfig>(reader_config)) {
-            new_reader = std::make_unique<SimulatedReader>(id, sim_config);
-        } else if (auto serial_config =
-                           std::dynamic_pointer_cast<SerialReaderConfig>(reader_config)) {
-            new_reader = std::make_unique<SerialReader>(id, serial_config);
-        }
+        std::unique_ptr<UniversalReader> new_reader =
+                reader_config->create_reader(id, reader_config);
 
         if (new_reader && new_thread) {
             DataSenderInfo new_sender{ std::move(new_thread), new_reader.release() };

@@ -2,6 +2,14 @@
 
 #include <cmath>
 
+std::unique_ptr<UniversalReader>
+SimulatedReaderConfig::create_reader(ReaderId id,
+                                     const std::shared_ptr<UniversalReaderConfig> &self) const
+{
+    return std::make_unique<SimulatedReader>(id,
+                                             std::static_pointer_cast<SimulatedReaderConfig>(self));
+}
+
 SimulatedReader::SimulatedReader(ReaderId id, std::shared_ptr<SimulatedReaderConfig> config)
     : UniversalReader{ id, config }
 {

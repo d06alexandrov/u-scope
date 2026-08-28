@@ -20,6 +20,13 @@ double calculate_bits_per_byte(QSerialPort::DataBits data_bits, QSerialPort::Par
 
 } // namespace
 
+std::unique_ptr<UniversalReader>
+SerialReaderConfig::create_reader(ReaderId id,
+                                  const std::shared_ptr<UniversalReaderConfig> &self) const
+{
+    return std::make_unique<SerialReader>(id, std::static_pointer_cast<SerialReaderConfig>(self));
+}
+
 SerialReader::SerialReader(ReaderId id, std::shared_ptr<SerialReaderConfig> config)
     : UniversalReader{ id, config }
     , m_serial(new QSerialPort(this))

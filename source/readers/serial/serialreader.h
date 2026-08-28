@@ -6,8 +6,6 @@
 #include <QSerialPort>
 #include <chrono>
 
-class DataProcessor;
-
 /**
  * @brief Configuration for the @ref SerialReader.
  */
@@ -17,6 +15,9 @@ struct SerialReaderConfig : UniversalReaderConfig
     {
         return std::make_shared<SerialReaderConfig>(*this);
     }
+
+    [[nodiscard]] std::unique_ptr<UniversalReader>
+    create_reader(ReaderId id, const std::shared_ptr<UniversalReaderConfig> &self) const override;
 
     QString port_name{ }; /**< Serial port reference. */
     int32_t baud_rate{ }; /**< Baud rate of the port. */

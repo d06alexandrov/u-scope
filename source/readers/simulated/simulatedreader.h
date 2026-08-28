@@ -39,6 +39,9 @@ struct SimulatedReaderConfig : UniversalReaderConfig
         return std::make_shared<SimulatedReaderConfig>(*this);
     }
 
+    [[nodiscard]] std::unique_ptr<UniversalReader>
+    create_reader(ReaderId id, const std::shared_ptr<UniversalReaderConfig> &self) const override;
+
     QHash<VariableId, Config> form_configs{ }; /**< Configurations of the simulated values. */
 
     int32_t sample_rate{ }; /**< Amount of samples per second. */

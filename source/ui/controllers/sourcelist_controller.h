@@ -17,6 +17,7 @@ class SourceListController : public QObject
     QML_ANONYMOUS
 
 #ifndef DOXYGEN_SHOULD_SKIP_THIS
+    Q_PROPERTY(QVariantList availableSourceModules READ availableSourceModules CONSTANT)
     Q_PROPERTY(QAbstractItemModel *model MEMBER m_source_model CONSTANT)
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
@@ -39,18 +40,19 @@ public:
     explicit SourceListController(QObject *parent = nullptr);
 
     /**
-     * @brief Open the dialog for adding a simulated source.
+     * @brief Get the list of available source modules.
      *
-     * @param parent_widget The parent widget for the dialog.
+     * @return A QVariantList containing the available source modules.
      */
-    Q_INVOKABLE void open_simulated_source_dialog(QObject *parent_widget);
+    [[nodiscard]] QVariantList availableSourceModules() const;
 
     /**
-     * @brief Open the dialog for adding a serial source.
+     * @brief Open the dialog for adding a source.
      *
+     * @param module_id The module ID of the source to be added.
      * @param parent_widget The parent widget for the dialog.
      */
-    Q_INVOKABLE void open_serial_source_dialog(QObject *parent_widget);
+    Q_INVOKABLE void openSourceDialog(const QString &module_id, QObject *parent_widget);
 
     /**
      * @brief Delete a source from the source list.

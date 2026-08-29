@@ -9,6 +9,5 @@ target_sources(
 )
 
 target_link_libraries(
-    core_logic PUBLIC Qt${QT_VERSION_MAJOR}::Core common_headers
-                      universal_reader
+    core_logic PUBLIC Qt${QT_VERSION_MAJOR}::Core common_headers readers
 )

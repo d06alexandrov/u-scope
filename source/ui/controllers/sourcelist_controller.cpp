@@ -1,7 +1,7 @@
 #include "sourcelist_controller.h"
 
-#include "serialreader_dialog.h"
-#include "simulatedreader_dialog.h"
+#include "reader_registry.hpp"
+#include "universalreader_dialog.h"
 
 #include <QMessageBox>
 
@@ -17,25 +17,18 @@ SourceListController::SourceListController(QObject *parent)
     m_source_model->setItemRoleNames(role_names);
 }
 
-Q_INVOKABLE void SourceListController::open_simulated_source_dialog(QObject *parent_widget)
+QVariantList SourceListController::availableSourceModules() const
 {
-    auto *parent_window = qobject_cast<QWidget *>(parent_widget);
+    QVariantList result;
 
-    if (m_readers_config.size() >= readers_max_amount) {
-        QMessageBox::warning(
-                parent_window, tr("Source limit"),
-                tr("Maximum amount of sources (%1) has been reached.").arg(readers_max_amount));
-        return;
+    for (const auto &type : ReaderModuleRegistry::instance().modules()) {
+        result.append(QVariantMap{ { "id", type.id }, { "label", type.label() } });
     }
 
-    SimulatedReaderDialog dialog(parent_window);
-
-    if (dialog.exec() == QDialog::Accepted) {
-        add_reader(dialog.get_config());
-    }
+    return result;
 }
 
-Q_INVOKABLE void SourceListController::open_serial_source_dialog(QObject *parent_widget)
+void SourceListController::openSourceDialog(const QString &module_id, QObject *parent_widget)
 {
     auto *parent_window = qobject_cast<QWidget *>(parent_widget);
 
@@ -46,10 +39,15 @@ Q_INVOKABLE void SourceListController::open_serial_source_dialog(QObject *parent
         return;
     }
 
-    SerialReaderDialog dialog(parent_window);
+    const auto &modules = ReaderModuleRegistry::instance().modules();
+    auto it = std::ranges::find(modules, module_id, &ReaderModuleConfig::id);
 
-    if (dialog.exec() == QDialog::Accepted) {
-        add_reader(dialog.get_config());
+    if (it == modules.end() || !it->open_dialog) {
+        return;
+    }
+
+    if (auto config = it->open_dialog(parent_window)) {
+        add_reader(config);
     }
 }
 

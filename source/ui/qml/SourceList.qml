@@ -23,16 +23,12 @@ TreeView {
             return Math.max(implicitWidth, maxWidth + leftPadding + rightPadding + 30);
         }
 
-        MenuItem {
-            text: "Configure new simulated source"
-            onTriggered: {
-                Qt.callLater(() => AppController.sourceList.open_simulated_source_dialog(AppController));
-            }
-        }
-        MenuItem {
-            text: "Configure new serial port source"
-            onTriggered: {
-                Qt.callLater(() => AppController.sourceList.open_serial_source_dialog(AppController));
+        Repeater {
+            model: AppController.sourceList.availableSourceModules
+            MenuItem {
+                required property var modelData
+                text: qsTr("Add %1").arg(modelData.label)
+                onTriggered: Qt.callLater(() => AppController.sourceList.openSourceDialog(modelData.id, AppController))
             }
         }
     }

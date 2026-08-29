@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.23)
+cmake_minimum_required(VERSION 3.24)
 
 if(EXISTS "${CMAKE_CURRENT_SOURCE_DIR}/version.txt")
     file(READ "${CMAKE_CURRENT_SOURCE_DIR}/version.txt" APP_VERSION)

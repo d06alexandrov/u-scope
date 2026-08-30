@@ -5,12 +5,12 @@ import QtQuick.Controls
 import QtQuick.Layouts
 
 import UI.Readers
-import UI.Simulated
+import UI.Readers.Simulated
 
 ReaderDialog {
     id: root
 
-    property SimulatedSourceDialogModel sessionModel: SimulatedSourceDialogModel {}
+    property SimulatedReaderDialogModel sessionModel: SimulatedReaderDialogModel {}
 
     title: qsTr("Simulated Reader Configuration")
     modal: true

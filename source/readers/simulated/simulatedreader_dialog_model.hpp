@@ -14,7 +14,7 @@ struct UniversalReaderDialogConfig;
 /**
  * @brief QML-facing session model backing the simulated source configuration dialog.
  */
-class SimulatedSourceDialogModel : public QAbstractListModel
+class SimulatedReaderDialogModel : public QAbstractListModel
 {
     Q_OBJECT
     QML_ELEMENT
@@ -33,7 +33,7 @@ public:
      *
      * @param parent The parent QObject, default is nullptr.
      */
-    explicit SimulatedSourceDialogModel(QObject *parent = nullptr);
+    explicit SimulatedReaderDialogModel(QObject *parent = nullptr);
 
     /**
      * @brief Returns the number of simulated forms in the model.

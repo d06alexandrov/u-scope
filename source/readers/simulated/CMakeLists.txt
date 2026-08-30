@@ -11,9 +11,9 @@ target_sources(
 
 qt_add_qml_module(
     simulated_reader
-    URI UI.Simulated
+    URI UI.Readers.Simulated
     RESOURCE_PREFIX "/qt/qml"
-    OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/UI/Simulated"
+    OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/UI/Readers/Simulated"
     QML_FILES # cmake-format: sortable
               qml/SimulatedReaderDialog.qml qml/SimulatedFormDialog.qml
     SOURCES simulatedreader_dialog_model.cpp simulatedreader_dialog_model.hpp

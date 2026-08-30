@@ -10,12 +10,12 @@ struct SimulatedReaderModule
     static const char *label_context() { return "SourceListController"; }
     static QUrl dialog_url()
     {
-        return { QStringLiteral("qrc:/qt/qml/UI/Simulated/qml/SimulatedReaderDialog.qml") };
+        return { QStringLiteral("qrc:/qt/qml/UI/Readers/Simulated/qml/SimulatedReaderDialog.qml") };
     }
 
     static std::shared_ptr<UniversalReaderDialogConfig> build_config(QObject *session_model)
     {
-        auto *model = qobject_cast<SimulatedSourceDialogModel *>(session_model);
+        auto *model = qobject_cast<SimulatedReaderDialogModel *>(session_model);
         return model ? model->build_config() : nullptr;
     }
 };

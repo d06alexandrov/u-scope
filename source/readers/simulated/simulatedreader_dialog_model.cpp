@@ -3,17 +3,17 @@
 #include "simulatedreader_dialog.h"
 #include "universalreader_dialog.h"
 
-SimulatedSourceDialogModel::SimulatedSourceDialogModel(QObject *parent)
+SimulatedReaderDialogModel::SimulatedReaderDialogModel(QObject *parent)
     : QAbstractListModel{ parent }
 {
 }
 
-int SimulatedSourceDialogModel::rowCount(const QModelIndex &parent) const
+int SimulatedReaderDialogModel::rowCount(const QModelIndex &parent) const
 {
     return static_cast<int>(m_order.size());
 }
 
-QVariant SimulatedSourceDialogModel::data(const QModelIndex &index, int role) const
+QVariant SimulatedReaderDialogModel::data(const QModelIndex &index, int role) const
 {
     if (!index.isValid() || index.row() >= m_order.size()) {
         return { };
@@ -32,7 +32,7 @@ QVariant SimulatedSourceDialogModel::data(const QModelIndex &index, int role) co
     }
 }
 
-QHash<int, QByteArray> SimulatedSourceDialogModel::roleNames() const
+QHash<int, QByteArray> SimulatedReaderDialogModel::roleNames() const
 {
     return {
         { VariableIdRole, "variableId" },
@@ -40,7 +40,7 @@ QHash<int, QByteArray> SimulatedSourceDialogModel::roleNames() const
     };
 }
 
-void SimulatedSourceDialogModel::addConstantForm(qreal value)
+void SimulatedReaderDialogModel::addConstantForm(qreal value)
 {
     const VariableId new_id = UniversalReaderDialogConfig::get_available_variable_idx(
             m_original_variable_ids + m_current_variable_ids);
@@ -52,7 +52,7 @@ void SimulatedSourceDialogModel::addConstantForm(qreal value)
     endInsertRows();
 }
 
-void SimulatedSourceDialogModel::addSinusoidForm(int frequency, qreal amplitude)
+void SimulatedReaderDialogModel::addSinusoidForm(int frequency, qreal amplitude)
 {
     const VariableId new_id = UniversalReaderDialogConfig::get_available_variable_idx(
             m_original_variable_ids + m_current_variable_ids);
@@ -65,7 +65,7 @@ void SimulatedSourceDialogModel::addSinusoidForm(int frequency, qreal amplitude)
     endInsertRows();
 }
 
-void SimulatedSourceDialogModel::modifyConstantForm(int variable_id, qreal value)
+void SimulatedReaderDialogModel::modifyConstantForm(int variable_id, qreal value)
 {
     const auto id = static_cast<VariableId>(variable_id);
 
@@ -81,7 +81,7 @@ void SimulatedSourceDialogModel::modifyConstantForm(int variable_id, qreal value
     }
 }
 
-void SimulatedSourceDialogModel::modifySinusoidForm(int variable_id, int frequency, qreal amplitude)
+void SimulatedReaderDialogModel::modifySinusoidForm(int variable_id, int frequency, qreal amplitude)
 {
     const auto id = static_cast<VariableId>(variable_id);
 
@@ -98,7 +98,7 @@ void SimulatedSourceDialogModel::modifySinusoidForm(int variable_id, int frequen
     }
 }
 
-void SimulatedSourceDialogModel::removeForm(int variable_id)
+void SimulatedReaderDialogModel::removeForm(int variable_id)
 {
     const auto id = static_cast<VariableId>(variable_id);
     const int row = static_cast<int>(m_order.indexOf(id));
@@ -114,7 +114,7 @@ void SimulatedSourceDialogModel::removeForm(int variable_id)
     endRemoveRows();
 }
 
-QVariantMap SimulatedSourceDialogModel::formAt(int variable_id) const
+QVariantMap SimulatedReaderDialogModel::formAt(int variable_id) const
 {
     const auto id = static_cast<VariableId>(variable_id);
 
@@ -138,7 +138,7 @@ QVariantMap SimulatedSourceDialogModel::formAt(int variable_id) const
     return result;
 }
 
-std::shared_ptr<UniversalReaderDialogConfig> SimulatedSourceDialogModel::build_config() const
+std::shared_ptr<UniversalReaderDialogConfig> SimulatedReaderDialogModel::build_config() const
 {
     auto config = std::make_shared<SimulatedReaderDialogConfig>();
 

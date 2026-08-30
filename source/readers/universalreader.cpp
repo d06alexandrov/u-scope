@@ -1,4 +1,4 @@
-#include "universalreader.h"
+#include "universalreader.hpp"
 
 #include <QDebug>
 

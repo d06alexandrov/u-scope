@@ -1,6 +1,6 @@
 #include "serialreader_dialog_model.hpp"
 
-#include "serialreader_dialog.h"
+#include "serialreader_dialog.hpp"
 
 #include <QSerialPortInfo>
 

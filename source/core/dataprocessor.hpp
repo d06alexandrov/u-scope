@@ -1,8 +1,8 @@
 #pragma once
 
 #include "commontypes.hpp"
-#include "universalreader.h"
-#include "universalreader_dialog.h"
+#include "universalreader.hpp"
+#include "universalreader_dialog.hpp"
 
 #include <QHash>
 #include <QList>

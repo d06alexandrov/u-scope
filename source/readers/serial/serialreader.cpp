@@ -1,4 +1,4 @@
-#include "serialreader.h"
+#include "serialreader.hpp"
 
 namespace {
 

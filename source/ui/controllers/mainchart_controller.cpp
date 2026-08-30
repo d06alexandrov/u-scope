@@ -1,4 +1,4 @@
-#include "mainchart_controller.h"
+#include "mainchart_controller.hpp"
 
 MainChartController::MainChartController(QObject *parent)
     : QObject{ parent }

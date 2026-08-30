@@ -1,7 +1,7 @@
 #pragma once
 
 #include "commontypes.hpp"
-#include "universalreader.h"
+#include "universalreader.hpp"
 
 #include <QMap>
 #include <QSet>

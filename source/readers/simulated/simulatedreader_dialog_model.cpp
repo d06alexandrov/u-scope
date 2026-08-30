@@ -1,7 +1,7 @@
 #include "simulatedreader_dialog_model.hpp"
 
-#include "simulatedreader_dialog.h"
-#include "universalreader_dialog.h"
+#include "simulatedreader_dialog.hpp"
+#include "universalreader_dialog.hpp"
 
 SimulatedReaderDialogModel::SimulatedReaderDialogModel(QObject *parent)
     : QAbstractListModel{ parent }

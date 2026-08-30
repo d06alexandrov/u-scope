@@ -1,7 +1,7 @@
-#include "sourcelist_controller.h"
+#include "sourcelist_controller.hpp"
 
 #include "reader_registry.hpp"
-#include "universalreader_dialog.h"
+#include "universalreader_dialog.hpp"
 
 #include <QMessageBox>
 #include <algorithm>

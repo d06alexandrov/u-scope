@@ -1,4 +1,4 @@
-#include "appcontroller.h"
+#include "appcontroller.hpp"
 
 #include "appcontroller_singleton.hpp"
 

@@ -1,4 +1,4 @@
-#include "channelbar_model.h"
+#include "channelbar_model.hpp"
 
 ChannelBarModel::ChannelBarModel(const std::vector<QColor> channel_colors, QObject *parent)
     : QAbstractListModel(parent)

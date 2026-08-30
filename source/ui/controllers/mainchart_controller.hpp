@@ -1,6 +1,6 @@
 #pragma once
 
-#include "dataprocessor.h"
+#include "dataprocessor.hpp"
 
 #include <QList>
 #include <QObject>

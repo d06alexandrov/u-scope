@@ -3,7 +3,6 @@
 #include "serialreader.h"
 #include "universalreader_dialog.h"
 
-#include <QDialog>
 #include <QString>
 
 QT_BEGIN_NAMESPACE

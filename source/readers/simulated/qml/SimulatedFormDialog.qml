@@ -18,8 +18,8 @@ Dialog {
     function resetToDefault() {
         editingVariableId = -1;
         graphType.currentIndex = 0;
-        constantValue.value = 0;
-        sinusoidalAmplitude.value = 1;
+        constantValue.setRealValue(0);
+        sinusoidalAmplitude.setRealValue(1);
         sinusoidalFrequency.value = 1;
     }
 
@@ -35,10 +35,10 @@ Dialog {
         if (form.type === "sinusoid") {
             graphType.currentIndex = 1;
             sinusoidalFrequency.value = form.frequency;
-            sinusoidalAmplitude.value = form.amplitude;
+            sinusoidalAmplitude.setRealValue(form.amplitude);
         } else {
             graphType.currentIndex = 0;
-            constantValue.value = form.value;
+            constantValue.setRealValue(form.value);
         }
         open();
     }
@@ -56,9 +56,9 @@ Dialog {
 
     onAccepted: {
         if (graphType.currentIndex == 0) {
-            formConstantSubmitted(editingVariableId, constantValue.value);
+            formConstantSubmitted(editingVariableId, constantValue.realValue);
         } else {
-            formSinusoidSubmitted(editingVariableId, sinusoidalFrequency.value, sinusoidalAmplitude.value);
+            formSinusoidSubmitted(editingVariableId, sinusoidalFrequency.value, sinusoidalAmplitude.realValue);
         }
     }
 
@@ -79,10 +79,12 @@ Dialog {
                 Label {
                     text: qsTr("Value")
                 }
-                SpinBox {
+                DecimalSpinBox {
                     id: constantValue
-                    from: -1000
-                    to: 1000
+
+                    editable: true
+                    realFrom: -1000
+                    realTo: 1000
                 }
             }
 
@@ -91,17 +93,20 @@ Dialog {
                 Label {
                     text: qsTr("Amplitude")
                 }
-                SpinBox {
+                DecimalSpinBox {
                     id: sinusoidalAmplitude
-                    from: 1
-                    to: 1000
-                    value: 1
+
+                    editable: true
+                    realFrom: 1
+                    realTo: 1000
                 }
                 Label {
                     text: qsTr("Frequency (Hz)")
                 }
                 SpinBox {
                     id: sinusoidalFrequency
+
+                    editable: true
                     from: 1
                     to: 1000000
                 }

@@ -47,6 +47,7 @@ ApplicationWindow {
 
             SourceList {
                 anchors.fill: parent
+                onOpenSourceDialogRequested: (typeId, dialogUrl) => mainWindowRoot.openSourceDialog(typeId, dialogUrl)
             }
         }
 
@@ -77,5 +78,19 @@ ApplicationWindow {
                 }
             }
         }
+    }
+
+    Loader {
+        id: sourceDialogLoader
+        onLoaded: {
+            item.open();
+            item.anchors.centerIn = Overlay.overlay;
+        }
+    }
+
+    function openSourceDialog(typeId, dialogUrl) {
+        sourceDialogLoader.setSource(dialogUrl, {
+            typeId: typeId
+        });
     }
 }

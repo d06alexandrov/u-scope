@@ -21,6 +21,6 @@ struct SerialReaderModule
     }
 };
 
-const ReaderModuleRegistrar<SerialReaderModule> serial_reader_registrar;
+// const ReaderModuleRegistrar<SerialReaderModule> serial_reader_registrar;
 
 } // namespace

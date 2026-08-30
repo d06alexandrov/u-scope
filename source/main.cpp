@@ -1,4 +1,4 @@
-#include "appcontroller.h"
+#include "appcontroller.hpp"
 #include "version.hpp"
 
 #include <QApplication>

@@ -1,6 +1,6 @@
-#include "dataprocessor.h"
+#include "dataprocessor.hpp"
 
-#include "universalreader.h"
+#include "universalreader.hpp"
 
 #include <QDebug>
 #include <QMutexLocker>

@@ -1,7 +1,7 @@
 #pragma once
 
 #include "commontypes.hpp"
-#include "simulatedreader.h"
+#include "simulatedreader.hpp"
 
 #include <QAbstractListModel>
 #include <QSet>

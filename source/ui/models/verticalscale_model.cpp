@@ -1,4 +1,4 @@
-#include "verticalscale_model.h"
+#include "verticalscale_model.hpp"
 
 #include "input_conversion.hpp"
 

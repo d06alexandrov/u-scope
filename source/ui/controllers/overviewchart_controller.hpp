@@ -1,7 +1,7 @@
 #pragma once
 
 #include "commontypes.hpp"
-#include "dataprocessor.h"
+#include "dataprocessor.hpp"
 
 #include <QBindable>
 #include <QList>

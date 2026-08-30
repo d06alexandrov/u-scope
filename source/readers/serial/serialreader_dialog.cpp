@@ -1,4 +1,4 @@
-#include "serialreader_dialog.h"
+#include "serialreader_dialog.hpp"
 
 #include <QSerialPortInfo>
 

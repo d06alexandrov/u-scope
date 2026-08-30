@@ -1,12 +1,12 @@
 #pragma once
 
-#include "channelbar_model.h"
-#include "dataprocessor.h"
-#include "mainchart_controller.h"
-#include "overviewchart_controller.h"
-#include "sourcelist_controller.h"
-#include "timebase_model.h"
-#include "verticalscale_model.h"
+#include "channelbar_model.hpp"
+#include "dataprocessor.hpp"
+#include "mainchart_controller.hpp"
+#include "overviewchart_controller.hpp"
+#include "sourcelist_controller.hpp"
+#include "timebase_model.hpp"
+#include "verticalscale_model.hpp"
 
 #include <QPropertyChangeHandler>
 #include <QQmlApplicationEngine>

@@ -19,6 +19,8 @@ ReaderDialog {
 
     acceptable: formsList.count > 0
 
+    onAccepted: root.configAccepted(root.typeId, root.sessionModel)
+
     SimulatedFormDialog {
         id: formEditor
 

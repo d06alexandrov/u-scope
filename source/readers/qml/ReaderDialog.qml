@@ -11,8 +11,6 @@ Dialog {
 
     signal configAccepted(string typeId, var sessionModel)
 
-    onAccepted: root.configAccepted(root.typeId, root.sessionModel)
-
     footer: DialogButtonBox {
         Button {
             enabled: root.acceptable

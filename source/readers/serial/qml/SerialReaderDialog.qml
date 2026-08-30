@@ -15,6 +15,8 @@ ReaderDialog {
 
     acceptable: (root.sessionModel.portName !== "") && (parseInt(root.sessionModel.baudRate) >= 9600)
 
+    onAccepted: root.configAccepted(root.typeId, root.sessionModel)
+
     ColumnLayout {
         anchors.fill: parent
 

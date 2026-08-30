@@ -8,21 +8,12 @@ import UI.Readers.Serial
 ReaderDialog {
     id: root
 
-    property SerialReaderDialogModel sessionModel: SerialReaderDialogModel {}
-
     title: qsTr("Serial Port Configuration")
     modal: true
 
-    footer: DialogButtonBox {
-        Button {
-            text: root.mode === "modify" ? qsTr("Modify") : qsTr("OK")
-            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
-        }
-        Button {
-            text: qsTr("Cancel")
-            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
-        }
-    }
+    property SerialReaderDialogModel sessionModel: SerialReaderDialogModel {}
+
+    acceptable: (root.sessionModel.portName !== "") && (parseInt(root.sessionModel.baudRate) >= 9600)
 
     ColumnLayout {
         anchors.fill: parent
@@ -57,6 +48,4 @@ ReaderDialog {
             }
         }
     }
-
-    onAccepted: root.configAccepted(root.typeId, root.sessionModel)
 }

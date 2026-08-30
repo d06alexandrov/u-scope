@@ -5,12 +5,6 @@
 
 #include <QString>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class SerialReaderDialog;
-}
-QT_END_NAMESPACE
-
 /**
  * @brief Configuration for the @ref SerialReader.
  */

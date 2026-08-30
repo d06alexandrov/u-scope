@@ -6,12 +6,6 @@
 #include <QHash>
 #include <QString>
 
-QT_BEGIN_NAMESPACE
-namespace Ui {
-class SimulatedReaderDialog;
-}
-QT_END_NAMESPACE
-
 /**
  * @brief Configuration for the @ref SimulatedReader.
  */

@@ -10,25 +10,14 @@ import UI.Readers.Simulated
 ReaderDialog {
     id: root
 
-    property SimulatedReaderDialogModel sessionModel: SimulatedReaderDialogModel {}
-
     title: qsTr("Simulated Reader Configuration")
     modal: true
     width: 340
     height: 420
 
-    footer: DialogButtonBox {
-        Button {
-            text: root.mode === "modify" ? qsTr("Modify") : qsTr("OK")
-            DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
-        }
-        Button {
-            text: qsTr("Cancel")
-            DialogButtonBox.buttonRole: DialogButtonBox.RejectRole
-        }
-    }
+    property SimulatedReaderDialogModel sessionModel: SimulatedReaderDialogModel {}
 
-    onAccepted: root.configAccepted(root.typeId, root.sessionModel)
+    acceptable: formsList.count > 0
 
     SimulatedFormDialog {
         id: formEditor
@@ -54,6 +43,8 @@ ReaderDialog {
         anchors.fill: parent
 
         ListView {
+            id: formsList
+
             Layout.fillWidth: true
             Layout.fillHeight: true
             clip: true

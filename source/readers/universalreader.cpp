@@ -43,7 +43,7 @@ void UniversalReader::reader_start(ReaderId id)
     try {
         start();
 
-        m_timer.start(static_cast<int>(m_config->update_period_ms));
+        m_timer.start(m_config->update_period);
         set_status(Running);
     } catch (const std::exception &e) {
         qDebug() << tr("Caught error:") << e.what();

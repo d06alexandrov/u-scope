@@ -10,7 +10,7 @@ on:
   workflow_call:
     inputs:
       skip_linter:
-        description: 'Skip the C++ linter job'
+        description: 'Skip linter jobs'
         required: false
         type: boolean
         default: false
@@ -126,3 +126,24 @@ jobs:
           step-summary: true
           lines-changed-only: ${{ github.event_name == 'pull_request' }}
           files-changed-only: ${{ github.event_name == 'pull_request' }}
+
+  qml-linter:
+    if: ${{ !inputs.skip_linter }}
+    runs-on: ubuntu-latest
+    container:
+      image: ghcr.io/d06alexandrov/u-scope:0.6
+      credentials:
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    permissions:
+      contents: read
+      packages: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Run QML Linter
+        run: |
+          cmake -B build -G Ninja
+          cmake --build build --config Release --target all_qmllint

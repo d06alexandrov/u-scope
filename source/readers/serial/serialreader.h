@@ -6,8 +6,6 @@
 #include <QSerialPort>
 #include <chrono>
 
-class DataProcessor;
-
 /**
  * @brief Configuration for the @ref SerialReader.
  */
@@ -18,12 +16,15 @@ struct SerialReaderConfig : UniversalReaderConfig
         return std::make_shared<SerialReaderConfig>(*this);
     }
 
-    QString port_name; /**< Serial port reference. */
-    int32_t baud_rate; /**< Baud rate of the port. */
-    QSerialPort::DataBits data_bits; /**< Amount of the data bits. */
-    QSerialPort::Parity parity; /**< Parity bits type. */
-    QSerialPort::StopBits stop_bits; /**< Stop bits configuration. */
-    QSerialPort::FlowControl flow_control; /**< Type of the flow control. */
+    [[nodiscard]] std::unique_ptr<UniversalReader>
+    create_reader(ReaderId id, const std::shared_ptr<UniversalReaderConfig> &self) const override;
+
+    QString port_name{ }; /**< Serial port reference. */
+    int32_t baud_rate{ }; /**< Baud rate of the port. */
+    QSerialPort::DataBits data_bits{ }; /**< Amount of the data bits. */
+    QSerialPort::Parity parity{ }; /**< Parity bits type. */
+    QSerialPort::StopBits stop_bits{ }; /**< Stop bits configuration. */
+    QSerialPort::FlowControl flow_control{ }; /**< Type of the flow control. */
 };
 
 /**
@@ -48,11 +49,18 @@ public slots:
      */
     void data_received();
 
+protected:
+    void setup() override; /**< Initialization of a particular type of the reader. */
+    void start() override; /**< Start reading. */
+    void stop() override; /**< Stop reading. */
+    void process() override; /**< Prepare data before sending to the data processor. */
+
 private:
-    QSerialPort *m_serial = nullptr;
-    std::chrono::nanoseconds m_wire_byte_duration{
-        0
-    }; /**< Transmission duration for a single byte over the wire. */
+    static constexpr int32_t minimum_baud_rate = 1200; /**< Minimum allowed baud rate. */
+
+    QSerialPort *m_serial = nullptr; /**< Pointer to the serial port object. */
+    std::chrono::duration<double>
+            m_wire_byte_duration{ }; /**< Transmission duration for a single byte over the wire. */
 
     /**
      * @brief Get the configuration.
@@ -60,10 +68,4 @@ private:
      * @return A pointer to the configuration.
      */
     [[nodiscard]] const SerialReaderConfig *get_config();
-
-protected:
-    void setup() override; /**< Initialization of a particular type of the reader. */
-    void start() override; /**< Start reading. */
-    void stop() override; /**< Stop reading. */
-    void process() override; /**< Prepare data before sending to the data processor. */
 };

@@ -11,6 +11,8 @@
 #include <memory>
 #include <stack>
 
+class UniversalReader;
+
 /**
  * @brief Configuration for the @ref UniversalReader.
  */
@@ -57,7 +59,18 @@ struct UniversalReaderConfig
      * @return pointer to the copy of the config
      */
     [[nodiscard]] virtual std::shared_ptr<UniversalReaderConfig> clone() const = 0;
-    uint32_t update_period_ms{ }; /**< Period in ms of sending data to data processor */
+
+    /**
+     * @brief Create a reader based on the configuration.
+     *
+     * @param id ID of the reader.
+     * @param self Shared pointer to the configuration of the reader.
+     * @return Unique pointer to the created reader.
+     */
+    [[nodiscard]] virtual std::unique_ptr<UniversalReader>
+    create_reader(ReaderId id, const std::shared_ptr<UniversalReaderConfig> &self) const = 0;
+
+    std::chrono::milliseconds update_period{ }; /**< Period of sending data to data processor. */
 };
 
 Q_DECLARE_METATYPE(std::shared_ptr<UniversalReaderConfig>)

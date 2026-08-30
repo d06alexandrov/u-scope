@@ -39,9 +39,12 @@ struct SimulatedReaderConfig : UniversalReaderConfig
         return std::make_shared<SimulatedReaderConfig>(*this);
     }
 
-    QHash<VariableId, Config> form_configs; /**< Configurations of the simulated values. */
+    [[nodiscard]] std::unique_ptr<UniversalReader>
+    create_reader(ReaderId id, const std::shared_ptr<UniversalReaderConfig> &self) const override;
 
-    int32_t sample_rate; /**< Amount of samples per second. */
+    QHash<VariableId, Config> form_configs{ }; /**< Configurations of the simulated values. */
+
+    int32_t sample_rate{ }; /**< Amount of samples per second. */
 };
 
 Q_DECLARE_METATYPE(SimulatedReaderConfig::Config)
@@ -68,8 +71,9 @@ public:
 public slots:
 
 private:
-    UData::Time m_setup_timestamp = 0; /**< Setup timestamp. */
-    UData::Time m_prev_sample_timestamp = 0; /**< Timestamp of a previous sample. */
+    UData::Time::Duration m_sample_interval{ }; /**< Interval between samples. */
+    UData::Time m_setup_timestamp{ }; /**< Setup timestamp. */
+    UData::Time m_prev_sample_timestamp{ }; /**< Timestamp of a previous sample. */
 
     /**
      * @brief Get the configuration.

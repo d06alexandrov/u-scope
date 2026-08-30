@@ -5,6 +5,8 @@ import QtQuick.Layouts
 Dialog {
     id: popup
 
+    anchors.centerIn: Overlay.overlay
+
     property int editingVariableId: -1
 
     signal formConstantSubmitted(int variableId, real value)

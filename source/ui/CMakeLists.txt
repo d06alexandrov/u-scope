@@ -39,6 +39,7 @@ qt_add_qml_module(
     SOURCES # cmake-format: sortable
             ${SINGLETON_DIR}/appcontroller_singleton.cpp
             ${SINGLETON_DIR}/appcontroller_singleton.hpp
+    DEPENDENCIES TARGET universal_reader
 )
 
 set_source_files_properties(

@@ -28,6 +28,11 @@ public:
         LabelRole, /**< Role for the variable label. */
     };
 
+    /**
+     * @brief Constructor for the SimulatedSourceDialogModel.
+     *
+     * @param parent The parent QObject, default is nullptr.
+     */
     explicit SimulatedSourceDialogModel(QObject *parent = nullptr);
 
     /**

@@ -46,6 +46,12 @@ public:
      */
     [[nodiscard]] QVariantList availableSourceModules() const;
 
+    /**
+     * @brief Configure a source of a given type.
+     *
+     * @param type_id The ID of the source type to configure.
+     * @param session_model The session model to use for configuration.
+     */
     Q_INVOKABLE void configSource(const QString &type_id, QObject *session_model);
 
     /**

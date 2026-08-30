@@ -4,14 +4,11 @@ import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
-import UI
+import UI.Readers
 import UI.Simulated
 
-Dialog {
+ReaderDialog {
     id: root
-
-    required property string typeId
-    property string mode: "add"
 
     property SimulatedSourceDialogModel sessionModel: SimulatedSourceDialogModel {}
 
@@ -31,7 +28,7 @@ Dialog {
         }
     }
 
-    onAccepted: AppController.sourceList.configSource(root.typeId, root.sessionModel)
+    onAccepted: root.configAccepted(root.typeId, root.sessionModel)
 
     SimulatedFormDialog {
         id: formEditor
@@ -63,21 +60,22 @@ Dialog {
             model: root.sessionModel
 
             delegate: RowLayout {
+                id: formDelegate
                 required property int variableId
                 required property string label
                 width: ListView.view.width
 
                 Label {
                     Layout.fillWidth: true
-                    text: label
+                    text: formDelegate.label
                 }
                 Button {
                     text: qsTr("Edit")
-                    onClicked: formEditor.openForEdit(variableId, root.sessionModel.formAt(variableId))
+                    onClicked: formEditor.openForEdit(formDelegate.variableId, root.sessionModel.formAt(formDelegate.variableId))
                 }
                 Button {
                     text: qsTr("Delete")
-                    onClicked: root.sessionModel.removeForm(variableId)
+                    onClicked: root.sessionModel.removeForm(formDelegate.variableId)
                 }
             }
         }

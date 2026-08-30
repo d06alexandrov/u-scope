@@ -4,6 +4,7 @@
 #include "universalreader_dialog.h"
 
 #include <QMessageBox>
+#include <algorithm>
 
 SourceListController::SourceListController(QObject *parent)
     : QObject{ parent }

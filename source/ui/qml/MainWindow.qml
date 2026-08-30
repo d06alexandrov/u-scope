@@ -4,6 +4,8 @@ import QtQuick.Controls
 import QtQuick.Layouts
 import QtQuick.Window
 
+import UI.Readers
+
 ApplicationWindow {
     id: mainWindowRoot
     title: qsTr("U-Scope")
@@ -83,8 +85,18 @@ ApplicationWindow {
     Loader {
         id: sourceDialogLoader
         onLoaded: {
-            item.open();
-            item.anchors.centerIn = Overlay.overlay;
+            let dialog = item as Dialog;
+            if (dialog) {
+                dialog.open();
+            }
+        }
+
+        Connections {
+            target: sourceDialogLoader.item as ReaderDialog
+
+            function onConfigAccepted(typeId, sessionModel) {
+                AppController.sourceList.configSource(typeId, sessionModel);
+            }
         }
     }
 

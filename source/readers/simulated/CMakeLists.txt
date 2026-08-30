@@ -17,10 +17,10 @@ qt_add_qml_module(
     QML_FILES # cmake-format: sortable
               qml/SimulatedReaderDialog.qml qml/SimulatedFormDialog.qml
     SOURCES simulatedreader_dialog_model.cpp simulatedreader_dialog_model.hpp
+    DEPENDENCIES TARGET universal_reader
 )
 
 target_link_libraries(
-    simulated_reader
-    PUBLIC Qt${QT_VERSION_MAJOR}::Core
-           common_headers universal_reader
+    simulated_reader PUBLIC Qt${QT_VERSION_MAJOR}::Core common_headers
+                            universal_reader
 )

@@ -39,6 +39,7 @@ qt_add_qml_module(
     SOURCES # cmake-format: sortable
             ${SINGLETON_DIR}/appcontroller_singleton.cpp
             ${SINGLETON_DIR}/appcontroller_singleton.hpp
+    DEPENDENCIES TARGET universal_reader
 )
 
 set_source_files_properties(
@@ -56,7 +57,6 @@ target_link_libraries(
     user_interface
     PUBLIC Qt${QT_VERSION_MAJOR}::Core
            Qt${QT_VERSION_MAJOR}::Charts
-           Qt${QT_VERSION_MAJOR}::Widgets
            Qt${QT_VERSION_MAJOR}::Qml
            Qt${QT_VERSION_MAJOR}::Quick
            Qt${QT_VERSION_MAJOR}::QuickWidgets

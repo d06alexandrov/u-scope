@@ -4,6 +4,7 @@
 #include "universalreader_dialog.h"
 
 #include <QMessageBox>
+#include <algorithm>
 
 SourceListController::SourceListController(QObject *parent)
     : QObject{ parent }
@@ -22,31 +23,23 @@ QVariantList SourceListController::availableSourceModules() const
     QVariantList result;
 
     for (const auto &type : ReaderModuleRegistry::instance().modules()) {
-        result.append(QVariantMap{ { "id", type.id }, { "label", type.label() } });
+        result.append(QVariantMap{
+                { "id", type.id }, { "label", type.label() }, { "dialogUrl", type.dialog_url } });
     }
 
     return result;
 }
 
-void SourceListController::openSourceDialog(const QString &module_id, QObject *parent_widget)
+void SourceListController::configSource(const QString &type_id, QObject *session_model)
 {
-    auto *parent_window = qobject_cast<QWidget *>(parent_widget);
-
-    if (m_readers_config.size() >= readers_max_amount) {
-        QMessageBox::warning(
-                parent_window, tr("Source limit"),
-                tr("Maximum amount of sources (%1) has been reached.").arg(readers_max_amount));
-        return;
-    }
-
     const auto &modules = ReaderModuleRegistry::instance().modules();
-    auto it = std::ranges::find(modules, module_id, &ReaderModuleConfig::id);
+    auto it = std::ranges::find(modules, type_id, &ReaderModuleConfig::id);
 
-    if (it == modules.end() || !it->open_dialog) {
+    if (it == modules.end() || !it->build_config) {
         return;
     }
 
-    if (auto config = it->open_dialog(parent_window)) {
+    if (auto config = it->build_config(session_model)) {
         add_reader(config);
     }
 }

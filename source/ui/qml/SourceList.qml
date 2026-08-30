@@ -9,6 +9,8 @@ TreeView {
 
     model: AppController.sourceList.model
 
+    signal openSourceDialogRequested(string typeId, url dialogUrl)
+
     Menu {
         id: backgroundMenu
 
@@ -28,7 +30,7 @@ TreeView {
             MenuItem {
                 required property var modelData
                 text: qsTr("Add %1").arg(modelData.label)
-                onTriggered: Qt.callLater(() => AppController.sourceList.openSourceDialog(modelData.id, AppController))
+                onTriggered: root.openSourceDialogRequested(modelData.id, modelData.dialogUrl)
             }
         }
     }

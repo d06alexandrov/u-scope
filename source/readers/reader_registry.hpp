@@ -2,7 +2,7 @@
 
 #include <QCoreApplication>
 #include <QString>
-#include <QWidget>
+#include <QUrl>
 #include <concepts>
 #include <functional>
 #include <memory>
@@ -22,13 +22,16 @@ struct ReaderModuleConfig
     const char *label_context =
             nullptr; /**< Translation context string for the reader module's label. */
 
+    QUrl dialog_url; /**< QML URL of the configuration dialog for this reader. */
+
     /**
-     * @brief Open the reader's configuration dialog and block until it is closed.
+     * @brief Build a reader configuration from the dialog's QML-side session model.
      *
-     * @param parent_window Parent widget for the dialog.
-     * @return New config if the dialog was accepted, nullptr if it was cancelled.
+     * @param session_model Backing QObject the dialog exposes to QML, filled in by the user.
+     * @return New reader configudarion.
      */
-    std::function<std::shared_ptr<UniversalReaderDialogConfig>(QWidget *parent_window)> open_dialog;
+    std::function<std::shared_ptr<UniversalReaderDialogConfig>(QObject *session_model)>
+            build_config;
 
     /**
      * @brief Get the translated label.
@@ -80,11 +83,14 @@ private:
  * @brief Concept for reader modules.
  */
 template <typename T>
-concept ReaderModule = requires(QWidget *parent_window) {
+concept ReaderModule = requires(QObject *session_model) {
     { T::module_id() } -> std::convertible_to<QString>;
     { T::label_source() } -> std::convertible_to<const char *>;
     { T::label_context() } -> std::convertible_to<const char *>;
-    { T::open_dialog(parent_window) } -> std::same_as<std::shared_ptr<UniversalReaderDialogConfig>>;
+    { T::dialog_url() } -> std::convertible_to<QUrl>;
+    {
+        T::build_config(session_model)
+    } -> std::same_as<std::shared_ptr<UniversalReaderDialogConfig>>;
 };
 
 /**
@@ -102,7 +108,8 @@ struct ReaderModuleRegistrar
                 .id = T::module_id(),
                 .label_source = T::label_source(),
                 .label_context = T::label_context(),
-                .open_dialog = &T::open_dialog,
+                .dialog_url = T::dialog_url(),
+                .build_config = &T::build_config,
         });
     }
 };

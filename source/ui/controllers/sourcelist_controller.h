@@ -47,12 +47,12 @@ public:
     [[nodiscard]] QVariantList availableSourceModules() const;
 
     /**
-     * @brief Open the dialog for adding a source.
+     * @brief Configure a source of a given type.
      *
-     * @param module_id The module ID of the source to be added.
-     * @param parent_widget The parent widget for the dialog.
+     * @param type_id The ID of the source type to configure.
+     * @param session_model The session model to use for configuration.
      */
-    Q_INVOKABLE void openSourceDialog(const QString &module_id, QObject *parent_widget);
+    Q_INVOKABLE void configSource(const QString &type_id, QObject *session_model);
 
     /**
      * @brief Delete a source from the source list.

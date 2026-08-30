@@ -5,18 +5,24 @@ target_include_directories(simulated_reader PRIVATE ${CMAKE_CURRENT_SOURCE_DIR})
 target_sources(
     simulated_reader
     PRIVATE # cmake-format: sortable
-            simulatedreader.cpp
-            simulatedreader_dialog.cpp
-            simulatedreader_dialog.ui
-            simulatedreader_dialog_form.cpp
-            simulatedreader_dialog_form.ui
-            simulatedreader_dialog_row.cpp
-            simulatedreader_dialog_row.ui
+            simulatedreader.cpp simulatedreader_dialog.cpp
             simulatedreader_module.cpp
+)
+
+qt_add_qml_module(
+    simulated_reader
+    URI UI.Readers.Simulated
+    RESOURCE_PREFIX "/qt/qml"
+    OUTPUT_DIRECTORY "${CMAKE_CURRENT_BINARY_DIR}/UI/Readers/Simulated"
+    QML_FILES # cmake-format: sortable
+              qml/SimulatedReaderDialog.qml qml/SimulatedFormDialog.qml
+              qml/DecimalSpinBox.qml
+    SOURCES simulatedreader_dialog_model.cpp simulatedreader_dialog_model.hpp
+    DEPENDENCIES TARGET universal_reader
 )
 
 target_link_libraries(
     simulated_reader
-    PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Widgets
+    PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Qml
            common_headers universal_reader
 )

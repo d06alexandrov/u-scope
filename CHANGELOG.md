@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.2.4](https://github.com/d06alexandrov/u-scope/compare/v0.2.3...v0.2.4) (2026-08-30)
+
+
+### Bug Fixes
+
+* Fix sliding window position reset during channel rescale. ([65f4e1d](https://github.com/d06alexandrov/u-scope/commit/65f4e1d4ab079941a5c5cc0201669434eeabd3e3))
+* Send relative timestamps in graph data to ensure accuracy. ([050acd4](https://github.com/d06alexandrov/u-scope/commit/050acd4846a6ff8fb48e5c3b6762d5ce113fcecd))
+
 ## [0.2.3](https://github.com/d06alexandrov/u-scope/compare/v0.2.2...v0.2.3) (2026-08-20)
 
 

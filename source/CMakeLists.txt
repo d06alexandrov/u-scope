@@ -19,6 +19,8 @@ target_sources(
            ${CMAKE_CURRENT_BINARY_DIR}/include
            FILES
            ${CMAKE_CURRENT_SOURCE_DIR}/include/commontypes.hpp
+           ${CMAKE_CURRENT_SOURCE_DIR}/include/id_allocator.hpp
+           ${CMAKE_CURRENT_SOURCE_DIR}/include/udata_time.hpp
            ${CMAKE_CURRENT_BINARY_DIR}/include/version.hpp
 )
 

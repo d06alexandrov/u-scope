@@ -111,13 +111,6 @@ private:
     QStandardItemModel *m_source_model; /**< Source List model. */
 
     /**
-     * @brief Get available reader index.
-     *
-     * @return Available reader index.
-     */
-    [[nodiscard]] ReaderId get_available_reader_idx() const;
-
-    /**
      * @brief Add reader to the source list
      *
      * @param config Configuration of the reader.

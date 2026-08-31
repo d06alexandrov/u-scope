@@ -1,5 +1,6 @@
 #include "serialreader_dialog_model.hpp"
 
+#include "id_allocator.hpp"
 #include "serialreader_dialog.hpp"
 
 #include <QSerialPortInfo>
@@ -27,7 +28,7 @@ std::shared_ptr<UniversalReaderDialogConfig> SerialReaderDialogModel::build_conf
     config->port_name = m_port_name;
     config->baud_rate = m_baud_rate;
 
-    VariableId variable_id = UniversalReaderDialogConfig::get_available_variable_idx();
+    const auto variable_id = UData::get_available_id<VariableId>();
     config->variable_names.insert(variable_id, tr("Byte data"));
 
     return config;

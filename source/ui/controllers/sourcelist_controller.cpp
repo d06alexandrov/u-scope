@@ -1,5 +1,6 @@
 #include "sourcelist_controller.hpp"
 
+#include "id_allocator.hpp"
 #include "reader_registry.hpp"
 #include "universalreader_dialog.hpp"
 
@@ -68,28 +69,10 @@ Q_INVOKABLE void SourceListController::assign_variable_to_channel(int reader_id,
     emit request_channel_assignment(static_cast<ReaderId>(reader_id), variable_id, channel_id);
 }
 
-ReaderId SourceListController::get_available_reader_idx() const
-{
-    ReaderId reader_id = 0;
-
-    for (auto it = m_readers_config.lowerBound(reader_id); it != m_readers_config.end(); it++) {
-        if (it.key() == reader_id) {
-            reader_id++;
-        } else if (it.key() > reader_id) {
-            break;
-        }
-    }
-
-    if (reader_id >= readers_max_amount) {
-        throw std::range_error("Reader amount limit exceeded");
-    }
-
-    return reader_id;
-}
-
 void SourceListController::add_reader(const std::shared_ptr<UniversalReaderDialogConfig> &config)
 {
-    ReaderId new_reader_id = get_available_reader_idx();
+    const auto new_reader_id =
+            UData::get_available_id<ReaderId, readers_max_amount>(m_readers_config.keys());
 
     m_readers_config.insert(new_reader_id, config);
 

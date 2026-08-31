@@ -72,7 +72,7 @@ Q_INVOKABLE void SourceListController::assign_variable_to_channel(int reader_id,
 void SourceListController::add_reader(const std::shared_ptr<UniversalReaderDialogConfig> &config)
 {
     const auto new_reader_id =
-            UData::get_available_id<ReaderId, readers_max_amount>(m_readers_config.keys());
+            UData::get_available_id<ReaderId, readers_max_amount>(m_readers_config);
 
     m_readers_config.insert(new_reader_id, config);
 

@@ -2,7 +2,7 @@
 file(
     GLOB_RECURSE VERSION_IN_PATH
     LIST_DIRECTORIES false
-    ${CMAKE_CURRENT_SOURCE_DIR}/*/version.hpp.in
+    ${CMAKE_CURRENT_SOURCE_DIR}/version.hpp.in
 )
 
 if(VERSION_IN_PATH)

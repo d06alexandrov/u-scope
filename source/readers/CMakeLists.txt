@@ -7,8 +7,16 @@ qt_add_library(universal_reader STATIC)
 target_include_directories(universal_reader PUBLIC ${CMAKE_CURRENT_SOURCE_DIR})
 
 target_sources(
-    universal_reader PRIVATE # cmake-format: sortable
-                             universalreader.cpp
+    universal_reader
+    PUBLIC FILE_SET
+           HEADERS
+           BASE_DIRS
+           ${CMAKE_CURRENT_SOURCE_DIR}/include
+           FILES
+           include/universalreader.hpp
+           include/universalreader_dialog.hpp
+           include/reader_registry.hpp
+    PRIVATE universalreader.cpp
 )
 
 qt_add_qml_module(

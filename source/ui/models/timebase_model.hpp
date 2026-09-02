@@ -1,5 +1,7 @@
 #pragma once
 
+#include "commontypes.hpp"
+
 #include <QBindable>
 #include <QObject>
 #include <QProperty>
@@ -20,8 +22,9 @@ class TimebaseModel : public QObject
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 public:
-    static constexpr int64_t default_division_us =
-            10000; /**< Default division value in microseconds. */
+    static constexpr std::chrono::milliseconds default_div{
+        10
+    }; /**< Default horizontal division duration. */
     static constexpr int default_grid_cells =
             10; /**< Default amount of the horizontal grid cells. */
 
@@ -33,32 +36,32 @@ public:
     explicit TimebaseModel(QObject *parent = nullptr);
 
     /**
-     * @brief Returns the current horizontal division in microseconds.
+     * @brief Returns the current horizontal division.
      *
-     * @return The current horizontal division in microseconds.
+     * @return The current horizontal division.
      */
-    int64_t divisionUs() const;
+    [[nodiscard]] UData::Time::Duration division() const;
 
     /**
      * @brief Returns the text representation of the horizontal scale.
      *
      * @return The text representation of the horizontal scale.
      */
-    QString hScaleText() const;
+    [[nodiscard]] QString hScaleText() const;
 
     /**
      * @brief Returns the number of horizontal grid cells.
      *
      * @return The number of horizontal grid cells.
      */
-    int hGridCells() const;
+    [[nodiscard]] int hGridCells() const;
 
     /**
      * @brief Returns the value of the dial corresponding to the horizontal division.
      *
      * @return The value of the dial.
      */
-    int qDialValue() const;
+    [[nodiscard]] int qDialValue() const;
 
     /**
      * @brief Update horizontal division from dial value.
@@ -68,11 +71,11 @@ public:
     void qDialValueUpdate(int dial_value);
 
     /**
-     * @brief Returns the width of the frame in microseconds.
+     * @brief Returns the width of the frame.
      *
-     * @return The width of the frame in microseconds.
+     * @return The width of the frame.
      */
-    int64_t frameWidthUs() const;
+    [[nodiscard]] UData::Time::Duration frame_width() const;
 
 public slots:
 
@@ -102,6 +105,5 @@ protected:
 private slots:
 
 private:
-    Q_OBJECT_BINDABLE_PROPERTY_WITH_ARGS(TimebaseModel, int64_t, m_div_us, default_division_us,
-                                         &TimebaseModel::hDivisionChanged)
+    UData::Time::Duration m_div{ default_div }; /**< The current horizontal division. */
 };

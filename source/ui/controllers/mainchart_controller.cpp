@@ -29,7 +29,7 @@ void MainChartController::registerSeries(int id, QXYSeries *series)
         m_series.resize(id + 1, nullptr);
     }
 
-    m_series.at(id) = series;
+    m_series[id] = series;
 }
 
 void MainChartController::set_horizontal_div(UData::Time::Duration div)
@@ -64,17 +64,32 @@ void MainChartController::receive_stored_data(const QList<GraphData> &new_data,
     m_graph_min_time = requested_start_time;
     m_graph_max_time = requested_end_time;
 
-    // TODO: clear channels that are not present in the new_data list
+    std::set<ChannelId> channels_with_data{ };
 
     for (auto &channel_data : new_data) {
         ChannelId channel_id = channel_data.get_id();
 
-        if (channel_id < m_series.size()) {
-            if (auto series = m_series.at(channel_id)) {
-                series->replace(channel_data.get_values());
-            }
+        if (channel_id >= m_series.size()) {
+            continue;
+        }
+
+        if (auto series = m_series[channel_id]) {
+            series->replace(channel_data.get_values());
+
+            channels_with_data.insert(channel_id);
+        }
+
+        // This set will be used as a set of 'leftovers', which must be cleared
+        m_channels_with_data.erase(channel_id);
+    }
+
+    for (const auto channel_id : m_channels_with_data) {
+        if (auto series = m_series[channel_id]) {
+            series->clear();
         }
     }
+
+    std::swap(m_channels_with_data, channels_with_data);
 }
 
 void MainChartController::set_chart_width(qreal width)
@@ -122,4 +137,6 @@ void MainChartController::clear_all_series()
     for (auto &series : m_series) {
         series->clear();
     }
+
+    m_channels_with_data.clear();
 }

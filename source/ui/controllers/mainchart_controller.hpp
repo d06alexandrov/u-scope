@@ -133,6 +133,8 @@ private:
     QPointer<QValueAxis> m_axis_x{ }; /**< X axis of the graph. */
     std::vector<QPointer<QXYSeries>> m_series{ }; /**< Data series of the graph. */
 
+    std::set<ChannelId> m_channels_with_data{ }; /**<  Channels with data in the current view. */
+
     bool m_continuous_mode = false; /**< Continuous or stopped mode. */
     QTimer m_render_timer; /**< Timer to trigger an update of the graph data. */
 

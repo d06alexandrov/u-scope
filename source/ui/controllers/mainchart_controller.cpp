@@ -69,6 +69,10 @@ void MainChartController::receive_stored_data(const QList<GraphData> &new_data,
     for (auto &channel_data : new_data) {
         ChannelId channel_id = channel_data.get_id();
 
+        if (channel_id >= m_series.size()) {
+            continue;
+        }
+
         if (auto series = m_series[channel_id]) {
             series->replace(channel_data.get_values());
 

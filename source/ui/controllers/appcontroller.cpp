@@ -225,20 +225,14 @@ void AppController::init_input()
 {
     // Initialize timebase model (horizontal scaler)
     connect(&m_timebase_model, &TimebaseModel::hDivisionChanged, this, [this]() {
-        m_mainchart_controller.set_horizontal_div(
-                UData::duration_from_microseconds(m_timebase_model.divisionUs()));
-        m_overviewchart_controller.set_horizontal_div(
-                UData::duration_from_microseconds(m_timebase_model.divisionUs()));
-        m_overviewchart_controller.set_sliding_window_width(
-                UData::duration_from_microseconds(m_timebase_model.frameWidthUs()));
+        m_mainchart_controller.set_horizontal_div(m_timebase_model.division());
+        m_overviewchart_controller.set_horizontal_div(m_timebase_model.division());
+        m_overviewchart_controller.set_sliding_window_width(m_timebase_model.frame_width());
     });
 
-    m_mainchart_controller.set_horizontal_div(
-            UData::duration_from_microseconds(m_timebase_model.divisionUs()));
-    m_overviewchart_controller.set_horizontal_div(
-            UData::duration_from_microseconds(m_timebase_model.divisionUs()));
-    m_overviewchart_controller.set_sliding_window_width(
-            UData::duration_from_microseconds(m_timebase_model.frameWidthUs()));
+    m_mainchart_controller.set_horizontal_div(m_timebase_model.division());
+    m_overviewchart_controller.set_horizontal_div(m_timebase_model.division());
+    m_overviewchart_controller.set_sliding_window_width(m_timebase_model.frame_width());
 
     // Initialize vertical scaler model
     connect(&m_verticalscale_model, &VerticalScaleModel::vDivisionChanged, this, [this]() {

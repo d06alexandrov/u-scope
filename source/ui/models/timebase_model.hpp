@@ -40,13 +40,6 @@ public:
     int64_t divisionUs() const;
 
     /**
-     * @brief Returns a bindable property for the horizontal division in microseconds.
-     *
-     * @return A bindable property for the horizontal division in microseconds.
-     */
-    QBindable<int64_t> bindableDivisionUs();
-
-    /**
      * @brief Returns the text representation of the horizontal scale.
      *
      * @return The text representation of the horizontal scale.

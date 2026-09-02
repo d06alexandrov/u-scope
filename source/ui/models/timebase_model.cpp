@@ -12,11 +12,6 @@ int64_t TimebaseModel::divisionUs() const
     return m_div_us;
 }
 
-QBindable<int64_t> TimebaseModel::bindableDivisionUs()
-{
-    return &m_div_us;
-}
-
 QString TimebaseModel::hScaleText() const
 {
     return InputConversion::unit_scale_to_string(m_div_us, u"s");

@@ -200,9 +200,6 @@ private:
     TimebaseModel m_timebase_model; /**< Model for horizontal timebase. */
     VerticalScaleModel m_verticalscale_model; /**< Model for vertical scale. */
 
-    std::optional<QPropertyChangeHandler<std::function<void()>>>
-            m_timebase_sync_division; /**< Property change handler for horizontal division. */
-
     /**
      * @brief Initialize and run Data Processor.
      */

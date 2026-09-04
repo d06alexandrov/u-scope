@@ -37,14 +37,6 @@ ChartView {
         tickCount: AppController.verticalScaleModel.vGridCells + 1
     }
 
-    function getAxisX(): ValueAxis {
-        return plotAxisX;
-    }
-
-    function getSeries(index: int): AbstractSeries {
-        return root.series(index);
-    }
-
     Component.onCompleted: {
         for (var i = 0; i < 12; ++i) {
             var series = root.createSeries(ChartView.SeriesTypeLine, "", plotAxisX, plotAxisY);

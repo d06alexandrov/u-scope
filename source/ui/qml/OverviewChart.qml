@@ -55,14 +55,6 @@ Rectangle {
             lineVisible: false
         }
 
-        function getAxisX(): ValueAxis {
-            return plotAxisX;
-        }
-
-        function getSeries(index: int): AbstractSeries {
-            return overviewChartView.series(index);
-        }
-
         Component.onCompleted: {
             for (var i = 0; i < 12; ++i) {
                 var series = overviewChartView.createSeries(ChartView.SeriesTypeLine, "", plotAxisX, plotAxisY);

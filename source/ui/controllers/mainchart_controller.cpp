@@ -15,8 +15,6 @@ void MainChartController::registerXAxis(QValueAxis *x_axis)
     }
 
     m_axis_x = x_axis;
-
-    m_axis_div_count = std::max(1, x_axis->tickCount() - 1);
 }
 
 void MainChartController::registerSeries(int id, QXYSeries *series)

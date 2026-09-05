@@ -1,5 +1,5 @@
 find_package(
-    Qt6 REQUIRED COMPONENTS Widgets Quick QuickWidgets Qml Charts SerialPort
+    Qt6 REQUIRED COMPONENTS Widgets Quick QuickWidgets Qml Graphs SerialPort
 )
 
 # Add interface library to propagate common header

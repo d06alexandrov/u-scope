@@ -23,8 +23,8 @@
 		"LIBGL_ALWAYS_SOFTWARE": "1",
 		// Use XCB platform plugin for Qt.
 		"QT_QPA_PLATFORM": "xcb",
-		// Use software version of Qt Quick renderer
-		"QT_QUICK_BACKEND": "software",
+		// Force Qt to use OpenGL for rendering.
+		"QSG_RHI_BACKEND": "opengl",
 		// Disable MIT-SHM for better X11 forwarding compatibility.
 		"QT_X11_NO_MITSHM": "1",
 		// Define the XDG session directory to prevent QStandardPaths warning.

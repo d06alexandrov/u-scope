@@ -5,6 +5,7 @@
 
 ### Features
 
+* **ui:** Migrate to QtGraphs with hardware acceleration support. ([73a071c](https://github.com/d06alexandrov/u-scope/commit/73a071c2ee3082aa2a307d2c688283f138a73292))
 * Bump Qt to version 6.11.0. ([8426f8a](https://github.com/d06alexandrov/u-scope/commit/8426f8a7b540d9ccf3e382213bd607d268c8cd46))
 * Fix readers order in the menu. ([7249807](https://github.com/d06alexandrov/u-scope/commit/72498073a5df392b34af87945a2aad7fe1ff1849))
 

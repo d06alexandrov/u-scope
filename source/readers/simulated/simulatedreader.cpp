@@ -1,4 +1,4 @@
-#include "simulatedreader.h"
+#include "simulatedreader.hpp"
 
 #include <cmath>
 

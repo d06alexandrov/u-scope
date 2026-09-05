@@ -1,7 +1,8 @@
 #include "simulatedreader_dialog_model.hpp"
 
-#include "simulatedreader_dialog.h"
-#include "universalreader_dialog.h"
+#include "id_allocator.hpp"
+#include "simulatedreader_dialog.hpp"
+#include "universalreader_dialog.hpp"
 
 SimulatedReaderDialogModel::SimulatedReaderDialogModel(QObject *parent)
     : QAbstractListModel{ parent }
@@ -46,8 +47,8 @@ QHash<int, QByteArray> SimulatedReaderDialogModel::roleNames() const
 
 void SimulatedReaderDialogModel::addConstantForm(qreal value)
 {
-    const VariableId new_id = UniversalReaderDialogConfig::get_available_variable_idx(
-            m_original_variable_ids + m_current_variable_ids);
+    const auto new_id =
+            UData::get_available_id<VariableId>(m_original_variable_ids + m_current_variable_ids);
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_current_variable_ids.insert(new_id);
@@ -58,8 +59,8 @@ void SimulatedReaderDialogModel::addConstantForm(qreal value)
 
 void SimulatedReaderDialogModel::addSinusoidForm(int frequency, qreal amplitude)
 {
-    const VariableId new_id = UniversalReaderDialogConfig::get_available_variable_idx(
-            m_original_variable_ids + m_current_variable_ids);
+    const auto new_id =
+            UData::get_available_id<VariableId>(m_original_variable_ids + m_current_variable_ids);
 
     beginInsertRows(QModelIndex(), rowCount(), rowCount());
     m_current_variable_ids.insert(new_id);

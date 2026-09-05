@@ -8,7 +8,14 @@ U-Scope currently supports both Windows and Linux operating systems.
 Download and extract the latest Windows [release](https://github.com/d06alexandrov/u-scope/releases).
 
 ### Linux
-Currently, executing the application on Linux is only supported directly through VS Code.
+There are currently no prebuilt Linux binaries. To build from source, use the VS Code dev container, or run the following on a system with Qt 6.10+ installed:
+
+```bash
+cmake -B build
+cmake --build build
+```
+
+The resulting `u-scope` executable will be in `build/source/`.
 
 ## Usage
 

@@ -1,5 +1,5 @@
 import QtQuick
-import QtCharts // qmllint disable import
+import QtGraphs
 
 Rectangle {
     id: root
@@ -16,107 +16,114 @@ Rectangle {
         text: qsTr("Measurements history is empty.")
     }
 
-    ChartView {
+    GraphsView {
         id: overviewChartView
         objectName: "overviewChart"
 
         anchors.fill: parent
-        anchors.margins: -3
 
-        backgroundColor: "transparent"
-        legend.visible: false
-        antialiasing: true
-        margins {
-            top: 0
-            bottom: 0
-            left: 0
-            right: 0
+        marginTop: 0
+        marginBottom: 0
+        marginLeft: 5
+        marginRight: 5
+
+        theme: GraphsTheme {
+            colorScheme: GraphsTheme.ColorScheme.Dark
+            backgroundVisible: false
+            plotAreaBackgroundVisible: false
+            gridVisible: false
+            labelsVisible: false
         }
 
         visible: AppController.overviewChart.visible
 
-        ValueAxis {
+        axisX: ValueAxis {
             id: plotAxisX
             objectName: "overviewAxisX"
-            gridVisible: false
+
+            visible: false
             labelsVisible: false
             lineVisible: false
 
             Component.onCompleted: AppController.overviewChart.registerXAxis(plotAxisX)
         }
 
-        ValueAxis {
+        axisY: ValueAxis {
             id: plotAxisY
             objectName: "overviewAxisY"
-            min: -plotAxisY.max
-            max: AppController.verticalScaleModel.vGridCells / 2
-            gridVisible: false
+
+            visible: false
             labelsVisible: false
             lineVisible: false
+
+            min: -plotAxisY.max
+            max: AppController.verticalScaleModel.vGridCells / 2
         }
 
-        function getAxisX(): ValueAxis {
-            return plotAxisX;
-        }
-
-        function getSeries(index: int): AbstractSeries {
-            return overviewChartView.series(index);
+        Component {
+            id: lineSeriesComponent
+            LineSeries {
+                id: seriesItem
+            }
         }
 
         Component.onCompleted: {
             for (var i = 0; i < 12; ++i) {
-                var series = overviewChartView.createSeries(ChartView.SeriesTypeLine, "", plotAxisX, plotAxisY);
+                var series = lineSeriesComponent.createObject(root, {
+                    objectName: "overview_series_" + i,
+                    color: (AppController.channelColors.length > i) ? AppController.channelColors[i] : "white"
+                });
 
-                series.objectName = "overview_series_" + i;
-                series.color = (AppController.channelColors.length > i) ? AppController.channelColors[i] : "white";
-                series.pointsVisible = false;
+                overviewChartView.addSeries(series);
 
                 AppController.overviewChart.registerSeries(i, series);
             }
         }
 
-        onWidthChanged: {
+        onPlotAreaChanged: {
             AppController.overviewChart.set_chart_width(overviewChartView.plotArea.width);
         }
+    }
 
-        Rectangle {
-            id: slidingRect
+    Rectangle {
+        id: slidingRect
 
-            y: overviewChartView.plotArea.y
-            height: overviewChartView.plotArea.height
+        y: overviewChartView.plotArea.y
+        height: overviewChartView.plotArea.height
 
-            color: Qt.rgba(0, 120 / 255, 255 / 255, 80 / 255)
-            border.color: Qt.rgba(0, 120 / 255, 255 / 255, 1)
-            border.width: 2
+        color: Qt.rgba(0, 120 / 255, 255 / 255, 80 / 255)
+        border.color: Qt.rgba(0, 120 / 255, 255 / 255, 1)
+        border.width: 2
 
-            onXChanged: {
-                if (dragHandler.active) {
-                    let relativeX = slidingRect.x - overviewChartView.plotArea.x;
-                    AppController.overviewChart.updateDragPosition(relativeX);
-                }
+        visible: AppController.overviewChart.visible
+
+        onXChanged: {
+            if (dragHandler.active) {
+                let relativeX = slidingRect.x - overviewChartView.plotArea.x;
+                AppController.overviewChart.updateDragPosition(relativeX);
             }
+        }
 
-            HoverHandler {
-                cursorShape: Qt.SizeHorCursor
-            }
+        HoverHandler {
+            cursorShape: Qt.SizeHorCursor
+        }
 
-            DragHandler {
-                id: dragHandler
-                target: slidingRect
-                xAxis.minimum: overviewChartView.plotArea.x
-                xAxis.maximum: overviewChartView.plotArea.x + overviewChartView.plotArea.width - slidingRect.width
-                yAxis.enabled: false
-                cursorShape: Qt.SizeHorCursor
-            }
+        DragHandler {
+            id: dragHandler
+            target: slidingRect
+            xAxis.minimum: overviewChartView.plotArea.x
+            xAxis.maximum: overviewChartView.plotArea.x + overviewChartView.plotArea.width - slidingRect.width
+            yAxis.enabled: false
+            cursorShape: Qt.SizeHorCursor
+        }
 
-            Connections {
-                target: AppController.overviewChart
+        Connections {
+            target: AppController.overviewChart
 
-                function onGeometryChanged() {
-                    if (!dragHandler.active) {
-                        slidingRect.x = overviewChartView.plotArea.x + AppController.overviewChart.xPos;
-                        slidingRect.width = AppController.overviewChart.rectWidth;
-                    }
+            function onGeometryChanged() {
+                if (!dragHandler.active) {
+                    slidingRect.x = overviewChartView.plotArea.x + AppController.overviewChart.xPos;
+                    slidingRect.width = AppController.overviewChart.rectWidth;
                 }
             }
         }

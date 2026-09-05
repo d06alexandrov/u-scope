@@ -56,7 +56,7 @@ qt_add_resources(
 target_link_libraries(
     user_interface
     PUBLIC Qt${QT_VERSION_MAJOR}::Core
-           Qt${QT_VERSION_MAJOR}::Charts
+           Qt${QT_VERSION_MAJOR}::Graphs
            Qt${QT_VERSION_MAJOR}::Qml
            Qt${QT_VERSION_MAJOR}::Quick
            Qt${QT_VERSION_MAJOR}::QuickWidgets

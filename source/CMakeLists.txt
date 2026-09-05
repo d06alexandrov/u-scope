@@ -1,14 +1,9 @@
 find_package(
-    Qt6 REQUIRED COMPONENTS Widgets Quick QuickWidgets Qml Charts SerialPort
+    Qt6 REQUIRED COMPONENTS Widgets Quick QuickWidgets Qml Graphs SerialPort
 )
 
 # Add interface library to propagate common header
 add_library(common_headers INTERFACE)
-
-configure_file(
-    ${CMAKE_CURRENT_SOURCE_DIR}/include/version.hpp.in
-    ${CMAKE_CURRENT_BINARY_DIR}/include/version.hpp @ONLY
-)
 
 target_sources(
     common_headers
@@ -16,10 +11,10 @@ target_sources(
            HEADERS
            BASE_DIRS
            ${CMAKE_CURRENT_SOURCE_DIR}/include
-           ${CMAKE_CURRENT_BINARY_DIR}/include
            FILES
-           ${CMAKE_CURRENT_SOURCE_DIR}/include/commontypes.hpp
-           ${CMAKE_CURRENT_BINARY_DIR}/include/version.hpp
+           include/commontypes.hpp
+           include/id_allocator.hpp
+           include/udata_time.hpp
 )
 
 target_link_libraries(common_headers INTERFACE Qt${QT_VERSION_MAJOR}::Core)
@@ -35,6 +30,8 @@ add_subdirectory(ui)
 
 # Main application
 qt_add_executable(u-scope)
+
+target_include_directories(u-scope PRIVATE ${VERSION_INCLUDE_DIR})
 
 target_sources(
     u-scope PRIVATE # cmake-format: sortable

@@ -6,6 +6,7 @@
 #include <concepts>
 #include <functional>
 #include <memory>
+#include <ranges>
 #include <vector>
 
 struct UniversalReaderDialogConfig;
@@ -64,9 +65,16 @@ public:
     /**
      * @brief Register a new reader module.
      *
+     * @note Readers are sorted according to their id's.
+     *
      * @param config Configuration of the reader module to register.
      */
-    void register_module(ReaderModuleConfig config) { m_modules.push_back(std::move(config)); }
+    void register_module(ReaderModuleConfig config)
+    {
+        auto it = std::ranges::upper_bound(m_modules, config.id, std::ranges::less{ },
+                                           &ReaderModuleConfig::id);
+        m_modules.insert(it, std::move(config));
+    }
 
     /**
      * @brief Get the list of registered reader modules.

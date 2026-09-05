@@ -1,4 +1,4 @@
-#include "overviewchart_controller.h"
+#include "overviewchart_controller.hpp"
 
 OverviewChartController::OverviewChartController(QObject *parent)
     : QObject{ parent }

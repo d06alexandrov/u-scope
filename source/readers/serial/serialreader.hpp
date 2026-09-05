@@ -1,6 +1,6 @@
 #pragma once
 
-#include "universalreader.h"
+#include "universalreader.hpp"
 
 #include <QObject>
 #include <QSerialPort>

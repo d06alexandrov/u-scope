@@ -1,6 +1,6 @@
 #pragma once
 
-#include "appcontroller.h"
+#include "appcontroller.hpp"
 
 #include <QQmlEngine>
 

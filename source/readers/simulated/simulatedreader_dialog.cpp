@@ -1,4 +1,4 @@
-#include "simulatedreader_dialog.h"
+#include "simulatedreader_dialog.hpp"
 
 #include <QCoreApplication>
 #include <variant>

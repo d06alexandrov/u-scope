@@ -1,12 +1,12 @@
 #pragma once
 
-#include "channelbar_model.h"
-#include "dataprocessor.h"
-#include "mainchart_controller.h"
-#include "overviewchart_controller.h"
-#include "sourcelist_controller.h"
-#include "timebase_model.h"
-#include "verticalscale_model.h"
+#include "channelbar_model.hpp"
+#include "dataprocessor.hpp"
+#include "mainchart_controller.hpp"
+#include "overviewchart_controller.hpp"
+#include "sourcelist_controller.hpp"
+#include "timebase_model.hpp"
+#include "verticalscale_model.hpp"
 
 #include <QPropertyChangeHandler>
 #include <QQmlApplicationEngine>
@@ -199,9 +199,6 @@ private:
     ChannelBarModel m_channelbar_model; /**< Model for the channel bar. */
     TimebaseModel m_timebase_model; /**< Model for horizontal timebase. */
     VerticalScaleModel m_verticalscale_model; /**< Model for vertical scale. */
-
-    std::optional<QPropertyChangeHandler<std::function<void()>>>
-            m_timebase_sync_division; /**< Property change handler for horizontal division. */
 
     /**
      * @brief Initialize and run Data Processor.

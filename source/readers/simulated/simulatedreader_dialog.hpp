@@ -1,7 +1,7 @@
 #pragma once
 
-#include "simulatedreader.h"
-#include "universalreader_dialog.h"
+#include "simulatedreader.hpp"
+#include "universalreader_dialog.hpp"
 
 #include <QHash>
 #include <QString>

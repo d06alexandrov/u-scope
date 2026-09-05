@@ -1,7 +1,7 @@
 #pragma once
 
-#include "serialreader.h"
-#include "universalreader_dialog.h"
+#include "serialreader.hpp"
+#include "universalreader_dialog.hpp"
 
 #include <QString>
 

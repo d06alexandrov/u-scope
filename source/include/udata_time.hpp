@@ -186,6 +186,16 @@ private:
 }
 
 /**
+ * @brief Get the duration in microseconds.
+ *
+ * @return The duration in microseconds.
+ */
+[[nodiscard]] constexpr int64_t duration_to_microseconds(Time::Duration d) noexcept
+{
+    return std::chrono::duration_cast<std::chrono::microseconds>(d).count();
+}
+
+/**
  * @brief Convert a Time::Duration to a double representing seconds.
  *
  * @param d The duration to convert.

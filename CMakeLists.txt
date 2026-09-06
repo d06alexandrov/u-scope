@@ -17,6 +17,7 @@ include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/clang-tidy.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/cmake-format.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/doxygen.cmake")
 include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/version-header.cmake")
+include("${CMAKE_CURRENT_SOURCE_DIR}/cmake/warnings.cmake")
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)

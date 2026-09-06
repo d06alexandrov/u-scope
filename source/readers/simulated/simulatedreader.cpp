@@ -47,7 +47,6 @@ void SimulatedReader::stop() { }
 
 void SimulatedReader::process()
 {
-    const auto config = get_config();
     const UData::Time current_timestamp = UData::Time::now();
 
     UData::Time prev_sample_timestamp = m_prev_sample_timestamp;

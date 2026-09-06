@@ -25,7 +25,7 @@ struct EmptyContainer
      * @return false, as this container does not contain any elements.
      */
     template <typename T>
-    [[nodiscard]] constexpr bool contains(T key) const noexcept
+    [[nodiscard]] constexpr bool contains([[maybe_unused]] T key) const noexcept
     {
         return false;
     }

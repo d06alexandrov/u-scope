@@ -12,7 +12,8 @@ void AppControllerForeign::clear_controller_instance()
     }
 }
 
-AppController *AppControllerForeign::create(QQmlEngine *engine, QJSEngine *js_engine)
+AppController *AppControllerForeign::create([[maybe_unused]] QQmlEngine *engine,
+                                            [[maybe_unused]] QJSEngine *js_engine)
 {
     if (m_instance) {
         QJSEngine::setObjectOwnership(m_instance, QJSEngine::CppOwnership);

@@ -17,7 +17,7 @@ int ChannelBarModel::rowCount(const QModelIndex &) const
 
 QVariant ChannelBarModel::data(const QModelIndex &index, int role) const
 {
-    if (!index.isValid() || index.row() >= m_channels.size())
+    if (!index.isValid() || index.row() >= static_cast<int>(m_channels.size()))
         return { };
 
     const auto &ch = m_channels[index.row()];

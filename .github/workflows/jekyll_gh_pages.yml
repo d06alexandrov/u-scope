@@ -4,6 +4,9 @@ on:
   pull_request:
     branches:
       - develop
+    paths:
+      - 'docs/**'
+      - '.github/workflows/jekyll_gh_pages.yml'
   push:
     tags:
       - '*'

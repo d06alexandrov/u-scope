@@ -1,0 +1,9 @@
+title: U-Scope
+description: Oscilloscope-style streaming data visualizer
+remote_theme: just-the-docs/just-the-docs
+color_scheme: dark
+search_enabled: true
+
+aux_links:
+  "GitHub":
+    - "{{ site.github.repository_url }}"

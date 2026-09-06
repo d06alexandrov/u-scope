@@ -12,7 +12,7 @@ U-Scope replicates traditional hardware oscilloscope behavior for graphical scal
 
 Adjusts the time resolution per horizontal division. The current value is displayed in the top-left corner of the screen.
 
-In [Stopped Mode](./stopped-mode.html#stopped-mode), a second **Horizontal Position** dial becomes available, letting you move the sliding window along the captured history in increments of one division.
+In [Stopped Mode](./working-modes.html#stopped-mode), a second **Horizontal Position** dial becomes available, letting you move the sliding window along the captured history in increments of one division.
 
 ## Vertical Scale
 

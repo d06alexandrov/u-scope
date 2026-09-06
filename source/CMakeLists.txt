@@ -40,6 +40,7 @@ target_sources(
 
 target_link_libraries(
     u-scope PRIVATE Qt${QT_VERSION_MAJOR}::Core user_interface core_logic
+                    project_warnings
 )
 
 set_target_properties(

@@ -10,4 +10,5 @@ target_sources(
 
 target_link_libraries(
     core_logic PUBLIC Qt${QT_VERSION_MAJOR}::Core common_headers readers
+                      project_warnings
 )

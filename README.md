@@ -1,5 +1,9 @@
 # U-Scope: Oscilloscope-Style Streaming Data Visualizer
 
+U-Scope is a streaming data visualizer with an oscilloscope-style interface, supporting configurable data sources and multi-channel display.
+
+![Application overview](./docs/assets/images/app_overview.png)
+
 ## Installation
 
 U-Scope currently supports both Windows and Linux operating systems.
@@ -17,60 +21,13 @@ cmake --build build
 
 The resulting `u-scope` executable will be in `build/source/`.
 
-## Usage
+See the [System Requirements](https://d06alexandrov.github.io/u-scope/getting-started/system-requirements.html) page for full build dependencies.
 
-Launch the application by running the `u-scope` executable (`u-scope.exe` on Windows).
+## Documentation
 
-![Application overview](./docs/images/app_overview.png)
+Full documentation, including the User Guide, source type reference, and API docs, is available at:
 
-The user interface is divided into three primary components:
-
-*   **Sources:** A configuration list for all active data inputs.
-*   **Screen:** The main graphical display area.
-*   **Control Panel:** Core interface elements for managing data capture and scaling.
-
-### Source Configuration
-
-To add a new data source, right-click within the **Sources** pane and select your desired source type.
-
-Currently, two source types are supported:
-
-*   **Simulated Source:** A waveform generator that outputs constant and sinusoidal signals with configurable parameters.
-*   **Serial Port Source:** Reads incoming serial data, interpreting each byte as a signed 8-bit integer (ranging from -128 to 127).
-
-![Source configuration context menu](./docs/images/source_configuration.png)
-
-### Channel Assignment
-
-Once your sources are configured, you must map their respective data streams to specific display channels. 
-
-To do this, right-click on a target data stream, select **Assign to channel**, and click on your desired channel number.
-
-![Channel assignment context menu](./docs/images/channel_assignment.png)
-
-### Start (Roll Mode)
-
-Click the **Start** button to begin data acquisition. This activates Roll Mode, providing a continuous, real-time display of the incoming data.
-
-![Working application](./docs/images/channel_selection.png)
-
-### Division Manipulation
-
-U-Scope replicates traditional hardware oscilloscope behavior for graphical scaling. 
-
-You can adjust the **Horizontal Scale** knob to modify the time resolution per horizontal division; the current value is dynamically displayed in the top-left corner of the screen. 
-
-To adjust vertical scaling, first select a specific channel by clicking its corresponding indicator in the bar below the graph. Once selected, you can use the **Vertical Scale** knob to independently scale that channel's data (the current vertical scale is displayed directly on the channel's indicator tab).
-
-![Vertical division](./docs/images/vertical_scale.png)
-
-### Stop (Stopped Mode)
-
-Click the **Stop** button to halt data acquisition. 
-
-This transitions the application into Stopped Mode, which is designed for detailed analysis of the captured dataset. In this mode, you can utilize the sliding window at the top of the screen, alongside the horizontal and vertical scale knobs, to zoom in on specific segments of the gathered data.
-
-![Working application](./docs/images/stopped_mode.png)
+**[https://d06alexandrov.github.io/u-scope/](https://d06alexandrov.github.io/u-scope/)**
 
 ## Author
 

@@ -2,7 +2,7 @@
 
 U-Scope is a streaming data visualizer with an oscilloscope-style interface, supporting configurable data sources and multi-channel display.
 
-![Application overview](./docs/assets/images/app_overview.png)
+![Application overview](./docs/assets/images/stopped_mode.png)
 
 ## Installation
 

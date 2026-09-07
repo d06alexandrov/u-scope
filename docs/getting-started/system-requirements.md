@@ -10,8 +10,8 @@ nav_order: 1
 
 U-Scope currently supports:
 
-- **Windows** - prebuilt releases available.
-- **Linux** - no prebuilt binaries yet; build from source.
+- **Windows** - prebuilt releases for Windows x64 available.
+- **Linux** - prebuilt releases for Linux x64 available.
 
 ## Build dependencies
 

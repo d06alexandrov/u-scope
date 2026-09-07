@@ -27,6 +27,10 @@ QVariant PacketFieldsModel::data(const QModelIndex &index, int role) const
     const auto &field = m_field_configs.value(variable_id);
 
     switch (role) {
+    case VariableIdRole:
+        return static_cast<int>(variable_id);
+    case LabelRole:
+        return build_label(field);
     case NameRole:
         return field.name;
     case OffsetRole:
@@ -35,8 +39,6 @@ QVariant PacketFieldsModel::data(const QModelIndex &index, int role) const
         return type_to_string(field.type);
     case EndiannessRole:
         return endianness_to_string(field.endianness);
-    case LabelRole:
-        return build_label(field);
     default:
         return { };
     }

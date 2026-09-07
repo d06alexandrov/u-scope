@@ -181,6 +181,9 @@ SerialReaderConfig::FieldType PacketFieldsModel::type_from_string(const QString 
     if (str == "UInt8") {
         return SerialReaderConfig::FieldType::UInt8;
     }
+    if (str == "Int16") {
+        return SerialReaderConfig::FieldType::Int16;
+    }
     if (str == "UInt16") {
         return SerialReaderConfig::FieldType::UInt16;
     }

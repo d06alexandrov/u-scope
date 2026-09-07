@@ -84,7 +84,7 @@ Dialog {
         TextField {
             id: fieldName
             Layout.fillWidth: true
-            placeholderText: qsTr("e.g. Temperature")
+            placeholderText: qsTr("e.g. Voltage")
         }
 
         Label {

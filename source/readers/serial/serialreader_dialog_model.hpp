@@ -103,7 +103,7 @@ private:
 
     QString m_start_magic_hex{ }; /**< Start of the packet in hex. */
     QString m_end_magic_hex{ }; /**< End of the packet in hex. Could be empty. */
-    int m_packet_length{ }; /**< Total length including magics. */
+    int m_packet_length{ 1 }; /**< Total length including magics. */
 
     PacketFieldsModel *m_fields; /**< Model for the fields in the packet. */
 };

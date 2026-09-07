@@ -1,6 +1,5 @@
 #include "serialframeparser.hpp"
 
-#include <QDebug>
 #include <climits>
 #include <cstdint>
 #include <utility>
@@ -42,8 +41,6 @@ void SingleByteFrameParser::feed(const QByteArray &data, UData::Time chunk_end_t
 {
     const auto data_size = data.size();
 
-    qDebug() << "Data: " << data.toHex();
-
     for (int i = 0; i < data_size; i++) {
         const double offset_sec = ((data_size - 1 - i) * m_wire_byte_duration).count();
         const UData::Time::Duration offset = UData::duration_from_seconds(offset_sec);
@@ -70,6 +67,13 @@ PacketFrameParser::PacketFrameParser(
     : m_format(std::move(format))
     , m_field_configs(std::move(field_configs))
 {
+    if (m_format.packet_length <= 0) {
+        throw std::runtime_error("Packet format requires a positive packet length");
+    }
+
+    if (m_format.start_magic.isEmpty()) {
+        throw std::runtime_error("Packet format requires start magic to be set");
+    }
 }
 
 void PacketFrameParser::reset()

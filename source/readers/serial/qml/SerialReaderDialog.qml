@@ -17,7 +17,33 @@ ReaderDialog {
 
     property SerialReaderDialogModel sessionModel: SerialReaderDialogModel {}
 
-    acceptable: (root.sessionModel.portName !== "") && (parseInt(root.sessionModel.baudRate) >= 9600)
+    acceptable: {
+        if (root.sessionModel.portName == "") {
+            // Port must be set
+            return false;
+        }
+        if (parseInt(root.sessionModel.baudRate) < 9600) {
+            // Minimum baudrate is 9600
+            return false;
+        }
+        if (formatModeBox.currentIndex != 0) {
+            // Packet mode
+            if (root.sessionModel.packetLength <= 0) {
+                // Packet length must be positive
+                return false;
+            }
+            if (startMagicField.text == "") {
+                // Start Magic HEX must be set
+                return false;
+            }
+            if (fieldsList.count <= 0) {
+                // At least one field must be set
+                return false;
+            }
+        }
+
+        return true;
+    }
 
     onAccepted: root.configAccepted(root.typeId, root.sessionModel)
 

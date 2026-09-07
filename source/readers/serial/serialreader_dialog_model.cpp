@@ -38,7 +38,7 @@ std::shared_ptr<UniversalReaderDialogConfig> SerialReaderDialogModel::build_conf
         config->field_configs = m_fields->field_configs();
     } else {
         // TODO: generate id based on previous reserved IDs
-        const auto variable_id = UData::get_available_id<VariableId>();
+        const VariableId variable_id{ 0 };
 
         config->format = std::nullopt;
         config->field_configs = {

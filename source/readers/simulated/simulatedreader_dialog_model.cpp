@@ -92,6 +92,10 @@ void SimulatedReaderDialogModel::modifyConstantForm(int variable_id, qreal value
 
 void SimulatedReaderDialogModel::modifySinusoidForm(int variable_id, int frequency, qreal amplitude)
 {
+    if (variable_id < 0) {
+        return;
+    }
+
     const auto id = static_cast<VariableId>(variable_id);
 
     if (!m_form_configs.contains(id)) {

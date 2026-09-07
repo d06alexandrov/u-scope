@@ -72,6 +72,10 @@ void SimulatedReaderDialogModel::addSinusoidForm(int frequency, qreal amplitude)
 
 void SimulatedReaderDialogModel::modifyConstantForm(int variable_id, qreal value)
 {
+    if (variable_id < 0) {
+        return;
+    }
+
     const auto id = static_cast<VariableId>(variable_id);
 
     if (!m_form_configs.contains(id)) {
@@ -88,6 +92,10 @@ void SimulatedReaderDialogModel::modifyConstantForm(int variable_id, qreal value
 
 void SimulatedReaderDialogModel::modifySinusoidForm(int variable_id, int frequency, qreal amplitude)
 {
+    if (variable_id < 0) {
+        return;
+    }
+
     const auto id = static_cast<VariableId>(variable_id);
 
     if (!m_form_configs.contains(id)) {
@@ -105,6 +113,10 @@ void SimulatedReaderDialogModel::modifySinusoidForm(int variable_id, int frequen
 
 void SimulatedReaderDialogModel::removeForm(int variable_id)
 {
+    if (variable_id < 0) {
+        return;
+    }
+
     const auto id = static_cast<VariableId>(variable_id);
     const int row = static_cast<int>(m_order.indexOf(id));
 
@@ -121,6 +133,10 @@ void SimulatedReaderDialogModel::removeForm(int variable_id)
 
 QVariantMap SimulatedReaderDialogModel::formAt(int variable_id) const
 {
+    if (variable_id < 0) {
+        return { };
+    }
+
     const auto id = static_cast<VariableId>(variable_id);
 
     if (!m_form_configs.contains(id)) {

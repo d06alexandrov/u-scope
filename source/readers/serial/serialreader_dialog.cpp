@@ -15,5 +15,8 @@ std::shared_ptr<UniversalReaderConfig> SerialReaderDialogConfig::to_reader_confi
     config->stop_bits = QSerialPort::OneStop;
     config->flow_control = QSerialPort::NoFlowControl;
 
+    config->format = format;
+    config->field_configs = field_configs;
+
     return config;
 }

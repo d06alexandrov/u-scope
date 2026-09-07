@@ -99,6 +99,11 @@ public:
      */
     [[nodiscard]] Q_INVOKABLE QVariantMap fieldAt(int variable_id) const;
 
+    /**
+     * @brief Get the current field configurations.
+     *
+     * @return Configurations of the fields.
+     */
     [[nodiscard]] const QHash<VariableId, SerialReaderConfig::FieldConfig> &field_configs() const
     {
         return m_field_configs;
@@ -108,8 +113,8 @@ private:
     QSet<VariableId> m_original_variable_ids{ }; /**< Set of original variable IDs. */
     QSet<VariableId> m_current_variable_ids{ }; /**< Set of currently used variable IDs. */
     QHash<VariableId, SerialReaderConfig::FieldConfig>
-            m_field_configs{ }; /**< Configurations of the values. */
-    QList<VariableId> m_order{ }; /**< Order of the values in the displayed list. */
+            m_field_configs{ }; /**< Configurations of the fields. */
+    QList<VariableId> m_order{ }; /**< Order of the fields in the displayed list. */
 
     /**
      * @brief Get the size in bytes of a given field type.

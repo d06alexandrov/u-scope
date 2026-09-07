@@ -60,19 +60,9 @@ qt_add_translations(
     RESOURCE_PREFIX "/i18n"
 )
 
-if(WIN32)
-    install(TARGETS u-scope)
-    qt_generate_deploy_qml_app_script(
-        TARGET u-scope OUTPUT_SCRIPT deploy_script
-        NO_UNSUPPORTED_PLATFORM_ERROR NO_TRANSLATIONS
-    )
-    install(SCRIPT ${deploy_script})
-else()
-    include(GNUInstallDirs)
-    install(
-        TARGETS u-scope
-        BUNDLE DESTINATION .
-        LIBRARY DESTINATION ${CMAKE_INSTALL_LIBDIR}
-        RUNTIME DESTINATION ${CMAKE_INSTALL_BINDIR}
-    )
-endif()
+install(TARGETS u-scope)
+qt_generate_deploy_qml_app_script(
+    TARGET u-scope OUTPUT_SCRIPT deploy_script NO_UNSUPPORTED_PLATFORM_ERROR
+    NO_TRANSLATIONS
+)
+install(SCRIPT ${deploy_script})

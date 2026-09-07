@@ -14,7 +14,13 @@ Run `u-scope.exe` from the extracted folder.
 
 ## Linux
 
-There are currently no prebuilt Linux binaries. Build from source using either the provided dev container (see [Development Container](./dev-container.html)) or a system with Qt 6.10+ installed:
+Download and extract the latest Linux release from the [Releases page](https://github.com/d06alexandrov/u-scope/releases).
+
+Run `u-scope` from the extracted folder.
+
+## Build from source
+
+Build from source using either the provided dev container (see [Development Container](./dev-container.html)) or a system with Qt 6.10+ installed:
 
 ```bash
 cmake -B build

@@ -92,7 +92,7 @@ void PacketFieldsModel::modifyField(int variable_id, const QString &name, int of
 
     if (const auto row = static_cast<int>(m_order.indexOf(id)); row >= 0) {
         const QModelIndex idx = index(row);
-        emit dataChanged(idx, idx, { LabelRole });
+        emit dataChanged(idx, idx);
     }
 }
 

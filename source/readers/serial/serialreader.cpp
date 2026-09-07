@@ -1,5 +1,7 @@
 #include "serialreader.hpp"
 
+#include "serialframeparser.hpp"
+
 namespace {
 
 constexpr double stop_bits_one = 1.0; /**< Number of stop bits for the "one" configuration. */
@@ -33,20 +35,15 @@ SerialReader::SerialReader(ReaderId id, std::shared_ptr<SerialReaderConfig> conf
 {
 }
 
+SerialReader::~SerialReader() = default;
+
 void SerialReader::data_received()
 {
     const QByteArray new_data = m_serial->readAll();
     const auto timestamp = UData::Time::now();
-    const auto new_data_size = new_data.size();
-
-    for (int i = 0; i < new_data_size; i++) {
-        const double offset_sec = ((new_data_size - 1 - i) * m_wire_byte_duration).count();
-        const UData::Time::Duration offset = UData::duration_from_seconds(offset_sec);
-
-        UData::Time byte_timestamp = timestamp - offset;
-
-        store_data(0, UData::Point(byte_timestamp, new_data[i]));
-    }
+    m_parser->feed(new_data, timestamp, [this](VariableId id, UData::Point &&sample) {
+        store_data(id, std::move(sample));
+    });
 }
 
 const SerialReaderConfig *SerialReader::get_config()
@@ -78,8 +75,9 @@ void SerialReader::setup()
     m_wire_byte_duration = std::chrono::duration<double>(
             bits_per_byte / static_cast<double>(get_config()->baud_rate));
 
-    // Reserve more than enough space for the buffer
-    allocate_buffer_pool(2,
+    m_parser = SerialFrameParser::create(*get_config(), m_wire_byte_duration);
+
+    allocate_buffer_pool(2 * m_parser->variable_count(),
                          static_cast<size_t>(std::ceil(get_config()->baud_rate / bits_per_byte)));
 }
 
@@ -88,6 +86,8 @@ void SerialReader::start()
     if (!m_serial->open(QIODevice::ReadOnly)) {
         throw std::runtime_error("Can not open device");
     }
+
+    m_parser->reset();
 }
 void SerialReader::stop()
 {

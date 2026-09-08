@@ -35,12 +35,13 @@ jobs:
         run: |
           cmake -B build -G Ninja
           cmake --build build --config Release --target u-scope
+          cmake --install build --config Release --prefix $GITHUB_WORKSPACE/u-scope-linux64
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: u-scope-linux
-          path: build/source/u-scope
+          name: u-scope-linux64
+          path: u-scope-linux64
 
       - name: Upload cpp-linter files
         if: ${{ !inputs.skip_linter }}

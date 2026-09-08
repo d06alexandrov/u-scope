@@ -24,5 +24,5 @@ qt_add_qml_module(
 target_link_libraries(
     simulated_reader
     PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Qml
-           common_headers universal_reader
+           common_headers universal_reader project_warnings
 )

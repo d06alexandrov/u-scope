@@ -26,8 +26,9 @@ qt_add_qml_module(
 )
 
 target_link_libraries(
-    universal_reader PUBLIC Qt${QT_VERSION_MAJOR}::Core
-                            Qt${QT_VERSION_MAJOR}::Qml common_headers
+    universal_reader
+    PUBLIC Qt${QT_VERSION_MAJOR}::Core Qt${QT_VERSION_MAJOR}::Qml
+           common_headers project_warnings
 )
 
 # Add serial port readers

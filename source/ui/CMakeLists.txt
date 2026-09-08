@@ -63,5 +63,6 @@ target_link_libraries(
            common_headers
            readers
            core_logic
+           project_warnings
     INTERFACE user_interfaceplugin
 )

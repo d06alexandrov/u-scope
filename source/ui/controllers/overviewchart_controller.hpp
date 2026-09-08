@@ -184,8 +184,8 @@ private:
 
     Q_OBJECT_BINDABLE_PROPERTY(
             OverviewChartController, bool, m_visible,
-            &OverviewChartController::visibleChanged); /**< Bindable property for visibility of the
-                                                          chart. */
+            &OverviewChartController::visibleChanged) /**< Bindable property for visibility of the
+                                                         chart. */
 
     /**
      * @brief Reset all series in the graph.

@@ -17,7 +17,7 @@ int VerticalScaleModel::vGridCells() const
 
 int VerticalScaleModel::qDialValue(int channel_id) const
 {
-    if (channel_id >= m_channel_scales_uval.size()) {
+    if (channel_id < 0 || channel_id >= static_cast<int>(m_channel_scales_uval.size())) {
         return InputConversion::div_uval_to_qdial_value(default_division_uval);
     }
 
@@ -44,7 +44,7 @@ QString VerticalScaleModel::vScaleText(ChannelId id) const
 
 void VerticalScaleModel::qDialValueUpdate(int channel_id, int dial_value)
 {
-    if (channel_id >= m_channel_scales_uval.size()) {
+    if (channel_id < 0 || channel_id >= static_cast<int>(m_channel_scales_uval.size())) {
         return;
     }
 

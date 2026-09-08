@@ -20,7 +20,7 @@ void OverviewChartController::registerSeries(int id, QXYSeries *series)
         return;
     }
 
-    if (id >= m_series.size()) {
+    if (id >= static_cast<int>(m_series.size())) {
         m_series.resize(id + 1, nullptr);
     }
 

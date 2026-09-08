@@ -42,7 +42,7 @@ public:
      *
      * @return The channel id of the data.
      */
-    [[nodiscard]] const ChannelId get_id() const { return m_id; }
+    [[nodiscard]] ChannelId get_id() const { return m_id; }
 
     /**
      * @brief Gets the list of values.

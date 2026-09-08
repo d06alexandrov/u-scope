@@ -1,14 +1,5 @@
 # Changelog
 
-## [0.4.0](https://github.com/d06alexandrov/u-scope/compare/v0.3.0...v0.4.0) (2026-09-08)
-
-
-### Features
-
-* Add github pages with user guide. ([b613d1a](https://github.com/d06alexandrov/u-scope/commit/b613d1a510b8dceed0a7bd4f2bd0d9f37dc3331e))
-* **ci:** Build self sufficient linux bundle. ([5a5b7e3](https://github.com/d06alexandrov/u-scope/commit/5a5b7e383ac83b9442cac378da562df7d221436c))
-* Configurable non-trivial serial reader packets. ([ad34267](https://github.com/d06alexandrov/u-scope/commit/ad34267cf76503612e788897332a13c4ecc9c45b))
-
 ## [0.3.0](https://github.com/d06alexandrov/u-scope/compare/v0.2.4...v0.3.0) (2026-09-05)
 
 

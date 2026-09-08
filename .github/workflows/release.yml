@@ -45,8 +45,8 @@ jobs:
       - name: Download Linux Artifacts
         uses: actions/download-artifact@v7
         with:
-          name: u-scope-linux
-          path: release-assets/linux/u-scope
+          name: u-scope-linux64
+          path: release-assets/linux64/u-scope
 
       - name: Download Windows Artifacts
         uses: actions/download-artifact@v7
@@ -55,7 +55,7 @@ jobs:
           path: release-assets/win64/u-scope
 
       - name: Package Linux Binary
-        run: tar -czvf u-scope-linux.tar.gz -C release-assets/linux u-scope
+        run: tar -czvf u-scope-linux64.tar.gz -C release-assets/linux64 u-scope
 
       - name: Package Windows Binary
         run: |
@@ -68,5 +68,5 @@ jobs:
           draft: true
           tag_name: ${{ needs.release-please.outputs.tag_name }}
           files: |
-            u-scope-linux.tar.gz
+            u-scope-linux64.tar.gz
             u-scope-win64.zip

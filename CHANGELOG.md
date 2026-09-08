@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.4.1](https://github.com/d06alexandrov/u-scope/compare/v0.4.0...v0.4.1) (2026-09-08)
+
+
+### Bug Fixes
+
+* **ci:** Keep original artifacts archives to preserve linux execution permission. ([6a8a355](https://github.com/d06alexandrov/u-scope/commit/6a8a35533b9973d1e07c4f12586a81c6b07dae25))
+
 ## [0.4.0](https://github.com/d06alexandrov/u-scope/compare/v0.3.0...v0.4.0) (2026-09-08)
 
 

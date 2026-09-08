@@ -41,7 +41,7 @@ Fixed-layout binary frames are extracted from the stream and decoded field by fi
 
 | Parameter | Description |
 |---|---|
-| Start magic (hex) | Byte sequence marking the start of every packet. Required. Enter as space-separated hex pairs, e.g. `AD 57`. |
+| Start magic (hex) | Byte sequence marking the start of every packet. Required. Enter as hex pairs, e.g. `AD 57`. |
 | End magic (hex) | Optional byte sequence marking the end of every packet. Leave blank if not used. |
 | Packet length (bytes) | Total length of the packet in bytes, including start and end magic. Must be at least 1. |
 

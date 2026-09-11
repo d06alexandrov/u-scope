@@ -110,6 +110,16 @@ ColumnLayout {
                     stepSize: 1.0
                     wrap: true
 
+                    onEnabledChanged: {
+                        // Fusion style hack to force background repaint when enabled
+                        if (background) {
+                            const className = String(background);
+                            if (className.includes("Fusion")) {
+                                background.update();
+                            }
+                        }
+                    }
+
                     property real previousValue: value
 
                     onMoved: {
@@ -171,6 +181,16 @@ ColumnLayout {
                         }
                     }
 
+                    onEnabledChanged: {
+                        // Fusion style hack to force background repaint when enabled
+                        if (background) {
+                            const className = String(background);
+                            if (className.includes("Fusion")) {
+                                background.update();
+                            }
+                        }
+                    }
+
                     onMoved: {
                         if (AppController.channelModel.selectedChannel >= 0) {
                             AppController.verticalScaleModel.qDialValueUpdate(AppController.channelModel.selectedChannel, value);
@@ -215,6 +235,16 @@ ColumnLayout {
                     Layout.maximumWidth: root.dialMaximumSize
                     Layout.maximumHeight: root.dialMaximumSize
                     Layout.alignment: Qt.AlignHCenter
+
+                    onEnabledChanged: {
+                        // Fusion style hack to force background repaint when enabled
+                        if (background) {
+                            const className = String(background);
+                            if (className.includes("Fusion")) {
+                                background.update();
+                            }
+                        }
+                    }
                 }
             }
         }

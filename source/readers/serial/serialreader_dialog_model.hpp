@@ -21,6 +21,10 @@ class SerialReaderDialogModel : public QObject
     Q_PROPERTY(QStringList availablePorts READ availablePorts CONSTANT)
     Q_PROPERTY(QString portName MEMBER m_port_name NOTIFY portNameChanged)
     Q_PROPERTY(int baudRate MEMBER m_baud_rate NOTIFY baudRateChanged)
+    Q_PROPERTY(int dataBits MEMBER m_data_bits NOTIFY dataBitsChanged)
+    Q_PROPERTY(int parity MEMBER m_parity NOTIFY parityChanged)
+    Q_PROPERTY(int stopBits MEMBER m_stop_bits NOTIFY stopBitsChanged)
+    Q_PROPERTY(int flowControl MEMBER m_flow_control NOTIFY flowControlChanged)
     Q_PROPERTY(QString formatMode MEMBER m_format_mode NOTIFY formatModeChanged)
     Q_PROPERTY(bool signedByte MEMBER m_signed_byte NOTIFY signedByteChanged)
     Q_PROPERTY(QString startMagicHex MEMBER m_start_magic_hex NOTIFY startMagicHexChanged)
@@ -70,6 +74,26 @@ signals:
     void baudRateChanged();
 
     /**
+     * @brief Signal emitted when the data bits changes.
+     */
+    void dataBitsChanged();
+
+    /**
+     * @brief Signal emitted when the parity changes.
+     */
+    void parityChanged();
+
+    /**
+     * @brief Signal emitted when the stop bits changes.
+     */
+    void stopBitsChanged();
+
+    /**
+     * @brief Signal emitted when the flow control changes.
+     */
+    void flowControlChanged();
+
+    /**
      * @brief Signal emitted when the format mode changes.
      */
     void formatModeChanged();
@@ -97,6 +121,10 @@ signals:
 private:
     QString m_port_name{ }; /**< Name of the port. */
     int m_baud_rate{ }; /**< Baud rate of the interface. */
+    int m_data_bits{ }; /**< Amount of the data bits. */
+    int m_parity{ }; /**< Parity setting. */
+    int m_stop_bits{ }; /**< Amount of the stop bits. */
+    int m_flow_control{ } /**< Flow control setting. */;
     QString m_format_mode{ }; /**< Format of the packet. */
 
     bool m_signed_byte{ true }; /**< Whether to treat single-byte packets as signed or unsigned. */

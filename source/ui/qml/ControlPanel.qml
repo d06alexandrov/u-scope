@@ -24,6 +24,7 @@ ColumnLayout {
                 id: pushButton_StartAll
                 text: "Start"
                 Layout.fillWidth: true
+                enabled: AppController.stopped
                 onClicked: AppController.handle_start_clicked()
             }
 
@@ -31,6 +32,7 @@ ColumnLayout {
                 id: pushButton_StopAll
                 text: "Stop"
                 Layout.fillWidth: true
+                enabled: !AppController.stopped
                 onClicked: AppController.handle_stop_clicked()
             }
         }

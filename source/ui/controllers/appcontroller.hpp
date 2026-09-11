@@ -28,6 +28,7 @@ class AppController : public QObject
     Q_PROPERTY(TimebaseModel *timebaseModel READ timebaseModel CONSTANT)
     Q_PROPERTY(VerticalScaleModel *verticalScaleModel READ verticalScaleModel CONSTANT)
     Q_PROPERTY(QVariantList channelColors READ channelColors CONSTANT)
+    Q_PROPERTY(bool stopped READ isStopped NOTIFY modeChanged)
 #endif // DOXYGEN_SHOULD_SKIP_THIS
 
 public:
@@ -94,6 +95,13 @@ public:
      * @return List of channel colors.
      */
     [[nodiscard]] QVariantList channelColors() const;
+
+    /**
+     * @brief Check if the current mode is stopped.
+     *
+     * @return True if the current mode is stopped, false otherwise.
+     */
+    [[nodiscard]] bool isStopped() const;
 
 public slots:
 
@@ -167,6 +175,11 @@ signals:
      */
     void force_graph_refresh();
 
+    /**
+     * @brief Signal emitted when the current mode changes.
+     */
+    void modeChanged();
+
 private slots:
 
 private:
@@ -191,7 +204,9 @@ private:
     std::unique_ptr<DataProcessor> m_data_processor{ }; /**< Main Data Processor. */
     QThread m_data_processor_thread; /**< Thread with a running Data Processor. */
 
-    ScopeMode m_current_mode = ScopeMode::Stopped; /**< Current display mode. */
+    Q_OBJECT_BINDABLE_PROPERTY_WITH_ARGS(
+            AppController, ScopeMode, m_current_mode, ScopeMode::Stopped,
+            &AppController::modeChanged) /**< Bindable property for the current display mode. */
 
     SourceListController m_sourcelist_controller; /**< Controller of the source list. */
     MainChartController m_mainchart_controller; /**< Controller of the main chart. */

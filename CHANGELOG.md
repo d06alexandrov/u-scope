@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.0](https://github.com/d06alexandrov/u-scope/compare/v0.4.1...v0.5.0) (2026-09-11)
+
+
+### Features
+
+* Make configurable data bits, parity, stop bits and flow control serial port settings. ([55faae8](https://github.com/d06alexandrov/u-scope/commit/55faae8d9dd58e39cf27b78bf6d16109edcf413f))
+
+
+### Bug Fixes
+
+* **docs:** Fix a link to the github in github pages. ([083031f](https://github.com/d06alexandrov/u-scope/commit/083031f5f07180f9bbe2a110f11748890768be5d))
+* Update dial's background when it's toggled. ([73df0e8](https://github.com/d06alexandrov/u-scope/commit/73df0e858ad67145dcd3054e99aadb0f77cd7634))
+
 ## [0.4.1](https://github.com/d06alexandrov/u-scope/compare/v0.4.0...v0.4.1) (2026-09-08)
 
 

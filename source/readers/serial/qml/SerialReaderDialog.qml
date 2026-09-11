@@ -209,15 +209,15 @@ ReaderDialog {
                 model: [
                     {
                         value: SerialPort.NoFlowControl,
-                        text: "No Flow Control"
+                        text: qsTr("No Flow Control")
                     },
                     {
                         value: SerialPort.HardwareControl,
-                        text: "Hardware Control"
+                        text: qsTr("Hardware Control")
                     },
                     {
                         value: SerialPort.SoftwareControl,
-                        text: "Software Control"
+                        text: qsTr("Software Control")
                     }
                 ]
                 textRole: "text"
@@ -237,8 +237,8 @@ ReaderDialog {
                 id: formatModeBox
                 Layout.fillWidth: true
                 model: [qsTr("Single byte"), qsTr("Packet")]
-                currentIndex: root.sessionModel.formatMode === "packet" ? 1 : 0
-                onActivated: root.sessionModel.formatMode = (currentIndex === 1) ? "packet" : "singleByte"
+                currentIndex: root.sessionModel.formatMode == "packet" ? 1 : 0
+                onActivated: root.sessionModel.formatMode = (currentIndex == 1) ? "packet" : "singleByte"
             }
         }
 
@@ -268,14 +268,20 @@ ReaderDialog {
                         RadioButton {
                             text: qsTr("Signed")
                             checked: root.sessionModel.signedByte
-                            onToggled: if (checked)
-                                root.sessionModel.signedByte = true
+                            onToggled: {
+                                if (checked) {
+                                    root.sessionModel.signedByte = true;
+                                }
+                            }
                         }
                         RadioButton {
                             text: qsTr("Unsigned")
                             checked: !root.sessionModel.signedByte
-                            onToggled: if (checked)
-                                root.sessionModel.signedByte = false
+                            onToggled: {
+                                if (checked) {
+                                    root.sessionModel.signedByte = false;
+                                }
+                            }
                         }
                     }
 

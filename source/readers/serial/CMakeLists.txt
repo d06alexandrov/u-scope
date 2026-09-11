@@ -18,6 +18,7 @@ qt_add_qml_module(
               qml/SerialReaderDialog.qml qml/PacketFieldDialog.qml
     SOURCES serialreader_dialog_model.cpp serialreader_dialog_model.hpp
             packetfields_dialog_model.cpp packetfields_dialog_model.hpp
+            serialreader_dialog_enums.hpp
     DEPENDENCIES TARGET universal_reader
 )
 

@@ -103,14 +103,142 @@ ReaderDialog {
             Layout.fillWidth: true
 
             Label {
+                text: qsTr("Data Bits:")
+            }
+            ComboBox {
+                id: dataBitsBox
+                Layout.fillWidth: true
+                model: [
+                    {
+                        value: SerialPort.Data5,
+                        text: "5"
+                    },
+                    {
+                        value: SerialPort.Data6,
+                        text: "6"
+                    },
+                    {
+                        value: SerialPort.Data7,
+                        text: "7"
+                    },
+                    {
+                        value: SerialPort.Data8,
+                        text: "8"
+                    }
+                ]
+                textRole: "text"
+                valueRole: "value"
+                currentValue: root.sessionModel.dataBits
+                onActivated: root.sessionModel.dataBits = currentValue
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+
+            Label {
+                text: qsTr("Parity:")
+            }
+            ComboBox {
+                id: parityBox
+                Layout.fillWidth: true
+                model: [
+                    {
+                        value: SerialPort.NoParity,
+                        text: qsTr("None")
+                    },
+                    {
+                        value: SerialPort.EvenParity,
+                        text: qsTr("Even")
+                    },
+                    {
+                        value: SerialPort.OddParity,
+                        text: qsTr("Odd")
+                    },
+                    {
+                        value: SerialPort.SpaceParity,
+                        text: qsTr("Space")
+                    },
+                    {
+                        value: SerialPort.MarkParity,
+                        text: qsTr("Mark")
+                    }
+                ]
+                textRole: "text"
+                valueRole: "value"
+                currentValue: root.sessionModel.parity
+                onActivated: root.sessionModel.parity = currentValue
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+
+            Label {
+                text: qsTr("Stop bits:")
+            }
+            ComboBox {
+                id: stopBitsBox
+                Layout.fillWidth: true
+                model: [
+                    {
+                        value: SerialPort.OneStop,
+                        text: "1"
+                    },
+                    {
+                        value: SerialPort.TwoStop,
+                        text: "2"
+                    }
+                ]
+                textRole: "text"
+                valueRole: "value"
+                currentValue: root.sessionModel.stopBits
+                onActivated: root.sessionModel.stopBits = currentValue
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+
+            Label {
+                text: qsTr("Flow control:")
+            }
+            ComboBox {
+                id: flowControlBox
+                Layout.fillWidth: true
+                model: [
+                    {
+                        value: SerialPort.NoFlowControl,
+                        text: qsTr("No Flow Control")
+                    },
+                    {
+                        value: SerialPort.HardwareControl,
+                        text: qsTr("Hardware Control")
+                    },
+                    {
+                        value: SerialPort.SoftwareControl,
+                        text: qsTr("Software Control")
+                    }
+                ]
+                textRole: "text"
+                valueRole: "value"
+                currentValue: root.sessionModel.flowControl
+                onActivated: root.sessionModel.flowControl = currentValue
+            }
+        }
+
+        RowLayout {
+            Layout.fillWidth: true
+
+            Label {
                 text: qsTr("Data format:")
             }
             ComboBox {
                 id: formatModeBox
                 Layout.fillWidth: true
                 model: [qsTr("Single byte"), qsTr("Packet")]
-                currentIndex: root.sessionModel.formatMode === "packet" ? 1 : 0
-                onActivated: root.sessionModel.formatMode = (currentIndex === 1) ? "packet" : "singleByte"
+                currentIndex: root.sessionModel.formatMode == "packet" ? 1 : 0
+                onActivated: root.sessionModel.formatMode = (currentIndex == 1) ? "packet" : "singleByte"
             }
         }
 
@@ -140,14 +268,20 @@ ReaderDialog {
                         RadioButton {
                             text: qsTr("Signed")
                             checked: root.sessionModel.signedByte
-                            onToggled: if (checked)
-                                root.sessionModel.signedByte = true
+                            onToggled: {
+                                if (checked) {
+                                    root.sessionModel.signedByte = true;
+                                }
+                            }
                         }
                         RadioButton {
                             text: qsTr("Unsigned")
                             checked: !root.sessionModel.signedByte
-                            onToggled: if (checked)
-                                root.sessionModel.signedByte = false
+                            onToggled: {
+                                if (checked) {
+                                    root.sessionModel.signedByte = false;
+                                }
+                            }
                         }
                     }
 

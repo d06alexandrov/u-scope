@@ -8,12 +8,10 @@ std::shared_ptr<UniversalReaderConfig> SerialReaderDialogConfig::to_reader_confi
 
     config->port_name = port_name;
     config->baud_rate = baud_rate;
-
-    // TODO: make configurable
-    config->data_bits = QSerialPort::Data8;
-    config->parity = QSerialPort::OddParity;
-    config->stop_bits = QSerialPort::OneStop;
-    config->flow_control = QSerialPort::NoFlowControl;
+    config->data_bits = data_bits;
+    config->parity = parity;
+    config->stop_bits = stop_bits;
+    config->flow_control = flow_control;
 
     config->format = format;
     config->field_configs = field_configs;

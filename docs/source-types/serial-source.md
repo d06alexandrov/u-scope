@@ -13,8 +13,9 @@ The Serial Port source reads raw bytes from a connected serial device and decode
 1. Right-click in the **Sources** pane and select **Add Serial source**.
 2. Choose a **Device** from the list of available ports detected on the system.
 3. Set the **Baudrate**, either by selecting a common value or typing a custom one.
-4. Choose a **Data format** - Single Byte or Packet - and configure its options (see below).
-5. Click **OK** to create the source.
+4. Configure the **port settings** (data bits, parity, stop bits, flow control) to match your device.
+5. Choose a **Data format** - Single Byte or Packet - and configure its options (see below).
+6. Click **OK** to create the source.
 
 ## Data formats
 
@@ -73,14 +74,14 @@ Each field is shown in the Sources list with its offset and type, for example: `
 
 ## Port configuration
 
-The following parameters are currently fixed and not user-configurable:
+| Parameter | Options | Default |
+|---|---|---|
+| Data bits | 5, 6, 7, 8 | 8 |
+| Parity | None, Even, Odd, Space, Mark | None |
+| Stop bits | 1, 2 | 1 |
+| Flow control | No Flow Control, Hardware Control, Software Control | No Flow Control |
 
-| Parameter | Value |
-|---|---|
-| Data bits | 8 |
-| Parity | Odd |
-| Stop bits | 1 |
-| Flow control | None |
+These settings must match the configuration of the connected device. When in doubt, the most common combination for embedded hardware is 8 data bits, no parity, 1 stop bit, and no flow control (8N1).
 
 ## Notes
 

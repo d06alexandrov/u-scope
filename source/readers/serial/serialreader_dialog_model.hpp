@@ -124,7 +124,7 @@ private:
     int m_data_bits{ }; /**< Amount of the data bits. */
     int m_parity{ }; /**< Parity setting. */
     int m_stop_bits{ }; /**< Amount of the stop bits. */
-    int m_flow_control{ } /**< Flow control setting. */;
+    int m_flow_control{ }; /**< Flow control setting. */
     QString m_format_mode{ }; /**< Format of the packet. */
 
     bool m_signed_byte{ true }; /**< Whether to treat single-byte packets as signed or unsigned. */

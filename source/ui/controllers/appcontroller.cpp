@@ -96,6 +96,11 @@ QVariantList AppController::channelColors() const
     return color_list;
 }
 
+bool AppController::isStopped() const
+{
+    return (m_current_mode == ScopeMode::Stopped);
+}
+
 void AppController::handle_start_clicked()
 {
     m_current_mode = ScopeMode::Roll;

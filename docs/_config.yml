@@ -6,4 +6,4 @@ search_enabled: true
 
 aux_links:
   "GitHub":
-    - "{{ site.github.repository_url }}"
+    - "https://github.com/d06alexandrov/u-scope"

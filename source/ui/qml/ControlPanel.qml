@@ -24,6 +24,7 @@ ColumnLayout {
                 id: pushButton_StartAll
                 text: "Start"
                 Layout.fillWidth: true
+                enabled: AppController.stopped
                 onClicked: AppController.handle_start_clicked()
             }
 
@@ -31,6 +32,7 @@ ColumnLayout {
                 id: pushButton_StopAll
                 text: "Stop"
                 Layout.fillWidth: true
+                enabled: !AppController.stopped
                 onClicked: AppController.handle_stop_clicked()
             }
         }
@@ -110,6 +112,16 @@ ColumnLayout {
                     stepSize: 1.0
                     wrap: true
 
+                    onEnabledChanged: {
+                        // Fusion style hack to force background repaint when enabled
+                        if (background) {
+                            const className = String(background);
+                            if (className.includes("Fusion")) {
+                                background.update();
+                            }
+                        }
+                    }
+
                     property real previousValue: value
 
                     onMoved: {
@@ -159,7 +171,7 @@ ColumnLayout {
                     Layout.maximumHeight: root.dialMaximumSize
                     Layout.alignment: Qt.AlignHCenter
 
-                    from: -24
+                    from: -36
                     to: -4
                     stepSize: 1.0
 
@@ -168,6 +180,16 @@ ColumnLayout {
                             return AppController.verticalScaleModel.qDialValue(AppController.channelModel.selectedChannel);
                         } else {
                             return -4;
+                        }
+                    }
+
+                    onEnabledChanged: {
+                        // Fusion style hack to force background repaint when enabled
+                        if (background) {
+                            const className = String(background);
+                            if (className.includes("Fusion")) {
+                                background.update();
+                            }
                         }
                     }
 
@@ -215,6 +237,16 @@ ColumnLayout {
                     Layout.maximumWidth: root.dialMaximumSize
                     Layout.maximumHeight: root.dialMaximumSize
                     Layout.alignment: Qt.AlignHCenter
+
+                    onEnabledChanged: {
+                        // Fusion style hack to force background repaint when enabled
+                        if (background) {
+                            const className = String(background);
+                            if (className.includes("Fusion")) {
+                                background.update();
+                            }
+                        }
+                    }
                 }
             }
         }

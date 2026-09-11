@@ -169,7 +169,7 @@ ColumnLayout {
                     Layout.maximumHeight: root.dialMaximumSize
                     Layout.alignment: Qt.AlignHCenter
 
-                    from: -24
+                    from: -36
                     to: -4
                     stepSize: 1.0
 

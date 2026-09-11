@@ -95,9 +95,17 @@ inline QString unit_scale_to_string(int64_t division, QStringView unit = u"")
         return QObject::tr("%1 m%2")
                 .arg(static_cast<double>(division) / scale_threshold_uval<std::milli>)
                 .arg(unit);
-    } else {
+    } else if (division < scale_threshold_uval<std::kilo>) {
         return QObject::tr("%1 %2")
                 .arg(static_cast<double>(division) / scale_threshold_uval<std::ratio<1>>)
+                .arg(unit);
+    } else if (division < scale_threshold_uval<std::mega>) {
+        return QObject::tr("%1 K%2")
+                .arg(static_cast<double>(division) / scale_threshold_uval<std::kilo>)
+                .arg(unit);
+    } else {
+        return QObject::tr("%1 M%2")
+                .arg(static_cast<double>(division) / scale_threshold_uval<std::mega>)
                 .arg(unit);
     }
 }

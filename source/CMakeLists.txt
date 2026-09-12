@@ -56,7 +56,7 @@ set_target_properties(
 find_package(Qt6 REQUIRED COMPONENTS LinguistTools)
 qt_add_translations(
     u-scope
-    TS_FILES ${PROJECT_SOURCE_DIR}/i18n/u-scope_en.ts
+    TS_FILES ${PROJECT_SOURCE_DIR}/i18n/u-scope_ru.ts
     RESOURCE_PREFIX "/i18n"
 )
 

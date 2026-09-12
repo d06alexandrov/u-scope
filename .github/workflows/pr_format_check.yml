@@ -35,7 +35,7 @@ jobs:
           header: pr-title-lint-error
           message: |
             > [!WARNING]  
-            > Pull request title should follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/).
+            > Pull request title should follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) with the description starting with a capital letter and ending with a period.
 
             <details>
             ${{ steps.lint_pr_title.outputs.error_message }}

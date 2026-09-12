@@ -93,7 +93,7 @@
     <message>
         <location filename="../source/readers/serial/qml/PacketFieldDialog.qml" line="111"/>
         <source>Endianness</source>
-        <translation>Знаковость</translation>
+        <translation>Порядок байт</translation>
     </message>
     <message>
         <location filename="../source/readers/serial/qml/PacketFieldDialog.qml" line="125"/>
@@ -360,7 +360,7 @@
     <message>
         <location filename="../source/readers/simulated/simulatedreader.cpp" line="28"/>
         <source>Allowed sample rate is within the range [%1;%2]</source>
-        <translation>Допустимачастота дискретизации в диапазоне [%1;%2]</translation>
+        <translation>Допустимая частота дискретизации в диапазоне [%1;%2]</translation>
     </message>
 </context>
 <context>

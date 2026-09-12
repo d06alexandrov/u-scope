@@ -1,0 +1,29 @@
+name: Actions after release
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'
+
+jobs:
+  # Creates PR to merge back main to develop
+  merge-back-pr:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      pull-requests: write
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v7
+
+      - name: Create PR from main to develop
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          TAG=${GITHUB_REF#refs/tags/}
+          gh pr create \
+            --base develop \
+            --head main \
+            --title "chore: Merge back main to develop after ${TAG}." \
+            --body "This PR merges \`main\` into \`develop\` following the release of tag \`${TAG}\`."

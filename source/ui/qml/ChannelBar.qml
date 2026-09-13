@@ -177,10 +177,10 @@ Flow {
 
                         text: {
                             if (!badgeRoot.channelConnected) {
-                                return "DISCONNECTED";
+                                return qsTr("DISCONNECTED");
                             }
                             if (!badgeRoot.channelEnabled) {
-                                return "OFF";
+                                return qsTr("OFF");
                             }
                             return badgeRoot.valueText;
                         }

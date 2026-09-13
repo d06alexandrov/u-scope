@@ -7,7 +7,7 @@ struct SimulatedReaderModule
 {
     static QString module_id() { return QStringLiteral("simulated"); }
     static const char *label_source() { return QT_TR_NOOP("Simulated source"); }
-    static const char *label_context() { return "SourceListController"; }
+    static const char *label_context() { return "SimulatedReaderModule"; }
     static QUrl dialog_url()
     {
         return { QStringLiteral("qrc:/qt/qml/UI/Readers/Simulated/qml/SimulatedReaderDialog.qml") };

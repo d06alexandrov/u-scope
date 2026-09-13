@@ -20,6 +20,59 @@
     </message>
 </context>
 <context>
+    <name>ChannelBar</name>
+    <message>
+        <location filename="../source/ui/qml/ChannelBar.qml" line="180"/>
+        <source>DISCONNECTED</source>
+        <translation>НЕТ ИСТОЧНИКА</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/ChannelBar.qml" line="183"/>
+        <source>OFF</source>
+        <translation>ВЫКЛ</translation>
+    </message>
+</context>
+<context>
+    <name>ControlPanel</name>
+    <message>
+        <location filename="../source/ui/qml/ControlPanel.qml" line="14"/>
+        <source>Trigger</source>
+        <translation>Синхронизация</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/ControlPanel.qml" line="25"/>
+        <source>Start</source>
+        <translation>Запуск</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/ControlPanel.qml" line="33"/>
+        <source>Stop</source>
+        <translation>Стоп</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/ControlPanel.qml" line="43"/>
+        <source>Horizontal</source>
+        <translation>Настройка времени</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/ControlPanel.qml" line="56"/>
+        <location filename="../source/ui/qml/ControlPanel.qml" line="162"/>
+        <source>Scale</source>
+        <translation>Масштаб</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/ControlPanel.qml" line="94"/>
+        <location filename="../source/ui/qml/ControlPanel.qml" line="229"/>
+        <source>Position</source>
+        <translation>Положение</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/ControlPanel.qml" line="148"/>
+        <source>Vertical</source>
+        <translation>Настройка каналов</translation>
+    </message>
+</context>
+<context>
     <name>DataProcessor</name>
     <message>
         <location filename="../source/core/dataprocessor.cpp" line="46"/>
@@ -43,6 +96,21 @@
         <location filename="../source/ui/qml/MainWindow.qml" line="21"/>
         <source>&amp;About</source>
         <translation>&amp;О программе</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/MainWindow.qml" line="37"/>
+        <source>Sources</source>
+        <translation>Источники</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/MainWindow.qml" line="62"/>
+        <source>Screen</source>
+        <translation>Главный экран</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/MainWindow.qml" line="74"/>
+        <source>Control panel</source>
+        <translation>Панель управления</translation>
     </message>
 </context>
 <context>
@@ -413,6 +481,21 @@
         <location filename="../source/ui/qml/SourceList.qml" line="32"/>
         <source>Add %1</source>
         <translation>Добавить %1</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/SourceList.qml" line="55"/>
+        <source>Delete existing source</source>
+        <translation>Удалить источник</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/SourceList.qml" line="67"/>
+        <source>Assign to channel</source>
+        <translation>Назначить канал</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/SourceList.qml" line="76"/>
+        <source>Channel %1</source>
+        <translation>Канал №%1</translation>
     </message>
 </context>
 <context>

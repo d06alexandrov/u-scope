@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.6.0](https://github.com/d06alexandrov/u-scope/compare/v0.5.0...v0.6.0) (2026-09-13)
+
+
+### Features
+
+* **ci:** Add workflow to create PR for merging main into develop after release. ([f4db1df](https://github.com/d06alexandrov/u-scope/commit/f4db1dfe2fd52394713f978f3f6e3be7c3eefe2b))
+* **ui:** Add German translation. ([ec66e80](https://github.com/d06alexandrov/u-scope/commit/ec66e80fed4fd44613b224eb8a33f0fb84a4eda6))
+* **ui:** Add Russian translation. ([8be3240](https://github.com/d06alexandrov/u-scope/commit/8be3240b64a5e4090dd22475757f572c95518709))
+* **ui:** Add tooltip to display the exact received value on graph point hover. ([23c90eb](https://github.com/d06alexandrov/u-scope/commit/23c90ebd08a625fb2ac65fbd5608d8d92b457ad1))
+
+
+### Bug Fixes
+
+* **ci:** Prevent the creation of a release PR during the release. ([05efbf3](https://github.com/d06alexandrov/u-scope/commit/05efbf3ee1833231fe3ddfc03a87d57782618567))
+* **ui:** Add missing translation strings for UI components. ([2592e2c](https://github.com/d06alexandrov/u-scope/commit/2592e2cad5201117301abcb4db182d7472088f3a))
+
 ## [0.5.0](https://github.com/d06alexandrov/u-scope/compare/v0.4.1...v0.5.0) (2026-09-11)
 
 

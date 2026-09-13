@@ -26,14 +26,30 @@ class GraphData
 {
 public:
     /**
+     * @brief Structure to store meta data for each point in the graph.
+     */
+    struct PointMeta
+    {
+        int samples_count = 1; /**< Number of samples represented by the point. */
+        UData::Time min_time{ }; /**< Minimum timestamp of the samples represented by the point. */
+        UData::Time max_time{ }; /**< Maximum timestamp of the samples represented by the point. */
+        UData::DataVariant
+                min_val{ }; /**< Minimum value of the samples represented by the point. */
+        UData::DataVariant
+                max_val{ }; /**< Maximum value of the samples represented by the point. */
+    };
+
+    /**
      * @brief GraphData constructor.
      *
      * @param id Channel ID of the data.
      * @param values Points of the graph.
+     * @param meta Meta data for each point in the graph.
      */
-    GraphData(ChannelId id, QList<QPointF> values)
+    GraphData(ChannelId id, QList<QPointF> values, QList<PointMeta> meta = { })
         : m_id(id)
         , m_values(std::move(values))
+        , m_meta(std::move(meta))
     {
     }
 
@@ -51,9 +67,17 @@ public:
      */
     [[nodiscard]] const QList<QPointF> &get_values() const { return m_values; }
 
+    /**
+     * @brief Gets the list of meta data.
+     *
+     * @return A reference to the meta data.
+     */
+    [[nodiscard]] const QList<PointMeta> &get_meta() const { return m_meta; }
+
 private:
     ChannelId m_id; /**< Channel ID of the data. */
     QList<QPointF> m_values; /**< Points of the graph. */
+    QList<PointMeta> m_meta; /**< Meta data for each point in the graph. */
 };
 
 class UniversalReader;
@@ -313,9 +337,11 @@ private:
      * @param start_time Optional start time of the requested data.
      * @param end_time Optional end time of the requested data.
      * @param strict Flag indicating whether to strictly enforce the time range.
+     * @param meta Flag indicating whether to include meta information for each point.
      * @return Optional tuple containing a list of GraphData, start time, and end time.
      */
     std::optional<std::tuple<QList<GraphData>, UData::Time, UData::Time>>
     prepare_graph_data(int points_limit, std::optional<UData::Time> start_time = std::nullopt,
-                       std::optional<UData::Time> end_time = std::nullopt, bool strict = true);
+                       std::optional<UData::Time> end_time = std::nullopt, bool strict = true,
+                       bool meta = false);
 };

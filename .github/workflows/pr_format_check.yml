@@ -1,0 +1,48 @@
+name: Check PR format
+
+on:
+  pull_request:
+    branches: [ develop ]
+    types:
+      - opened
+      - synchronize
+      - reopened
+      - edited
+
+jobs:
+  check-pr-title:
+    runs-on: ubuntu-latest
+    permissions:
+      pull-requests: write
+    steps:
+      - uses: amannn/action-semantic-pull-request@48f256284bd46cdaab1048c3721360e808335d50 # v6.1.1
+        id: lint_pr_title
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          types: |
+            feat
+            fix
+            chore
+            refactor
+            clean
+            ci
+          subjectPattern: '^[A-Z].+\.$'
+
+      - uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        if: always() && (steps.lint_pr_title.outputs.error_message != null)
+        with:
+          header: pr-title-lint-error
+          message: |
+            > [!WARNING]  
+            > Pull request title should follow the [Conventional Commits specification](https://www.conventionalcommits.org/en/v1.0.0/) with the description starting with a capital letter and ending with a period.
+
+            <details>
+            ${{ steps.lint_pr_title.outputs.error_message }}
+            </details>
+
+      - if: ${{ steps.lint_pr_title.outputs.error_message == null }}
+        uses: marocchino/sticky-pull-request-comment@5770ad5eb8f42dd2c4f34da00c94c5381e49af88 # v3.0.5
+        with:
+          header: pr-title-lint-error
+          delete: true

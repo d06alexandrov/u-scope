@@ -30,6 +30,34 @@ void MainChartController::registerSeries(int id, QXYSeries *series)
     m_series[id] = series;
 }
 
+QVariantMap MainChartController::getMeta(int channel_id, int point_index)
+{
+    if (channel_id < 0 || channel_id >= static_cast<int>(m_series.size()) || point_index < 0) {
+        return { };
+    }
+
+    auto id = static_cast<ChannelId>(channel_id);
+
+    auto it = m_point_meta.find(id);
+
+    if (it == m_point_meta.end() || point_index >= it->second.size()) {
+        return { };
+    }
+
+    const auto &meta = it->second[point_index];
+
+    QVariantMap result = { { "count", meta.samples_count } };
+
+    if (meta.samples_count == 1) {
+        result["value"] = std::visit([](auto &&arg) { return QVariant(arg); }, meta.min_val);
+    } else {
+        result["min_value"] = std::visit([](auto &&arg) { return QVariant(arg); }, meta.min_val);
+        result["max_value"] = std::visit([](auto &&arg) { return QVariant(arg); }, meta.max_val);
+    }
+
+    return result;
+}
+
 void MainChartController::set_horizontal_div(UData::Time::Duration div)
 {
     if (div > UData::Time::Duration::zero()) {
@@ -74,6 +102,8 @@ void MainChartController::receive_stored_data(const QList<GraphData> &new_data,
         if (auto series = m_series[channel_id]) {
             series->replace(channel_data.get_values());
 
+            m_point_meta[channel_id] = channel_data.get_meta();
+
             channels_with_data.insert(channel_id);
         }
 
@@ -84,6 +114,8 @@ void MainChartController::receive_stored_data(const QList<GraphData> &new_data,
     for (const auto channel_id : m_channels_with_data) {
         if (auto series = m_series[channel_id]) {
             series->clear();
+
+            m_point_meta.erase(channel_id);
         }
     }
 
@@ -135,6 +167,8 @@ void MainChartController::clear_all_series()
     for (auto &series : m_series) {
         series->clear();
     }
+
+    m_point_meta.clear();
 
     m_channels_with_data.clear();
 }

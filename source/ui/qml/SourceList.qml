@@ -52,7 +52,7 @@ TreeView {
             id: readerMenu
 
             MenuItem {
-                text: "Delete existing source"
+                text: qsTr("Delete existing source")
                 onTriggered: {
                     AppController.sourceList.delete_source(sourceDelegate.readerId);
                 }
@@ -64,7 +64,7 @@ TreeView {
             id: variableMenu
 
             Menu {
-                title: "Assign to channel"
+                title: qsTr("Assign to channel")
 
                 Repeater {
                     model: 12
@@ -73,7 +73,7 @@ TreeView {
 
                         required property int index
 
-                        text: "Channel " + (channelMenuItem.index + 1)
+                        text: qsTr("Channel %1").arg(channelMenuItem.index + 1)
                         onTriggered: {
                             AppController.sourceList.assign_variable_to_channel(sourceDelegate.readerId, sourceDelegate.variableId, channelMenuItem.index);
                         }

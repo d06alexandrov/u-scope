@@ -76,7 +76,7 @@ GraphsView {
                         if (hovered && AppController.stopped) {
                             const meta_data = AppController.mainChart.getMeta(seriesItem.channel_id, pointItem.pointIndex);
 
-                            if (!meta_data) {
+                            if (!meta_data || meta_data.count === undefined) {
                                 pointToolTip.text = "";
                             }
 

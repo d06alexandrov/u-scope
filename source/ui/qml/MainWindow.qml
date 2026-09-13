@@ -34,7 +34,7 @@ ApplicationWindow {
 
         GroupBox {
             id: sourceListBox
-            title: "Sources"
+            title: qsTr("Sources")
 
             SplitView.preferredWidth: 300
             SplitView.minimumWidth: 0
@@ -59,7 +59,7 @@ ApplicationWindow {
 
             GroupBox {
                 id: outputScreenBox
-                title: "Screen"
+                title: qsTr("Screen")
 
                 Layout.fillWidth: true
                 Layout.fillHeight: true
@@ -71,7 +71,7 @@ ApplicationWindow {
 
             GroupBox {
                 id: controlPanelBox
-                title: "Control panel"
+                title: qsTr("Control panel")
 
                 Layout.alignment: Qt.AlignTop
 

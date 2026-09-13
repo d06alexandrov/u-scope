@@ -11,7 +11,7 @@ ColumnLayout {
 
     GroupBox {
         id: triggerConfig
-        title: "Trigger"
+        title: qsTr("Trigger")
         Layout.fillWidth: true
 
         GridLayout {
@@ -22,7 +22,7 @@ ColumnLayout {
 
             Button {
                 id: pushButton_StartAll
-                text: "Start"
+                text: qsTr("Start")
                 Layout.fillWidth: true
                 enabled: AppController.stopped
                 onClicked: AppController.handle_start_clicked()
@@ -30,7 +30,7 @@ ColumnLayout {
 
             Button {
                 id: pushButton_StopAll
-                text: "Stop"
+                text: qsTr("Stop")
                 Layout.fillWidth: true
                 enabled: !AppController.stopped
                 onClicked: AppController.handle_stop_clicked()
@@ -40,7 +40,7 @@ ColumnLayout {
 
     GroupBox {
         id: horizontalConfig
-        title: "Horizontal"
+        title: qsTr("Horizontal")
         enabled: true
         Layout.fillWidth: true
 
@@ -53,7 +53,7 @@ ColumnLayout {
                 spacing: 4
 
                 Label {
-                    text: "Scale"
+                    text: qsTr("Scale")
                     Layout.alignment: Qt.AlignHCenter
                 }
 
@@ -91,7 +91,7 @@ ColumnLayout {
                 enabled: AppController.overviewChart.visible
 
                 Label {
-                    text: "Position"
+                    text: qsTr("Position")
                     Layout.alignment: Qt.AlignHCenter
                 }
 
@@ -145,7 +145,7 @@ ColumnLayout {
 
     GroupBox {
         id: verticalConfig
-        title: "Vertical"
+        title: qsTr("Vertical")
         Layout.fillWidth: true
 
         enabled: AppController.channelModel.selectedChannel >= 0
@@ -159,7 +159,7 @@ ColumnLayout {
                 spacing: 4
 
                 Label {
-                    text: "Scale"
+                    text: qsTr("Scale")
                     Layout.alignment: Qt.AlignHCenter
                 }
 
@@ -226,7 +226,7 @@ ColumnLayout {
                 enabled: false
 
                 Label {
-                    text: "Position"
+                    text: qsTr("Position")
                     Layout.alignment: Qt.AlignHCenter
                 }
 

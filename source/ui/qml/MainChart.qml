@@ -2,6 +2,7 @@ pragma ComponentBehavior: Bound
 
 import QtQuick
 import QtGraphs
+import QtQuick.Controls
 
 GraphsView {
     id: root
@@ -52,12 +53,48 @@ GraphsView {
         LineSeries {
             id: seriesItem
 
-            pointDelegate: Rectangle {
+            required property int channel_id
+
+            pointDelegate: Item {
+                id: pointItem
                 width: 6
                 height: 6
-                radius: 3
 
-                color: seriesItem.color
+                property int pointIndex
+
+                Rectangle {
+                    anchors.centerIn: parent
+                    width: 6
+                    height: 6
+                    radius: 3
+                    color: seriesItem.color
+                }
+
+                HoverHandler {
+                    id: hover
+                    onHoveredChanged: {
+                        if (hovered && AppController.stopped) {
+                            const meta_data = AppController.mainChart.getMeta(seriesItem.channel_id, pointItem.pointIndex);
+
+                            if (!meta_data || meta_data.count === undefined) {
+                                pointToolTip.text = "";
+                                return;
+                            }
+
+                            if (meta_data.count == 1) {
+                                pointToolTip.text = qsTr("Channel %1\nValue: %2").arg(seriesItem.channel_id + 1).arg(meta_data.value);
+                            } else {
+                                pointToolTip.text = qsTr("Channel %1\nMultiple values collapsed (%2)\n Min value: %3\n Max value: %4").arg(seriesItem.channel_id + 1).arg(meta_data.count).arg(meta_data.min_value).arg(meta_data.max_value);
+                            }
+                        }
+                    }
+                }
+
+                ToolTip {
+                    id: pointToolTip
+                    visible: hover.hovered && AppController.stopped
+                    delay: 0
+                }
             }
         }
     }
@@ -66,7 +103,8 @@ GraphsView {
         for (var i = 0; i < 12; ++i) {
             var series = lineSeriesComponent.createObject(root, {
                 objectName: "plot_series_" + i,
-                color: (AppController.channelColors.length > i) ? AppController.channelColors[i] : "white"
+                color: (AppController.channelColors.length > i) ? AppController.channelColors[i] : "white",
+                channel_id: i
             });
 
             root.addSeries(series);

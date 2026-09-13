@@ -242,7 +242,7 @@ void DataProcessor::handle_data_request(UData::Time start_time, UData::Time end_
         return;
     }
 
-    auto prepared_data = prepare_graph_data(points_limit, start_time, end_time, false);
+    auto prepared_data = prepare_graph_data(points_limit, start_time, end_time, false, true);
 
     if (prepared_data.has_value()) {
         auto &&new_data = std::get<0>(std::move(prepared_data.value()));
@@ -338,7 +338,7 @@ std::optional<UData::Time> DataProcessor::get_latest_stored_time() const
 
 std::optional<std::tuple<QList<GraphData>, UData::Time, UData::Time>>
 DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> start_time,
-                                  std::optional<UData::Time> end_time, bool strict)
+                                  std::optional<UData::Time> end_time, bool strict, bool meta)
 {
     QList<GraphData> new_data;
 
@@ -376,7 +376,8 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
     auto get_time = [](const UData::Point &p) { return p.first; };
 
     for (const auto &[channel_id, channel_data] : m_buffers) {
-        QList<QPointF> processed_values;
+        QList<QPointF> processed_values{ };
+        QList<GraphData::PointMeta> processed_meta{ };
 
         auto scale_it = m_channel_vscale.find(channel_id);
         qreal scale = (scale_it != m_channel_vscale.end()) ? scale_it->second : 1.0;
@@ -394,11 +395,24 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
 
         processed_values.reserve(static_cast<qsizetype>(points_to_return));
 
+        if (meta) {
+            processed_meta.reserve(static_cast<qsizetype>(points_to_return));
+        }
+
         if (!strict && (left_it != channel_data.begin())) {
             const auto &[timestamp, raw_val] = *std::prev(left_it);
             const auto val =
                     std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale;
             processed_values.emplace_back(UData::to_double(timestamp - start_time_actual), val);
+            if (meta) {
+                processed_meta.push_back({
+                        .samples_count = 1,
+                        .min_time = timestamp,
+                        .max_time = timestamp,
+                        .min_val = raw_val,
+                        .max_val = raw_val,
+                });
+            }
         }
 
         if (std::distance(left_it, right_it) <= points_limit) {
@@ -408,6 +422,16 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
                         * scale;
 
                 processed_values.emplace_back(UData::to_double(timestamp - start_time_actual), val);
+
+                if (meta) {
+                    processed_meta.push_back({
+                            .samples_count = 1,
+                            .min_time = timestamp,
+                            .max_time = timestamp,
+                            .min_val = raw_val,
+                            .max_val = raw_val,
+                    });
+                }
             }
         } else {
             // Divide the range into equal pieces and provide an average value
@@ -423,6 +447,8 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
 
                 UData::Time min_time = next_point->first;
                 UData::Time max_time = min_time;
+                UData::DataVariant min_val = next_point->second;
+                UData::DataVariant max_val = min_val;
                 int amount = 0;
                 qreal sum = 0;
 
@@ -431,6 +457,8 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
                                                 next_point->second);
                     sum += val;
                     max_time = next_point->first;
+                    min_val = std::min(min_val, next_point->second);
+                    max_val = std::max(max_val, next_point->second);
                     amount++;
 
                     next_point++;
@@ -442,6 +470,16 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
 
                     processed_values.emplace_back(
                             UData::to_double(average_time - start_time_actual), average_value);
+
+                    if (meta) {
+                        processed_meta.push_back({
+                                .samples_count = amount,
+                                .min_time = min_time,
+                                .max_time = max_time,
+                                .min_val = min_val,
+                                .max_val = max_val,
+                        });
+                    }
                 }
             }
         }
@@ -451,9 +489,19 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
             const auto val =
                     std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale;
             processed_values.emplace_back(UData::to_double(timestamp - start_time_actual), val);
+
+            if (meta) {
+                processed_meta.push_back({
+                        .samples_count = 1,
+                        .min_time = timestamp,
+                        .max_time = timestamp,
+                        .min_val = raw_val,
+                        .max_val = raw_val,
+                });
+            }
         }
 
-        new_data.emplace_back(channel_id, std::move(processed_values));
+        new_data.emplace_back(channel_id, std::move(processed_values), std::move(processed_meta));
     }
 
     return std::tuple{ new_data, start_time_actual, end_time_actual };

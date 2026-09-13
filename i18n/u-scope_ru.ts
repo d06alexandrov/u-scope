@@ -81,6 +81,27 @@
     </message>
 </context>
 <context>
+    <name>MainChart</name>
+    <message>
+        <location filename="../source/ui/qml/MainChart.qml" line="84"/>
+        <source>Channel %1
+Value: %2</source>
+        <translation>Канал №%1
+Значение: %2</translation>
+    </message>
+    <message>
+        <location filename="../source/ui/qml/MainChart.qml" line="86"/>
+        <source>Channel %1
+Multiple values collapsed (%2)
+ Min value: %3
+ Max value: %4</source>
+        <translation>Канал №%1
+Несколько значений объединено (%2)
+ Мин. значение: %3
+ Макс. значение: %4</translation>
+    </message>
+</context>
+<context>
     <name>MainWindow</name>
     <message>
         <location filename="../source/ui/qml/MainWindow.qml" line="11"/>

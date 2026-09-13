@@ -18,9 +18,9 @@ overloads(Ts...) -> overloads<Ts...>;
 
 namespace UData {
 
-using Variant = std::variant<char, int32_t, uint32_t,
+using DataVariant = std::variant<char, int32_t, uint32_t,
                              double>; /**< Data variants provided by universal readers. */
-using Point = QPair<Time, Variant>; /**< Combination of the timestamp and the value provided by
+using Point = QPair<Time, DataVariant>; /**< Combination of the timestamp and the value provided by
                                        universal readers. */
 
 } // namespace UData

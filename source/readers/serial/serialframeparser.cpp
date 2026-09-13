@@ -46,9 +46,9 @@ void SingleByteFrameParser::feed(const QByteArray &data, UData::Time chunk_end_t
         const UData::Time::Duration offset = UData::duration_from_seconds(offset_sec);
         const UData::Time byte_timestamp = chunk_end_time - offset;
 
-        const UData::Variant value = m_is_signed
-                ? UData::Variant{ data[i] }
-                : UData::Variant{ static_cast<int32_t>(static_cast<uint8_t>(data[i])) };
+        const UData::DataVariant value = m_is_signed
+                ? UData::DataVariant{ data[i] }
+                : UData::DataVariant{ static_cast<int32_t>(static_cast<uint8_t>(data[i])) };
 
         on_sample(m_variable_id, UData::Point(byte_timestamp, value));
     }
@@ -146,7 +146,7 @@ void PacketFrameParser::decode_packet(const QByteArray &packet, UData::Time pack
     }
 }
 
-UData::Variant PacketFrameParser::decode_field(const QByteArray &packet,
+UData::DataVariant PacketFrameParser::decode_field(const QByteArray &packet,
                                                const SerialReaderConfig::FieldConfig &field)
 {
     const int size = field_size(field.type);

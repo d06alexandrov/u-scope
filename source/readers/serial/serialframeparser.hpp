@@ -142,9 +142,9 @@ private:
      *
      * @param packet The packet data to decode from.
      * @param field The field configuration to use for decoding.
-     * @return the decoded field value as a UData::Variant.
+     * @return the decoded field value as a UData::DataVariant.
      */
-    [[nodiscard]] static UData::Variant decode_field(const QByteArray &packet,
+    [[nodiscard]] static UData::DataVariant decode_field(const QByteArray &packet,
                                                      const SerialReaderConfig::FieldConfig &field);
 
     /**

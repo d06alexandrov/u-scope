@@ -7,7 +7,8 @@
 #include <QPointer>
 #include <QValueAxis>
 #include <QXYSeries>
-#include <QtQmlIntegration/qqmlintegration.h>
+#include <QtQmlIntegration>
+#include <unordered_map>
 
 /**
  * @brief The class responsible for controlling the main chart in the application.
@@ -39,6 +40,8 @@ public:
      * @param series Pointer to the QXYSeries to be registered.
      */
     Q_INVOKABLE void registerSeries(int id, QXYSeries *series);
+
+    Q_INVOKABLE QVariantMap getMeta(int channel_id, int point_index);
 
 public slots:
 
@@ -134,6 +137,7 @@ private:
 
     QPointer<QValueAxis> m_axis_x{ }; /**< X axis of the graph. */
     std::vector<QPointer<QXYSeries>> m_series{ }; /**< Data series of the graph. */
+    std::unordered_map<ChannelId, QList<GraphData::PointMeta>> m_point_meta{ };
 
     std::set<ChannelId> m_channels_with_data{ }; /**<  Channels with data in the current view. */
 

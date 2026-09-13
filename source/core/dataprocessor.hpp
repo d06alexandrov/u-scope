@@ -25,13 +25,18 @@
 class GraphData
 {
 public:
+    /**
+     * @brief Structure to store meta data for each point in the graph.
+     */
     struct PointMeta
     {
-        int samples_count = 1;
-        UData::Time min_time{ };
-        UData::Time max_time{ };
-        UData::DataVariant min_val{ };
-        UData::DataVariant max_val{ };
+        int samples_count = 1; /**< Number of samples represented by the point. */
+        UData::Time min_time{ }; /**< Minimum timestamp of the samples represented by the point. */
+        UData::Time max_time{ }; /**< Maximum timestamp of the samples represented by the point. */
+        UData::DataVariant
+                min_val{ }; /**< Minimum value of the samples represented by the point. */
+        UData::DataVariant
+                max_val{ }; /**< Maximum value of the samples represented by the point. */
     };
 
     /**
@@ -39,6 +44,7 @@ public:
      *
      * @param id Channel ID of the data.
      * @param values Points of the graph.
+     * @param meta Meta data for each point in the graph.
      */
     GraphData(ChannelId id, QList<QPointF> values, QList<PointMeta> meta = { })
         : m_id(id)
@@ -71,7 +77,7 @@ public:
 private:
     ChannelId m_id; /**< Channel ID of the data. */
     QList<QPointF> m_values; /**< Points of the graph. */
-    QList<PointMeta> m_meta;
+    QList<PointMeta> m_meta; /**< Meta data for each point in the graph. */
 };
 
 class UniversalReader;

@@ -41,6 +41,13 @@ public:
      */
     Q_INVOKABLE void registerSeries(int id, QXYSeries *series);
 
+    /**
+     * @brief Get the meta information for a specific point in a series.
+     *
+     * @param channel_id The identifier of the series (channel).
+     * @param point_index The index of the point in the series.
+     * @return A QVariantMap containing the meta information for the specified point.
+     */
     Q_INVOKABLE QVariantMap getMeta(int channel_id, int point_index);
 
 public slots:

@@ -81,7 +81,7 @@ GraphsView {
                             }
 
                             if (meta_data.count == 1) {
-                                pointToolTip.text = qsTr("Channel %1\nValue: %3").arg(seriesItem.channel_id + 1).arg(meta_data.value);
+                                pointToolTip.text = qsTr("Channel %1\nValue: %2").arg(seriesItem.channel_id + 1).arg(meta_data.value);
                             } else {
                                 pointToolTip.text = qsTr("Channel %1\nMultiple values collapsed (%2)\n Min value: %3\n Max value: %4").arg(seriesItem.channel_id + 1).arg(meta_data.count).arg(meta_data.min_value).arg(meta_data.max_value);
                             }

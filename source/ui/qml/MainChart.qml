@@ -78,6 +78,7 @@ GraphsView {
 
                             if (!meta_data || meta_data.count === undefined) {
                                 pointToolTip.text = "";
+                                return;
                             }
 
                             if (meta_data.count == 1) {

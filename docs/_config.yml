@@ -3,6 +3,10 @@ description: Oscilloscope-style streaming data visualizer
 remote_theme: just-the-docs/just-the-docs
 color_scheme: dark
 search_enabled: true
+url: "https://u-scope.dalogik.com"
+
+plugins:
+  - jekyll-sitemap
 
 aux_links:
   "GitHub":

@@ -194,9 +194,7 @@ Item {
             Connections {
                 target: AppController.verticalScaleModel
                 function onVOffsetChanged() {
-                    if (shapeDelegate.channelSelected) {
-                        shapeDelegate.channelOffset = AppController.verticalScaleModel.vOffset(shapeDelegate.channelId);
-                    }
+                    shapeDelegate.channelOffset = AppController.verticalScaleModel.vOffset(shapeDelegate.channelId);
                 }
             }
         }

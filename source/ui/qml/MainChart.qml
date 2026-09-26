@@ -134,6 +134,9 @@ Item {
         delegate: Shape {
             id: shapeDelegate
 
+            layer.enabled: true
+            layer.samples: 4
+
             width: root.markersWidth
             height: 12
             x: 0

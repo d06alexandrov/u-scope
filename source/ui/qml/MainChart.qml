@@ -156,8 +156,21 @@ Item {
                 }
             }
 
-            visible: channelConnected && channelEnabled && yPos >= height / 2 && yPos <= root.height - height / 2
-
+            visible: {
+                if (!channelConnected || !channelEnabled) {
+                    // Channels are not shown
+                    return false;
+                }
+                if ((channelOffset < plotAxisY.min) || (channelOffset > plotAxisY.max)) {
+                    // Offset is out of bounds
+                    return false;
+                }
+                if ((yPos < height / 2) || (yPos > root.height - height / 2)) {
+                    // Marker is out of chart borders
+                    return false;
+                }
+                return true;
+            }
             ShapePath {
                 fillColor: shapeDelegate.badgeColor
                 strokeWidth: 1

@@ -154,6 +154,14 @@ signals:
     void update_channel_vertical_scale(ChannelId channel_id, double scale);
 
     /**
+     * @brief Update vertical offset of a channel in the Data Processor
+     *
+     * @param channel_id ID of the channel to update.
+     * @param scale New vertical offset in divisions for the channel.
+     */
+    void update_channel_vertical_offset(ChannelId channel_id, double offset_div);
+
+    /**
      * @brief Start data processing in the Data Processor.
      */
     void start_data_processing();

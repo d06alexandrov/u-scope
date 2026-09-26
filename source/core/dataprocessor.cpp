@@ -188,6 +188,15 @@ void DataProcessor::update_channel_vertical_scale(ChannelId channel_id, double s
     }
 }
 
+void DataProcessor::update_channel_vertical_offset(ChannelId channel_id, double offset_div)
+{
+    if (!m_channel_to_var.contains(channel_id)) {
+        return;
+    }
+
+    m_channel_voffset[channel_id] = offset_div;
+}
+
 void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap data)
 {
     if (m_senders.contains(reader_id)) {
@@ -382,6 +391,9 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
         auto scale_it = m_channel_vscale.find(channel_id);
         qreal scale = (scale_it != m_channel_vscale.end()) ? scale_it->second : 1.0;
 
+        auto voffset_it = m_channel_voffset.find(channel_id);
+        qreal voffset = (voffset_it != m_channel_voffset.end()) ? voffset_it->second : 0.0;
+
         auto left_it =
                 std::ranges::lower_bound(channel_data, start_time_actual, std::less<>{ }, get_time);
         auto right_it = std::ranges::upper_bound(left_it, channel_data.end(), end_time_actual,
@@ -402,7 +414,8 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
         if (!strict && (left_it != channel_data.begin())) {
             const auto &[timestamp, raw_val] = *std::prev(left_it);
             const auto val =
-                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale;
+                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale
+                    + voffset;
             processed_values.emplace_back(UData::to_double(timestamp - start_time_actual), val);
             if (meta) {
                 processed_meta.push_back({
@@ -419,7 +432,8 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
             for (const auto &[timestamp, raw_val] : std::ranges::subrange(left_it, right_it)) {
                 const auto val =
                         std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val)
-                        * scale;
+                                * scale
+                        + voffset;
 
                 processed_values.emplace_back(UData::to_double(timestamp - start_time_actual), val);
 
@@ -466,7 +480,7 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
 
                 if (amount > 0) {
                     const UData::Time average_time = min_time + (max_time - min_time) / 2;
-                    const qreal average_value = sum / amount * scale;
+                    const qreal average_value = sum / amount * scale + voffset;
 
                     processed_values.emplace_back(
                             UData::to_double(average_time - start_time_actual), average_value);
@@ -487,7 +501,8 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
         if (!strict && (right_it != channel_data.end())) {
             const auto &[timestamp, raw_val] = *right_it;
             const auto val =
-                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale;
+                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale
+                    + voffset;
             processed_values.emplace_back(UData::to_double(timestamp - start_time_actual), val);
 
             if (meta) {

@@ -85,7 +85,7 @@ public:
      * @param id The channel ID for which to get the vertical offset.
      * @return The vertical offset in divisions.
      */
-    [[nodiscard]] qreal vOffset(ChannelId id) const;
+    [[nodiscard]] Q_INVOKABLE qreal vOffset(ChannelId id) const;
 
     /**
      * @brief Reset the vertical division of a channel to the default value.

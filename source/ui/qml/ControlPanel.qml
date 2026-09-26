@@ -223,20 +223,26 @@ ColumnLayout {
                 Layout.fillWidth: true
                 spacing: 4
 
-                enabled: false
-
                 Label {
                     text: qsTr("Position")
                     Layout.alignment: Qt.AlignHCenter
                 }
 
                 Dial {
-                    id: dial_4
+                    id: verticalPosition
                     Layout.preferredWidth: root.dialPreferredSize
                     Layout.preferredHeight: root.dialPreferredSize
                     Layout.maximumWidth: root.dialMaximumSize
                     Layout.maximumHeight: root.dialMaximumSize
                     Layout.alignment: Qt.AlignHCenter
+
+                    startAngle: -180
+                    endAngle: 180
+
+                    from: 0.0
+                    to: 1.0
+                    value: 0.5
+                    wrap: true
 
                     onEnabledChanged: {
                         // Fusion style hack to force background repaint when enabled
@@ -246,6 +252,23 @@ ColumnLayout {
                                 background.update();
                             }
                         }
+                    }
+
+                    property real previousValue: value
+
+                    onMoved: {
+                        let delta = value - previousValue;
+                        let range = to - from;
+
+                        if (delta > range / 2.0) {
+                            delta -= range;
+                        } else if (delta < -range / 2.0) {
+                            delta += range;
+                        }
+
+                        previousValue = value;
+
+                        AppController.verticalScaleModel.vOffsetMove(AppController.channelModel.selectedChannel, delta);
                     }
                 }
             }

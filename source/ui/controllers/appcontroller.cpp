@@ -174,6 +174,8 @@ void AppController::init_data_processor()
             &DataProcessor::disable_channel);
     connect(this, &AppController::update_channel_vertical_scale, m_data_processor.get(),
             &DataProcessor::update_channel_vertical_scale);
+    connect(this, &AppController::update_channel_vertical_offset, m_data_processor.get(),
+            &DataProcessor::update_channel_vertical_offset);
 
     connect(&m_data_processor_thread, &QThread::finished, m_data_processor.get(),
             &DataProcessor::deleteLater);
@@ -251,6 +253,20 @@ void AppController::init_input()
             emit update_channel_vertical_scale(
                     selected_channel.value(),
                     m_verticalscale_model.vScaleFactor(selected_channel.value()));
+
+            if (m_current_mode == ScopeMode::Stopped) {
+                emit force_graph_refresh();
+            }
+        }
+    });
+
+    connect(&m_verticalscale_model, &VerticalScaleModel::vOffsetChanged, this, [this]() {
+        const auto selected_channel = m_channelbar_model.get_selected();
+
+        if (selected_channel.has_value()) {
+            emit update_channel_vertical_offset(
+                    selected_channel.value(),
+                    m_verticalscale_model.vOffset(selected_channel.value()));
 
             if (m_current_mode == ScopeMode::Stopped) {
                 emit force_graph_refresh();

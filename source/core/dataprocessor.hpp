@@ -181,6 +181,14 @@ public slots:
     void update_channel_vertical_scale(ChannelId channel_id, double scale);
 
     /**
+     * @brief Update vertical offset of the specific channel.
+     *
+     * @param channel_id ID of the channel to update vertical offset.
+     * @param offset_div New vertical offset in divisions.
+     */
+    void update_channel_vertical_offset(ChannelId channel_id, double offset_div);
+
+    /**
      * @brief Receive data from the reader and store it in the buffer.
      *
      * @param reader_id ID of the reader.
@@ -309,6 +317,7 @@ private:
                    channels and variables. */
     std::unordered_map<ChannelId, bool> m_channel_enabled{ }; /**< If channels are enabled. */
     std::unordered_map<ChannelId, double> m_channel_vscale{ }; /**< Vertical channel scale. */
+    std::unordered_map<ChannelId, double> m_channel_voffset{ }; /**< Vertical channel offset. */
 
     size_t m_max_sample_points; /**< Maximum amount of sample points per channel. */
 

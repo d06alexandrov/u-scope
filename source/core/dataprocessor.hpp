@@ -184,7 +184,7 @@ public slots:
      * @brief Update vertical offset of the specific channel.
      *
      * @param channel_id ID of the channel to update vertical offset.
-     * @param scale New vertical offset in divisions.
+     * @param offset_div New vertical offset in divisions.
      */
     void update_channel_vertical_offset(ChannelId channel_id, double offset_div);
 

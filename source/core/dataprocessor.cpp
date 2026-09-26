@@ -190,10 +190,6 @@ void DataProcessor::update_channel_vertical_scale(ChannelId channel_id, double s
 
 void DataProcessor::update_channel_vertical_offset(ChannelId channel_id, double offset_div)
 {
-    if (!m_channel_to_var.contains(channel_id)) {
-        return;
-    }
-
     m_channel_voffset[channel_id] = offset_div;
 }
 

@@ -126,13 +126,16 @@ void DataProcessor::remove_reader(ReaderId id)
             if (it->first.first == id) {
                 const ChannelId channel_id = it->second;
 
-                const auto buff_it = m_buffers.find(channel_id);
-
-                if (buff_it != m_buffers.end()) {
+                if (const auto buff_it = m_buffers.find(channel_id); buff_it != m_buffers.end()) {
                     m_buffers.erase(buff_it);
                 }
 
-                m_channel_to_var.erase(it->second);
+                m_channel_to_var.erase(channel_id);
+
+                m_channel_enabled[channel_id] = false;
+
+                emit channel_disconnected(channel_id);
+
                 it = m_var_to_channel.erase(it);
             } else {
                 ++it;

@@ -168,6 +168,8 @@ void AppController::init_data_processor()
             &DataProcessor::setup);
 
     // Data Processor commands
+    connect(this, &AppController::assign_channel, m_data_processor.get(),
+            &DataProcessor::assign_channel);
     connect(this, &AppController::enable_channel, m_data_processor.get(),
             &DataProcessor::enable_channel);
     connect(this, &AppController::disable_channel, m_data_processor.get(),
@@ -184,6 +186,18 @@ void AppController::init_data_processor()
             &DataProcessor::start_data_processing);
     connect(this, &AppController::stop_data_processing, m_data_processor.get(),
             &DataProcessor::stop_data_processing);
+
+    // Data Processor signals
+    connect(m_data_processor.get(), &DataProcessor::channel_disconnected, this,
+            [this](ChannelId channel_id) {
+                m_channelbar_model.disable_channel(channel_id);
+                m_channelbar_model.disconnect_channel(channel_id);
+                m_verticalscale_model.reset_channel(channel_id);
+
+                if (m_current_mode == ScopeMode::Stopped) {
+                    emit force_graph_refresh();
+                }
+            });
 
     // Register Meta Type which will be used in a communication with Data Processor
     qRegisterMetaType<std::shared_ptr<UniversalReaderDialogConfig>>(
@@ -279,15 +293,18 @@ void AppController::init_source_list()
 {
     connect(&m_sourcelist_controller, &SourceListController::configure_reader,
             m_data_processor.get(), &DataProcessor::configure_reader);
-    connect(&m_sourcelist_controller, &SourceListController::request_channel_assignment,
-            m_data_processor.get(), &DataProcessor::assign_channel);
     connect(&m_sourcelist_controller, &SourceListController::request_channel_assignment, this,
-            [this]([[maybe_unused]] ReaderId reader_id, [[maybe_unused]] VariableId variable_id,
-                   ChannelId channel_id) {
+            [this](ReaderId reader_id, VariableId variable_id, ChannelId channel_id) {
                 m_verticalscale_model.reset_channel(channel_id);
                 m_channelbar_model.connect_channel(channel_id);
                 m_channelbar_model.enable_channel(channel_id,
                                                   m_verticalscale_model.vScaleText(channel_id));
+
+                emit assign_channel(reader_id, variable_id, channel_id);
+                emit update_channel_vertical_scale(channel_id,
+                                                   m_verticalscale_model.vScaleFactor(channel_id));
+                emit update_channel_vertical_offset(channel_id,
+                                                    m_verticalscale_model.vOffset(channel_id));
             });
     connect(&m_sourcelist_controller, &SourceListController::request_reader_remove,
             m_data_processor.get(), &DataProcessor::remove_reader);

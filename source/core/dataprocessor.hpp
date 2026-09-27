@@ -263,6 +263,13 @@ signals:
      */
     void reader_stop(ReaderId reader_id);
 
+    /**
+     * @brief Signal emitted when a channel is disconnected.
+     *
+     * @param channel_id The ID of the disconnected channel.
+     */
+    void channel_disconnected(ChannelId channel_id);
+
 private:
     static constexpr size_t default_max_sample_points =
             10000000; /**< Default amount of sample points. */

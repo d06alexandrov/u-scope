@@ -181,6 +181,14 @@ public slots:
     void update_channel_vertical_scale(ChannelId channel_id, double scale);
 
     /**
+     * @brief Update vertical offset of the specific channel.
+     *
+     * @param channel_id ID of the channel to update vertical offset.
+     * @param offset_div New vertical offset in divisions.
+     */
+    void update_channel_vertical_offset(ChannelId channel_id, double offset_div);
+
+    /**
      * @brief Receive data from the reader and store it in the buffer.
      *
      * @param reader_id ID of the reader.
@@ -255,6 +263,13 @@ signals:
      */
     void reader_stop(ReaderId reader_id);
 
+    /**
+     * @brief Signal emitted when a channel is disconnected.
+     *
+     * @param channel_id The ID of the disconnected channel.
+     */
+    void channel_disconnected(ChannelId channel_id);
+
 private:
     static constexpr size_t default_max_sample_points =
             10000000; /**< Default amount of sample points. */
@@ -309,6 +324,7 @@ private:
                    channels and variables. */
     std::unordered_map<ChannelId, bool> m_channel_enabled{ }; /**< If channels are enabled. */
     std::unordered_map<ChannelId, double> m_channel_vscale{ }; /**< Vertical channel scale. */
+    std::unordered_map<ChannelId, double> m_channel_voffset{ }; /**< Vertical channel offset. */
 
     size_t m_max_sample_points; /**< Maximum amount of sample points per channel. */
 

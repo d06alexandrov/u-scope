@@ -7,6 +7,7 @@
 VerticalScaleModel::VerticalScaleModel(size_t channelCount, QObject *parent)
     : QObject{ parent }
     , m_channel_scales_uval(std::vector<int64_t>(channelCount, default_division_uval))
+    , m_channel_offset(std::vector<double>(channelCount))
 {
 }
 
@@ -53,13 +54,37 @@ void VerticalScaleModel::qDialValueUpdate(int channel_id, int dial_value)
     emit vDivisionChanged();
 }
 
-void VerticalScaleModel::reset_channel(ChannelId id)
+void VerticalScaleModel::vOffsetMove(int channel_id, qreal offset_shift)
 {
-    if (id >= m_channel_scales_uval.size()) {
+    if (channel_id < 0 || channel_id >= static_cast<int>(m_channel_offset.size())) {
         return;
     }
 
-    m_channel_scales_uval.at(id) = default_division_uval;
+    m_channel_offset[channel_id] += offset_shift;
 
-    emit vDivisionChanged();
+    emit vOffsetChanged();
+}
+
+qreal VerticalScaleModel::vOffset(ChannelId id) const
+{
+    if (id >= m_channel_offset.size()) {
+        return 0.0;
+    }
+
+    return m_channel_offset[id];
+}
+
+void VerticalScaleModel::reset_channel(ChannelId id)
+{
+    if (id < m_channel_scales_uval.size()) {
+        m_channel_scales_uval[id] = default_division_uval;
+
+        emit vDivisionChanged();
+    }
+
+    if (id < m_channel_offset.size()) {
+        m_channel_offset[id] = 0.0;
+
+        emit vOffsetChanged();
+    }
 }

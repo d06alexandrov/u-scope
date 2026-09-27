@@ -132,6 +132,15 @@ public slots:
 signals:
 
     /**
+     * @brief Assign a channel to a variable in the Data Processor.
+     *
+     * @param reader_id ID of the reader.
+     * @param variable_id ID of the variable.
+     * @param channel_id ID of the channel to be assigned to the variable.
+     */
+    void assign_channel(ReaderId reader_id, VariableId variable_id, ChannelId channel_id);
+
+    /**
      * @brief Enable channel in the Data Processor
      *
      * @param channel_id ID of the channel to be enabled.
@@ -152,6 +161,14 @@ signals:
      * @param scale New vertical scale for the channel.
      */
     void update_channel_vertical_scale(ChannelId channel_id, double scale);
+
+    /**
+     * @brief Update vertical offset of a channel in the Data Processor
+     *
+     * @param channel_id ID of the channel to update.
+     * @param offset_div New vertical offset in divisions for the channel.
+     */
+    void update_channel_vertical_offset(ChannelId channel_id, double offset_div);
 
     /**
      * @brief Start data processing in the Data Processor.

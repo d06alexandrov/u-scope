@@ -126,13 +126,16 @@ void DataProcessor::remove_reader(ReaderId id)
             if (it->first.first == id) {
                 const ChannelId channel_id = it->second;
 
-                const auto buff_it = m_buffers.find(channel_id);
-
-                if (buff_it != m_buffers.end()) {
+                if (const auto buff_it = m_buffers.find(channel_id); buff_it != m_buffers.end()) {
                     m_buffers.erase(buff_it);
                 }
 
-                m_channel_to_var.erase(it->second);
+                m_channel_to_var.erase(channel_id);
+
+                m_channel_enabled[channel_id] = false;
+
+                emit channel_disconnected(channel_id);
+
                 it = m_var_to_channel.erase(it);
             } else {
                 ++it;
@@ -143,9 +146,24 @@ void DataProcessor::remove_reader(ReaderId id)
 
 void DataProcessor::assign_channel(ReaderId reader_id, VariableId variable_id, ChannelId channel_id)
 {
-    auto it = m_channel_to_var.find(channel_id);
+    if (auto it = m_var_to_channel.find({ reader_id, variable_id }); it != m_var_to_channel.end()) {
+        const ChannelId previous_channel_id = it->second;
 
-    if (it != m_channel_to_var.end()) {
+        if (previous_channel_id == channel_id) {
+            // It's already assigned
+            return;
+        }
+
+        if (const auto buff_it = m_buffers.find(previous_channel_id); buff_it != m_buffers.end()) {
+            m_buffers.erase(buff_it);
+        }
+
+        m_channel_to_var.erase(previous_channel_id);
+        m_channel_enabled[previous_channel_id] = false;
+        emit channel_disconnected(previous_channel_id);
+    }
+
+    if (auto it = m_channel_to_var.find(channel_id); it != m_channel_to_var.end()) {
         // TODO: send a command to the reader to stop the data transfer
 
         m_var_to_channel.erase(it->second);
@@ -186,6 +204,11 @@ void DataProcessor::update_channel_vertical_scale(ChannelId channel_id, double s
     if (scale > 0) {
         m_channel_vscale[channel_id] = scale;
     }
+}
+
+void DataProcessor::update_channel_vertical_offset(ChannelId channel_id, double offset_div)
+{
+    m_channel_voffset[channel_id] = offset_div;
 }
 
 void DataProcessor::receive_data(ReaderId reader_id, UniversalReaderBufferMap data)
@@ -382,6 +405,9 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
         auto scale_it = m_channel_vscale.find(channel_id);
         qreal scale = (scale_it != m_channel_vscale.end()) ? scale_it->second : 1.0;
 
+        auto voffset_it = m_channel_voffset.find(channel_id);
+        qreal voffset = (voffset_it != m_channel_voffset.end()) ? voffset_it->second : 0.0;
+
         auto left_it =
                 std::ranges::lower_bound(channel_data, start_time_actual, std::less<>{ }, get_time);
         auto right_it = std::ranges::upper_bound(left_it, channel_data.end(), end_time_actual,
@@ -402,7 +428,8 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
         if (!strict && (left_it != channel_data.begin())) {
             const auto &[timestamp, raw_val] = *std::prev(left_it);
             const auto val =
-                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale;
+                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale
+                    + voffset;
             processed_values.emplace_back(UData::to_double(timestamp - start_time_actual), val);
             if (meta) {
                 processed_meta.push_back({
@@ -419,7 +446,8 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
             for (const auto &[timestamp, raw_val] : std::ranges::subrange(left_it, right_it)) {
                 const auto val =
                         std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val)
-                        * scale;
+                                * scale
+                        + voffset;
 
                 processed_values.emplace_back(UData::to_double(timestamp - start_time_actual), val);
 
@@ -466,7 +494,7 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
 
                 if (amount > 0) {
                     const UData::Time average_time = min_time + (max_time - min_time) / 2;
-                    const qreal average_value = sum / amount * scale;
+                    const qreal average_value = sum / amount * scale + voffset;
 
                     processed_values.emplace_back(
                             UData::to_double(average_time - start_time_actual), average_value);
@@ -487,7 +515,8 @@ DataProcessor::prepare_graph_data(int points_limit, std::optional<UData::Time> s
         if (!strict && (right_it != channel_data.end())) {
             const auto &[timestamp, raw_val] = *right_it;
             const auto val =
-                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale;
+                    std::visit([](auto &&arg) { return static_cast<qreal>(arg); }, raw_val) * scale
+                    + voffset;
             processed_values.emplace_back(UData::to_double(timestamp - start_time_actual), val);
 
             if (meta) {

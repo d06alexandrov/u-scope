@@ -72,6 +72,22 @@ public:
     Q_INVOKABLE void qDialValueUpdate(int channel_id, int dial_value);
 
     /**
+     * @brief Move the vertical offset for a given channel.
+     *
+     * @param channel_id The channel ID for which to move the vertical offset.
+     * @param offset_shift The amount to shift the vertical offset.
+     */
+    Q_INVOKABLE void vOffsetMove(int channel_id, qreal offset_shift);
+
+    /**
+     * @brief Returns the vertical offset for a given channel.
+     *
+     * @param id The channel ID for which to get the vertical offset.
+     * @return The vertical offset in divisions.
+     */
+    [[nodiscard]] Q_INVOKABLE qreal vOffset(ChannelId id) const;
+
+    /**
      * @brief Reset the vertical division of a channel to the default value.
      *
      * @param id The channel ID for which to reset the vertical division.
@@ -92,9 +108,15 @@ signals:
      */
     void vDivisionChanged();
 
+    /**
+     * @brief Signal emitted when the vertical offset changes.
+     */
+    void vOffsetChanged();
+
 protected:
 private slots:
 
 private:
     std::vector<int64_t> m_channel_scales_uval; /**< Vertical scales of channels in 10^-6. */
+    std::vector<double> m_channel_offset; /**< Vertical offset of channels in divisions. */
 };

@@ -132,6 +132,15 @@ public slots:
 signals:
 
     /**
+     * @brief Assign a channel to a variable in the Data Processor.
+     *
+     * @param reader_id ID of the reader.
+     * @param variable_id ID of the variable.
+     * @param channel_id ID of the channel to be assigned to the variable.
+     */
+    void assign_channel(ReaderId reader_id, VariableId variable_id, ChannelId channel_id);
+
+    /**
      * @brief Enable channel in the Data Processor
      *
      * @param channel_id ID of the channel to be enabled.

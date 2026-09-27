@@ -76,11 +76,15 @@ qreal VerticalScaleModel::vOffset(ChannelId id) const
 
 void VerticalScaleModel::reset_channel(ChannelId id)
 {
-    if (id >= m_channel_scales_uval.size()) {
-        return;
+    if (id < m_channel_scales_uval.size()) {
+        m_channel_scales_uval[id] = default_division_uval;
+
+        emit vDivisionChanged();
     }
 
-    m_channel_scales_uval.at(id) = default_division_uval;
+    if (id < m_channel_offset.size()) {
+        m_channel_offset[id] = 0.0;
 
-    emit vDivisionChanged();
+        emit vOffsetChanged();
+    }
 }

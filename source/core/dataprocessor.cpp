@@ -146,9 +146,24 @@ void DataProcessor::remove_reader(ReaderId id)
 
 void DataProcessor::assign_channel(ReaderId reader_id, VariableId variable_id, ChannelId channel_id)
 {
-    auto it = m_channel_to_var.find(channel_id);
+    if (auto it = m_var_to_channel.find({ reader_id, variable_id }); it != m_var_to_channel.end()) {
+        const ChannelId previous_channel_id = it->second;
 
-    if (it != m_channel_to_var.end()) {
+        if (previous_channel_id == channel_id) {
+            // It's already assigned
+            return;
+        }
+
+        if (const auto buff_it = m_buffers.find(previous_channel_id); buff_it != m_buffers.end()) {
+            m_buffers.erase(buff_it);
+        }
+
+        m_channel_to_var.erase(previous_channel_id);
+        m_channel_enabled[previous_channel_id] = false;
+        emit channel_disconnected(previous_channel_id);
+    }
+
+    if (auto it = m_channel_to_var.find(channel_id); it != m_channel_to_var.end()) {
         // TODO: send a command to the reader to stop the data transfer
 
         m_var_to_channel.erase(it->second);

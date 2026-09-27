@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.7.0](https://github.com/d06alexandrov/u-scope/compare/v0.6.0...v0.7.0) (2026-09-27)
+
+
+### Features
+
+* Add vertical position control. ([9b0fd52](https://github.com/d06alexandrov/u-scope/commit/9b0fd5279056e8f497bafe3a3c1974149559da94))
+* **docs:** Add jekyll-sitemap plugin for sitemap generation. ([90c7895](https://github.com/d06alexandrov/u-scope/commit/90c78957d348991fc6cf478d5d94a71fea02040c))
+* **ui:** Add vertical position markers. ([75c8ed0](https://github.com/d06alexandrov/u-scope/commit/75c8ed083b258800d9809e2dcc9532d3810f29ea))
+
+
+### Bug Fixes
+
+* Disconnect the channel when the corresponding source is deleted. ([dba9aaf](https://github.com/d06alexandrov/u-scope/commit/dba9aaff8d4b2b98520c86c03e1086d63b04059d))
+* Disconnect the original channel in case of reassignment. ([1f228b7](https://github.com/d06alexandrov/u-scope/commit/1f228b7f00332b2130563d58d40e109788fc34f5))
+
 ## [0.6.0](https://github.com/d06alexandrov/u-scope/compare/v0.5.0...v0.6.0) (2026-09-13)
 
 

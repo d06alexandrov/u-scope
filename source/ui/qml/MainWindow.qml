@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Dmitriy Alexandrov
+// SPDX-License-Identifier: GPL-3.0-only
+
 import QtQuick.Controls.Fusion // Use Fusion style by default
 import QtQuick
 import QtQuick.Controls

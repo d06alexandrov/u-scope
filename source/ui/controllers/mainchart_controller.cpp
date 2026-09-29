@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Dmitriy Alexandrov
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "mainchart_controller.hpp"
 
 MainChartController::MainChartController(QObject *parent)

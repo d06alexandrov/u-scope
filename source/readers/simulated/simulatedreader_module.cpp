@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Dmitriy Alexandrov
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "reader_registry.hpp"
 #include "simulatedreader_dialog_model.hpp"
 

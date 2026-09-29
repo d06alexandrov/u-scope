@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Dmitriy Alexandrov
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "serialframeparser.hpp"
 
 #include <climits>
@@ -147,7 +150,7 @@ void PacketFrameParser::decode_packet(const QByteArray &packet, UData::Time pack
 }
 
 UData::DataVariant PacketFrameParser::decode_field(const QByteArray &packet,
-                                               const SerialReaderConfig::FieldConfig &field)
+                                                   const SerialReaderConfig::FieldConfig &field)
 {
     const int size = field_size(field.type);
 

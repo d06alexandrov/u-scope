@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Dmitriy Alexandrov
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "appcontroller_singleton.hpp"
 
 void AppControllerForeign::set_controller_instance(AppController *instance)

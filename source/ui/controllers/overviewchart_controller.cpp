@@ -1,3 +1,6 @@
+// Copyright (C) 2026 Dmitriy Alexandrov
+// SPDX-License-Identifier: GPL-3.0-only
+
 #include "overviewchart_controller.hpp"
 
 OverviewChartController::OverviewChartController(QObject *parent)

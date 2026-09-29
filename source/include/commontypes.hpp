@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Dmitriy Alexandrov <d.alexandrov@dalogik.com>
+// SPDX-License-Identifier: GPL-3.0-only
+
 #pragma once
 
 #include "udata_time.hpp"
@@ -19,7 +22,7 @@ overloads(Ts...) -> overloads<Ts...>;
 namespace UData {
 
 using DataVariant = std::variant<char, int32_t, uint32_t,
-                             double>; /**< Data variants provided by universal readers. */
+                                 double>; /**< Data variants provided by universal readers. */
 using Point = QPair<Time, DataVariant>; /**< Combination of the timestamp and the value provided by
                                        universal readers. */
 

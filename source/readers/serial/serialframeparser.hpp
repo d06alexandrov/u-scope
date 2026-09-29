@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Dmitriy Alexandrov <d.alexandrov@dalogik.com>
+// SPDX-License-Identifier: GPL-3.0-only
+
 #pragma once
 
 #include "serialreader.hpp"
@@ -144,8 +147,8 @@ private:
      * @param field The field configuration to use for decoding.
      * @return the decoded field value as a UData::DataVariant.
      */
-    [[nodiscard]] static UData::DataVariant decode_field(const QByteArray &packet,
-                                                     const SerialReaderConfig::FieldConfig &field);
+    [[nodiscard]] static UData::DataVariant
+    decode_field(const QByteArray &packet, const SerialReaderConfig::FieldConfig &field);
 
     /**
      * @brief Get the size of a field type in bytes.

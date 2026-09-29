@@ -1,4 +1,4 @@
-// Copyright (C) 2026 Dmitriy Alexandrov
+// SPDX-FileCopyrightText: 2026 Dmitriy Alexandrov <d.alexandrov@dalogik.com>
 // SPDX-License-Identifier: GPL-3.0-only
 
 #include "dataprocessor.hpp"

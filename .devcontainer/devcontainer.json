@@ -21,8 +21,6 @@
 	"containerEnv": {
 		// Force software rendering for OpenGL (enables GUI without GPU, but can be slow).
 		"LIBGL_ALWAYS_SOFTWARE": "1",
-		// Use XCB platform plugin for Qt.
-		"QT_QPA_PLATFORM": "xcb",
 		// Force Qt to use OpenGL for rendering.
 		"QSG_RHI_BACKEND": "opengl",
 		// Disable MIT-SHM for better X11 forwarding compatibility.
@@ -35,7 +33,7 @@
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
 	// Use 'postCreateCommand' to run commands after the container is created.
-	"postCreateCommand": "mkdir -p /tmp/runtime-root && chmod 700 /tmp/runtime-root"
+	// "postCreateCommand": [],
 	// Configure tool-specific properties.
 	// "customizations": {},
 }

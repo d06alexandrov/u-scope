@@ -1,6 +1,6 @@
-FROM dalogik/qt-docker:qt6.11.0-linux64-gcc AS base-img
+FROM dalogik/qt-docker:qt6.12.0-linux64-gcc AS base-img
 
-LABEL version="0.7"
+LABEL version="0.8"
 
 # Install additional required packages
 RUN apt-get update \

@@ -117,8 +117,8 @@ Item {
         }
 
         Component.onCompleted: {
-            for (var i = 0; i < 12; ++i) {
-                var series = lineSeriesComponent.createObject(root, {
+            for (let i = 0; i < 12; ++i) {
+                let series = lineSeriesComponent.createObject(root, {
                     objectName: "plot_series_" + i,
                     color: (AppController.channelColors.length > i) ? AppController.channelColors[i] : "white",
                     channel_id: i

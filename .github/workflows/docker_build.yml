@@ -7,6 +7,12 @@ on:
     paths: 
       - '.devcontainer/Dockerfile'
       - '.devcontainer/Dockerfile.win'
+  pull_request:
+    branches:
+      - develop
+    paths:
+      - '.devcontainer/Dockerfile'
+      - '.devcontainer/Dockerfile.win'
   workflow_dispatch:
 
 env:
@@ -36,7 +42,7 @@ jobs:
             # If manual trigger, output both files explicitly
             JSON_FILES='[".devcontainer/Dockerfile", ".devcontainer/Dockerfile.win"]'
           else
-            # If push trigger, use the output from the changed-files step
+            # If push or pull_request trigger, use the output from the changed-files step
             JSON_FILES=$(echo "${{ steps.changed-files.outputs.all_changed_files }}" | jq -R -c 'split(" ")')
           fi
           echo "files=$JSON_FILES" >> $GITHUB_OUTPUT
@@ -66,6 +72,7 @@ jobs:
           echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
 
       - name: Login to GHCR
+        if: github.event_name != 'pull_request'
         uses: docker/login-action@v4
         with:
           registry: ${{ env.REGISTRY }}
@@ -73,6 +80,7 @@ jobs:
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Verify Tag is Unique
+        if: github.event_name != 'pull_request'
         run: |
           TAG_URL="${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}"
           if docker manifest inspect $TAG_URL > /dev/null 2>&1; then
@@ -85,6 +93,6 @@ jobs:
         with:
           file: ${{ matrix.dockerfile }}
           target: base-img
-          push: true
+          push: ${{ github.event_name != 'pull_request' }}
           tags: |
             ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ steps.get_version.outputs.VERSION }}

@@ -56,7 +56,7 @@ jobs:
   app-build-windows:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/d06alexandrov/u-scope:0.8-win
+      image: ghcr.io/d06alexandrov/u-scope:0.8b-win
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}

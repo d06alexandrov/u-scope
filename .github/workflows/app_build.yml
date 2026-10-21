@@ -38,12 +38,11 @@ jobs:
           cmake --install build --config Release --prefix $GITHUB_WORKSPACE/u-scope-linux64
 
       - name: Archive Linux Application
-        run: tar -czf u-scope-linux64.tar.gz -C u-scope-linux64 .
+        run: tar -czf u-scope-linux64.tar.gz u-scope-linux64
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: u-scope-linux64
           path: u-scope-linux64.tar.gz
           archive: false
 

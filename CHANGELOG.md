@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.8.0](https://github.com/d06alexandrov/u-scope/compare/v0.7.0...v0.8.0) (2026-10-21)
+
+
+### Features
+
+* Bump Qt to 6.12.0. ([78ff13b](https://github.com/d06alexandrov/u-scope/commit/78ff13b26ccff86ecea99d2148b6756afb4bb280))
+
+
+### Bug Fixes
+
+* **ci:** Archive Linux application using tar to preserve symbolic links. ([673a81f](https://github.com/d06alexandrov/u-scope/commit/673a81f7b1fdaf806b197ffba85856b6c4c29826))
+
 ## [0.7.0](https://github.com/d06alexandrov/u-scope/compare/v0.6.0...v0.7.0) (2026-09-27)
 
 

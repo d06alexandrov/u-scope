@@ -28,7 +28,7 @@ jobs:
 
       - name: Generate Doxygen Documentation
         run: |
-          cmake -B build
+          qt-cmake -B build
           cmake --build build --target doxygen_docs
 
       - name: Upload Doxygen artifacts

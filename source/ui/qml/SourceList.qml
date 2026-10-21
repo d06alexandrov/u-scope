@@ -1,3 +1,6 @@
+// SPDX-FileCopyrightText: 2026 Dmitriy Alexandrov <d.alexandrov@dalogik.com>
+// SPDX-License-Identifier: GPL-3.0-only
+
 pragma ComponentBehavior: Bound
 
 import QtQuick
@@ -16,8 +19,8 @@ TreeView {
 
         width: {
             var maxWidth = 0;
-            for (var i = 0; i < count; ++i) {
-                var item = itemAt(i) as MenuItem;
+            for (let i = 0; i < count; ++i) {
+                let item = itemAt(i) as MenuItem;
                 if (item && item.contentItem) {
                     maxWidth = Math.max(maxWidth, item.contentItem.implicitWidth);
                 }

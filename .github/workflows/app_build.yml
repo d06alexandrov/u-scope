@@ -19,7 +19,7 @@ jobs:
   app-build-linux:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/d06alexandrov/u-scope:0.7
+      image: ghcr.io/d06alexandrov/u-scope:0.8
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -33,15 +33,18 @@ jobs:
 
       - name: Build Linux Application
         run: |
-          cmake -B build -G Ninja
+          qt-cmake -B build -G Ninja
           cmake --build build --config Release --target u-scope
           cmake --install build --config Release --prefix $GITHUB_WORKSPACE/u-scope-linux64
+
+      - name: Archive Linux Application
+        run: tar -czf u-scope-linux64.tar.gz u-scope-linux64
 
       - name: Upload Linux artifacts
         uses: actions/upload-artifact@v7
         with:
-          name: u-scope-linux64
-          path: u-scope-linux64
+          path: u-scope-linux64.tar.gz
+          archive: false
 
       - name: Upload cpp-linter files
         if: ${{ !inputs.skip_linter }}
@@ -56,7 +59,7 @@ jobs:
   app-build-windows:
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/d06alexandrov/u-scope:0.7-win
+      image: ghcr.io/d06alexandrov/u-scope:0.8b-win
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -74,7 +77,7 @@ jobs:
           mkdir -p /tmp/wineprefix
           export WINEPREFIX=/tmp/wineprefix
           # Build
-          cmake -B build -G Ninja
+          qt-cmake -B build -G Ninja
           cmake --build build --config Release --target u-scope
           cmake --install build --config Release --prefix $GITHUB_WORKSPACE/u-scope-win64
 
@@ -89,7 +92,7 @@ jobs:
     if: ${{ !inputs.skip_linter }}
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/d06alexandrov/u-scope:0.7
+      image: ghcr.io/d06alexandrov/u-scope:0.8
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -132,7 +135,7 @@ jobs:
     if: ${{ !inputs.skip_linter }}
     runs-on: ubuntu-latest
     container:
-      image: ghcr.io/d06alexandrov/u-scope:0.7
+      image: ghcr.io/d06alexandrov/u-scope:0.8
       credentials:
         username: ${{ github.actor }}
         password: ${{ secrets.GITHUB_TOKEN }}
@@ -146,5 +149,5 @@ jobs:
 
       - name: Run QML Linter
         run: |
-          cmake -B build -G Ninja
+          qt-cmake -B build -G Ninja
           cmake --build build --config Release --target all_qmllint

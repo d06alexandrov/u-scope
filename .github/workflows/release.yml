@@ -62,8 +62,7 @@ jobs:
       - name: Download Linux Artifacts
         uses: actions/download-artifact@v8
         with:
-          name: u-scope-linux64
-          skip-decompress: true
+          name: u-scope-linux64.tar.gz
           path: release-assets/
 
       - name: Download Windows Artifacts

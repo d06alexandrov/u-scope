@@ -11,4 +11,4 @@ publish_description_as_comment = true
 [pr_code_suggestions]
 
 # Provide inline code suggestions
-commitable_code_suggestions = true
+committable_code_suggestions = true

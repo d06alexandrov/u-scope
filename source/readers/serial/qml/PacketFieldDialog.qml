@@ -1,9 +1,12 @@
+// SPDX-FileCopyrightText: 2026 Dmitriy Alexandrov <d.alexandrov@dalogik.com>
+// SPDX-License-Identifier: GPL-3.0-only
+
 import QtQuick
 import QtQuick.Controls
 import QtQuick.Layouts
 
 Dialog {
-    id: popup
+    id: root
 
     anchors.centerIn: Overlay.overlay
 
@@ -54,12 +57,12 @@ Dialog {
         open();
     }
 
-    readonly property bool fieldFitsPacket: (fieldOffset.value + typeSizes[fieldType.currentText]) <= popup.packetLength
+    readonly property bool fieldFitsPacket: (fieldOffset.value + typeSizes[fieldType.currentText]) <= root.packetLength
 
     footer: DialogButtonBox {
         Button {
             text: qsTr("OK")
-            enabled: (fieldName.text !== "") && popup.fieldFitsPacket
+            enabled: (fieldName.text !== "") && root.fieldFitsPacket
             DialogButtonBox.buttonRole: DialogButtonBox.AcceptRole
         }
         Button {
@@ -69,7 +72,7 @@ Dialog {
     }
 
     onAccepted: {
-        popup.fieldSubmitted(editingVariableId, fieldName.text, fieldOffset.value, fieldType.currentText, fieldEndianness.currentText);
+        root.fieldSubmitted(editingVariableId, fieldName.text, fieldOffset.value, fieldType.currentText, fieldEndianness.currentText);
     }
 
     GridLayout {
@@ -95,7 +98,7 @@ Dialog {
             Layout.fillWidth: true
             editable: true
             from: 0
-            to: Math.max(0, popup.packetLength - 1)
+            to: Math.max(0, root.packetLength - 1)
         }
 
         Label {
@@ -104,23 +107,23 @@ Dialog {
         ComboBox {
             id: fieldType
             Layout.fillWidth: true
-            model: popup.typeNames
+            model: root.typeNames
         }
 
         Label {
             text: qsTr("Endianness")
-            visible: popup.typeSizes[fieldType.currentText] > 1
+            visible: root.typeSizes[fieldType.currentText] > 1
         }
         ComboBox {
             id: fieldEndianness
             Layout.fillWidth: true
-            visible: popup.typeSizes[fieldType.currentText] > 1
+            visible: root.typeSizes[fieldType.currentText] > 1
             model: ["Little", "Big"]
         }
 
         Label {
             Layout.columnSpan: 2
-            visible: !popup.fieldFitsPacket
+            visible: !root.fieldFitsPacket
             color: "red"
             text: qsTr("Field extends past the packet length.")
             wrapMode: Text.WordWrap

@@ -12,3 +12,7 @@ RUN apt-get update \
 RUN usermod -aG sudo ubuntu \
     && echo "ubuntu ALL=(ALL) NOPASSWD:ALL" > /etc/sudoers.d/ubuntu \
     && chmod 0440 /etc/sudoers.d/ubuntu
+
+RUN mkdir -p /tmp/runtime-root \
+    && chown ubuntu:ubuntu /tmp/runtime-root \
+    && chmod 700 /tmp/runtime-root

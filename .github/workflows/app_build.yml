@@ -33,7 +33,7 @@ jobs:
 
       - name: Build Linux Application
         run: |
-          cmake -B build -G Ninja
+          qt-cmake -B build -G Ninja
           cmake --build build --config Release --target u-scope
           cmake --install build --config Release --prefix $GITHUB_WORKSPACE/u-scope-linux64
 
@@ -77,7 +77,7 @@ jobs:
           mkdir -p /tmp/wineprefix
           export WINEPREFIX=/tmp/wineprefix
           # Build
-          cmake -B build -G Ninja
+          qt-cmake -B build -G Ninja
           cmake --build build --config Release --target u-scope
           cmake --install build --config Release --prefix $GITHUB_WORKSPACE/u-scope-win64
 
@@ -149,5 +149,5 @@ jobs:
 
       - name: Run QML Linter
         run: |
-          cmake -B build -G Ninja
+          qt-cmake -B build -G Ninja
           cmake --build build --config Release --target all_qmllint

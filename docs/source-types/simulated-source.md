@@ -2,6 +2,7 @@
 title: Simulated Source
 parent: Source Types
 nav_order: 1
+description: "Generate synthetic test waveforms in U-Scope without external hardware, using constant and sinusoidal forms."
 ---
 
 # Simulated Source

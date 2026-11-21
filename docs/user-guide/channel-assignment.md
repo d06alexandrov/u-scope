@@ -2,6 +2,7 @@
 title: Channel Assignment
 parent: User Guide
 nav_order: 3
+description: "How to map source variables to U-Scope's 12 display channels, and enable, select, or disable channels."
 ---
 
 # Channel Assignment

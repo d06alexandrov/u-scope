@@ -2,6 +2,7 @@
 title: Interface Overview
 parent: User Guide
 nav_order: 1
+description: "An overview of U-Scope's three main panes - Sources, Screen, and Control Panel - and what each one does."
 ---
 
 # Interface Overview

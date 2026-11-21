@@ -2,6 +2,7 @@
 title: System Requirements
 parent: Getting Started
 nav_order: 1
+description: "Supported platforms and build dependencies for U-Scope, including Qt 6.10+, CMake 3.24+, and a C++20 compiler."
 ---
 
 # System Requirements

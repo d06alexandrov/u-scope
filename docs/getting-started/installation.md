@@ -2,6 +2,7 @@
 title: Installation
 parent: Getting Started
 nav_order: 2
+description: "Install U-Scope on Windows or Linux from a prebuilt release, or build it from source using CMake and Qt 6.10+."
 ---
 
 # Installation

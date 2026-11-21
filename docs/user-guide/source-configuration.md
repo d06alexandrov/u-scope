@@ -2,6 +2,7 @@
 title: Source Configuration
 parent: User Guide
 nav_order: 2
+description: "How to add and remove data sources in U-Scope, including the Simulated and Serial Port source types."
 ---
 
 # Source Configuration

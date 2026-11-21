@@ -3,6 +3,7 @@ title: Source Types
 nav_order: 4
 has_children: true
 permalink: /source-types/
+description: "U-Scope's data source types: a Simulated waveform generator and a Serial Port reader for real hardware."
 ---
 
 # Source Types

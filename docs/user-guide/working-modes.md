@@ -2,6 +2,7 @@
 title: Working Modes
 parent: User Guide
 nav_order: 4
+description: "U-Scope's two working modes: continuous Roll Mode for live data and Stopped Mode for analyzing captured history."
 ---
 
 # Working Modes

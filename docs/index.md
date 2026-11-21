@@ -1,14 +1,15 @@
 ---
-title: Home
+title: Oscilloscope-Style Streaming Data Visualizer
 layout: home
 nav_order: 1
-description: "U-Scope documentation: an oscilloscope-style streaming data visualizer built with Qt."
+description: "U-Scope is an open-source, oscilloscope-style streaming data visualizer built with Qt. Visualize real-time waveforms from serial ports across up to 12 channels."
+image: /assets/images/app_overview.png
 permalink: /
 ---
 
 # U-Scope
 
-U-Scope is a streaming data visualizer with an oscilloscope-style interface. It reads data from configurable sources - simulated waveforms, serial ports, and others - and displays it across up to 12 channels with independent vertical scaling.
+U-Scope is a real-time, oscilloscope-style streaming data visualizer built with Qt. It reads waveform data from configurable sources - serial ports and others - and displays it across up to 12 channels with independent vertical scaling.
 
 ![Application overview]({{ '/assets/images/app_overview.png' | relative_url }})
 

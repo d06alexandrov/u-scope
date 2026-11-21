@@ -2,6 +2,7 @@
 title: Scale Controls
 parent: User Guide
 nav_order: 5
+description: "How to use U-Scope's horizontal and vertical scale dials to zoom into captured waveform data per channel."
 ---
 
 # Scale Controls

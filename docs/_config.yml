@@ -7,7 +7,15 @@ url: "https://u-scope.dalogik.com"
 
 plugins:
   - jekyll-sitemap
+  - jekyll-remote-theme
+  - jekyll-seo-tag
 
 aux_links:
   "GitHub":
     - "https://github.com/d06alexandrov/u-scope"
+
+defaults:
+  - scope:
+      path: ""
+    values:
+      layout: default

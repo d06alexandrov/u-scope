@@ -2,6 +2,7 @@
 title: Serial Port Source
 parent: Source Types
 nav_order: 2
+description: "Read raw serial port data in U-Scope using Single Byte or Packet formats, decoded into numeric channels."
 ---
 
 # Serial Port Source

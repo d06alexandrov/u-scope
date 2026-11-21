@@ -3,6 +3,7 @@ title: User Guide
 nav_order: 3
 has_children: true
 permalink: /user-guide/
+description: "How to use the U-Scope interface: configuring data sources, assigning channels, switching working modes, and scaling the display."
 ---
 
 # User Guide

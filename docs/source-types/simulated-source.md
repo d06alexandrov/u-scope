@@ -2,6 +2,7 @@
 title: Simulated Source
 parent: Source Types
 nav_order: 1
+description: "Generate synthetic test waveforms in U-Scope without external hardware, using constant and sinusoidal forms."
 ---
 
 # Simulated Source
@@ -17,6 +18,8 @@ The Simulated source generates synthetic waveforms without any external hardware
 5. Click **OK** to create the source.
 
 Each form can be edited or deleted from the list before confirming.
+
+![Simulated Reader Configuration dialog with a Sinusoidal Wave form]({{ '/assets/images/source_configuration_simulated.png' | relative_url }})
 
 ## Form types
 

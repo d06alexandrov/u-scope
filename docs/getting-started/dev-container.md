@@ -2,6 +2,7 @@
 title: Development Container
 parent: Getting Started
 nav_order: 3
+description: "Set up U-Scope's VS Code dev container for a consistent Linux build environment with Qt, CMake, and linting tools preinstalled."
 ---
 
 # Development Container
@@ -34,6 +35,6 @@ CMake Tools also drives debugging, target selection, and test execution from the
 
 ## Notes
 
-- The container sets `LIBGL_ALWAYS_SOFTWARE=1` and `QT_QPA_PLATFORM=xcb` so the Qt Quick UI renders without requiring GPU passthrough - useful for remote or headless dev setups, though slower than hardware-accelerated rendering.
+- The container sets `LIBGL_ALWAYS_SOFTWARE=1` and `QSG_RHI_BACKEND=opengl` so the Qt Quick UI renders via software OpenGL without requiring GPU passthrough - useful for remote or headless dev setups, though slower than hardware-accelerated rendering. `QT_X11_NO_MITSHM=1` and `XDG_RUNTIME_DIR` are also set for X11 forwarding compatibility.
 - The default user is `ubuntu`, with passwordless `sudo` enabled inside the container.
 - Recommended VS Code extensions are installed automatically via `devcontainer.json`.

@@ -2,6 +2,7 @@
 title: Serial Port Source
 parent: Source Types
 nav_order: 2
+description: "Read raw serial port data in U-Scope using Single Byte or Packet formats, decoded into numeric channels."
 ---
 
 # Serial Port Source
@@ -16,6 +17,8 @@ The Serial Port source reads raw bytes from a connected serial device and decode
 4. Configure the **port settings** (data bits, parity, stop bits, flow control) to match your device.
 5. Choose a **Data format** - Single Byte or Packet - and configure its options (see below).
 6. Click **OK** to create the source.
+
+![Serial Port Configuration dialog with Single Byte data format]({{ '/assets/images/source_configuration_serial.png' | relative_url }})
 
 ## Data formats
 

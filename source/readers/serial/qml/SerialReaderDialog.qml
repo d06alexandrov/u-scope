@@ -16,7 +16,7 @@ ReaderDialog {
     title: qsTr("Serial Port Configuration")
     modal: true
     width: 420
-    height: 480
+    height: 600
 
     property SerialReaderDialogModel sessionModel: SerialReaderDialogModel {}
 
@@ -358,6 +358,7 @@ ReaderDialog {
 
                         Layout.fillWidth: true
                         Layout.fillHeight: true
+                        Layout.minimumHeight: 60
                         clip: true
                         model: root.sessionModel.fields
 

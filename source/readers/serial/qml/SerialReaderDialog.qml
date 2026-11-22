@@ -358,7 +358,7 @@ ReaderDialog {
 
                         Layout.fillWidth: true
                         Layout.fillHeight: true
-                        Layout.minimumHeight: 100
+                        Layout.minimumHeight: 60
                         clip: true
                         model: root.sessionModel.fields
 

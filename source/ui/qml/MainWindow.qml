@@ -15,6 +15,7 @@ ApplicationWindow {
 
     width: 1200
     height: 600
+    minimumHeight: 600
     visible: true
 
     menuBar: MenuBar {

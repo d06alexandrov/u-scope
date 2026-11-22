@@ -19,6 +19,8 @@ The Simulated source generates synthetic waveforms without any external hardware
 
 Each form can be edited or deleted from the list before confirming.
 
+![Simulated Reader Configuration dialog with a Sinusoidal Wave form]({{ '/assets/images/source_configuration_simulated.png' | relative_url }})
+
 ## Form types
 
 ### Constant Value

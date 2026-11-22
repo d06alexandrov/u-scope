@@ -18,6 +18,8 @@ The Serial Port source reads raw bytes from a connected serial device and decode
 5. Choose a **Data format** - Single Byte or Packet - and configure its options (see below).
 6. Click **OK** to create the source.
 
+![Serial Port Configuration dialog with Single Byte data format]({{ '/assets/images/source_configuration_serial.png' | relative_url }})
+
 ## Data formats
 
 ### Single Byte

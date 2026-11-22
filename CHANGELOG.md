@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.1](https://github.com/d06alexandrov/u-scope/compare/v0.8.0...v0.8.1) (2026-11-22)
+
+
+### Bug Fixes
+
+* Optimize build configuration for Linux and Windows applications. ([3af5fa0](https://github.com/d06alexandrov/u-scope/commit/3af5fa0064babf774e9b0bf339928f9ae3f939b3))
+* **ui:** Fix shrinking field list in serial port configuration dialog. ([c8d88cd](https://github.com/d06alexandrov/u-scope/commit/c8d88cd4e83e31747884edf0fc525408ade8cb46))
+
 ## [0.8.0](https://github.com/d06alexandrov/u-scope/compare/v0.7.0...v0.8.0) (2026-10-21)
 
 
